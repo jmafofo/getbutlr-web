@@ -1,6 +1,3 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/page": "app/page.js",
-  "/api/chatbot/route": "app/api/chatbot/route.js",
-  "/api/subscription/route": "app/api/subscription/route.js"
+  "/page": "app/page.js"
 }
