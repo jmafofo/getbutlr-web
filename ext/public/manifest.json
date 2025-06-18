@@ -1,2 +1,4 @@
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+
+lib/ChatWidget.tsxlib/keywordUtils.tslib/openaiClient.tslib/supabaseClient.ts

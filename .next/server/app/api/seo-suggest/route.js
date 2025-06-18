@@ -1,0 +1,10 @@
+"use strict";(()=>{var e={};e.id=344,e.ids=[344],e.modules={399:e=>{e.exports=require("next/dist/compiled/next-server/app-page.runtime.prod.js")},517:e=>{e.exports=require("next/dist/compiled/next-server/app-route.runtime.prod.js")},2022:(e,t,o)=>{o.r(t),o.d(t,{originalPathname:()=>O,patchFetch:()=>m,requestAsyncStorage:()=>c,routeModule:()=>d,serverHooks:()=>g,staticGenerationAsyncStorage:()=>l});var r={};o.r(r),o.d(r,{POST:()=>p});var n=o(9303),s=o(8716),i=o(670),a=o(7070);(function(){var e=Error("Cannot find module 'openai'");throw e.code="MODULE_NOT_FOUND",e})(),function(){var e=Error("Cannot find module '@/lib/keywordUtils'");throw e.code="MODULE_NOT_FOUND",e}();let u=Object(function(){var e=Error("Cannot find module 'openai'");throw e.code="MODULE_NOT_FOUND",e}())({apiKey:process.env.OPENAI_API_KEY});async function p(e){let{title:t,description:o}=await e.json(),r=await Object(function(){var e=Error("Cannot find module '@/lib/keywordUtils'");throw e.code="MODULE_NOT_FOUND",e}())(t),n=`
+You are a YouTube SEO assistant. Optimize the title and description based on trending YouTube keywords:
+Trending: ${r.join(", ")}
+
+Title: ${t}
+Description: ${o}
+
+Respond JSON:
+{"title": "...", "description": "...", "tags": ["t1","t2",...]}
+`,s=JSON.parse((await u.chat.completions.create({model:"gpt-4",messages:[{role:"user",content:n}],temperature:.5})).choices[0].message.content);return a.NextResponse.json(s)}let d=new n.AppRouteRouteModule({definition:{kind:s.x.APP_ROUTE,page:"/api/seo-suggest/route",pathname:"/api/seo-suggest",filename:"route",bundlePath:"app/api/seo-suggest/route"},resolvedPagePath:"/Users/josephmafofo/bin/getbutlr-web/app/api/seo-suggest/route.ts",nextConfigOutput:"",userland:r}),{requestAsyncStorage:c,staticGenerationAsyncStorage:l,serverHooks:g}=d,O="/api/seo-suggest/route";function m(){return(0,i.patchFetch)({serverHooks:g,staticGenerationAsyncStorage:l})}}};var t=require("../../../webpack-runtime.js");t.C(e);var o=e=>t(t.s=e),r=t.X(0,[276,972],()=>o(2022));module.exports=r})();
