@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '../../lib/supabaseClient';
 
 export default function WatchlistPage() {
   const [keyword, setKeyword] = useState('');
@@ -9,11 +9,20 @@ export default function WatchlistPage() {
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    const session = supabase.auth.session();
-    setUser(session?.user);
-    session?.user && fetchList(session.user.id);
+    async function fetchSession() {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Error getting session:', error);
+        return;
+      }
+      setUser(session?.user);
+      if (session?.user) {
+        fetchList(session.user.id);
+      }
+    }
+    fetchSession();
   }, []);
-
+  
   async function fetchList(uid: string) {
     const res = await fetch(`/api/watchlist?user_id=${uid}`);
     const { watches } = await res.json();
@@ -43,6 +52,7 @@ export default function WatchlistPage() {
           {loading ? 'Adding…' : 'Watch'}
         </button>
       </div>
+      
       <ul className="space-y-2">
         {list.map(w => (
           <li key={w.id} className="flex justify-between">

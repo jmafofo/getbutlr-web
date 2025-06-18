@@ -2,7 +2,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '../lib/supabaseClient';
 
 export default function LandingPage() {
   const [userProfile, setUserProfile] = useState<any>();
@@ -10,15 +10,23 @@ export default function LandingPage() {
   const [suggestions, setSuggestions] = useState<any>();
 
   useEffect(() => {
-    const session = supabase.auth.session();
-    const user = session?.user;
-    if (!user) return;
-    supabase.from('creator_profiles')
-      .select('*')
-      .eq('user_id', user.id)
-      .single()
-      .then(({ data }) => setUserProfile(data));
+    async function fetchProfile() {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session) return;
+  
+      const user = session.user;
+      const { data, error: profileError } = await supabase
+        .from('creator_profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+  
+      if (!profileError) setUserProfile(data);
+    }
+  
+    fetchProfile();
   }, []);
+  
 
   async function analyze() {
     if (!userProfile) return;

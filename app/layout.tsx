@@ -1,8 +1,8 @@
 'use client'; // ensure BillingBanner and ChatWidget run client-side
 
 import { useState, useEffect, PropsWithChildren } from 'react';
-import { supabase } from '@/lib/supabaseClient';
-import ChatWidget from '@/lib/ChatWidget';
+// import { supabase } from '@/lib/supabaseClient';
+import ChatWidget from '../lib/ChatWidget';
 
 function BillingBanner() {
   const [sub, setSub] = useState<any>(null);

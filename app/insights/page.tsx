@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { generateInsights } from "@/lib/openaiClient";
+import { supabase } from "../../lib/supabaseClient";
+import { generateInsights } from "../../lib/openaiClient";
 
 export default function InsightsPage() {
   const [query, setQuery] = useState("");

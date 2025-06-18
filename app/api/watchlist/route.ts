@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   const { user_id, keyword } = await req.json();
   const { data, error } = await supabase
     .from('watchlists')
-    .upsert({ user_id, keyword }, { onConflict: ['user_id', 'keyword'] })
+    .upsert({ user_id, keyword }, { onConflict: 'user_id,keyword' }) 
     .select();
   if (error) return NextResponse.error();
   return NextResponse.json({ watch: data?.[0] });
