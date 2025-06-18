@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Ignore Supabase local environment and build artifacts
+.supabase/
+supabase/.env
+supabase/.env.local
+
