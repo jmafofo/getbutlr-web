@@ -3,7 +3,6 @@
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
-  "rootDirectory": "app"
+  "cleanUrls": true
 }
-
 
