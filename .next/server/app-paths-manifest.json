@@ -1,18 +1,3 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/api/insights/route": "app/api/insights/route.js",
-  "/ab-testing/page": "app/ab-testing/page.js",
-  "/api/chatbot/route": "app/api/chatbot/route.js",
-  "/api/thumbnail-score/route": "app/api/thumbnail-score/route.js",
-  "/insights/page": "app/insights/page.js",
-  "/api/analyze-title/route": "app/api/analyze-title/route.js",
-  "/api/subscription/route": "app/api/subscription/route.js",
-  "/api/ab-test/route": "app/api/ab-test/route.js",
-  "/api/track-performance/route": "app/api/track-performance/route.js",
-  "/subscription/page": "app/subscription/page.js",
-  "/api/watchlist/route": "app/api/watchlist/route.js",
-  "/api/seo-suggest/route": "app/api/seo-suggest/route.js",
-  "/page": "app/page.js",
-  "/thumbnail-score/page": "app/thumbnail-score/page.js",
-  "/watchlist/page": "app/watchlist/page.js"
+  "/page": "app/page.js"
 }

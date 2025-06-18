@@ -1,4 +1,4 @@
-// File: /Users/josephmafofo/bin/getbutlr-web/app/page.tsx
+// File: /Users/lawrencekristoffersevilla/Scripts/getbutlr-web/app/page.tsx
 import * as entry from '../../../app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

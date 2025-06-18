@@ -1,4 +1,4 @@
-// File: /Users/josephmafofo/bin/getbutlr-web/app/api/subscription/route.ts
+// File: /Users/lawrencekristoffersevilla/Scripts/getbutlr-web/app/api/subscription/route.ts
 import * as entry from '../../../../../app/api/subscription/route.js'
 import type { NextRequest } from 'next/server.js'
 

@@ -1,4 +1,4 @@
-// File: /Users/josephmafofo/bin/getbutlr-web/app/api/chatbot/route.ts
+// File: /Users/lawrencekristoffersevilla/Scripts/getbutlr-web/app/api/chatbot/route.ts
 import * as entry from '../../../../../app/api/chatbot/route.js'
 import type { NextRequest } from 'next/server.js'
 
