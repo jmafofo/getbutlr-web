@@ -32,4 +32,3 @@ export async function getTrendingKeywords(seed: string): Promise<string[]> {
     return list.map((t: { title: string }) => t.title);
   }
 }
-

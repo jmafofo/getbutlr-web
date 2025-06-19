@@ -26,7 +26,8 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "target": "ES2017"
   },
   "include": [
     "next-env.d.ts",
@@ -35,5 +36,9 @@
     "**/*.js",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules", ".next", "supabase/functions"]
+  "exclude": [
+    "node_modules",
+    ".next",
+    "supabase/functions"
+  ]
 }

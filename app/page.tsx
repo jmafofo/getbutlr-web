@@ -43,80 +43,88 @@ export default function LandingPage() {
   }
 
   return (
-    <main className="p-8 space-y-8">
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-4xl font-bold"
-      >
-        GetButlr: AI-Powered Title Assistant
-      </motion.h1>
-
-      <AnimatePresence mode="wait">
-      {!userProfile ? (
-        <motion.a
-          key="quiz-cta"
-          href="/quiz"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          whileHover={{ scale: 1.05 }}
-          className="btn-primary px-6 py-3 bg-green-600 text-white rounded"
-        >
-          Start Quiz
-        </motion.a>
-      ) : (
-        <motion.div
-          key="analyzer"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="space-y-4"
-        >
-          <input
-            type="text"
-            placeholder="Type your video title idea..."
-            className="border p-3 w-full"
-            value={titleInput}
-            onChange={e => setTitleInput(e.target.value)}
-          />
-          <motion.button
-            onClick={analyze}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="btn-primary px-6 py-3 bg-blue-600 text-white rounded"
-          >
-            Analyze Title
-          </motion.button>
-        </motion.div>
-      )}
-      </AnimatePresence>
-
-      {suggestions && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 text-white">
+        <div className="max-w-5xl mx-auto px-6 pt-40 pb-12 text-center">
+        <motion.h1
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-gray-100 p-4 rounded space-y-4"
+          transition={{ duration: 0.5 }}
+          className="text-5xl font-extrabold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent"
         >
-          <h2 className="text-2xl font-semibold">Title Suggestions</h2>
-          <ul className="list-disc ml-4">
-            {suggestions.generated_titles.map((t: string, i: number) => (
-              <li key={i}>{t}</li>
-            ))}
-          </ul>
-          <h3 className="font-medium">Trending Examples:</h3>
-          <ul className="list-disc ml-4">
-            {suggestions.trend_stats.map((v: any, i: number) => (
-              <li key={i}>
-                “{v.title}” – {v.views} views, {v.likes} likes
-              </li>
-            ))}
-          </ul>
+          GetButlr: AI-Powered Title Assistant
+        </motion.h1>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2 }}
+          className="mt-10 space-y-4 max-w-md mx-auto"
+        >       
+        <AnimatePresence mode="wait">
+        {!userProfile ? (
+          <motion.a
+            key="quiz-cta"
+            href="/quiz"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            whileHover={{ scale: 1.05 }}
+            className="w-full p-3 rounded bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-bold"
+          >
+            Start Quiz
+          </motion.a>
+        ) : (
+          <motion.div
+            key="analyzer"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="space-y-4"
+          >
+            <input
+              type="text"
+              placeholder="Type your video title idea..."
+              className="border p-3 w-full"
+              value={titleInput}
+              onChange={e => setTitleInput(e.target.value)}
+            />
+            <motion.button
+              onClick={analyze}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="btn-primary px-6 py-3 bg-blue-600 text-white rounded"
+            >
+              Analyze Title
+            </motion.button>
+          </motion.div>
+        )}
+        </AnimatePresence>
         </motion.div>
-      )}
-    </main>
+        {suggestions && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-gray-100 p-4 rounded space-y-4"
+          >
+            <h2 className="text-2xl font-semibold">Title Suggestions</h2>
+            <ul className="list-disc ml-4">
+              {suggestions.generated_titles.map((t: string, i: number) => (
+                <li key={i}>{t}</li>
+              ))}
+            </ul>
+            <h3 className="font-medium">Trending Examples:</h3>
+            <ul className="list-disc ml-4">
+              {suggestions.trend_stats.map((v: any, i: number) => (
+                <li key={i}>
+                  “{v.title}” – {v.views} views, {v.likes} likes
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
+        
+        </div>
+      </div>
   );
 }
 

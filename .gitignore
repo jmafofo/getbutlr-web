@@ -45,3 +45,5 @@ next-env.d.ts
 supabase/.env
 supabase/.env.local
 
+package-lock.json
+.vscode/
