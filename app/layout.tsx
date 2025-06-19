@@ -4,6 +4,7 @@ import ChatWidget from '../lib/ChatWidget';
 import BillingBanner from "../app/components/BillingBanner";
 import TopBarWrapper from "@/app/components/TopBarWrapper";
 import SidebarWrapper from "@/app/components/SidebarWrapper";
+import Footer from "@/app/components/Footer";
 import "./globals.css"
 
 const geistSans = Geist({
@@ -38,6 +39,7 @@ export default function RootLayout({
           <BillingBanner />
           <main className="flex-1 p-6 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 overflow-auto">
             {children}
+            <Footer/>
           </main>
           <ChatWidget />
         </div>

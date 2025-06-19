@@ -27,7 +27,6 @@ export default function LandingPage() {
     fetchProfile();
   }, []);
   
-
   async function analyze() {
     if (!userProfile) return;
     const res = await fetch('/api/analyze-title', {
@@ -49,9 +48,17 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-5xl font-extrabold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent"
+          className="text-6xl font-extrabold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent"
         >
-          GetButlr: AI-Powered Title Assistant
+          GetButlr
+        </motion.h1>
+        <motion.h1
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-2xl font-extrabold bg-gradient-to-r from-cyan-100 to-purple-500 bg-clip-text text-transparent"
+        >
+          AI-Powered Creator Growth Suite 
         </motion.h1>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -61,17 +68,52 @@ export default function LandingPage() {
         >       
         <AnimatePresence mode="wait">
         {!userProfile ? (
-          <motion.a
-            key="quiz-cta"
-            href="/quiz"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            whileHover={{ scale: 1.05 }}
-            className="w-full p-3 rounded bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-bold"
-          >
-            Start Quiz
-          </motion.a>
+           <>
+           <motion.a
+             key="quiz-cta-1"
+             href="/quiz"
+             initial={{ opacity: 0, backgroundPosition: "0% 50%" }}
+             animate={{ opacity: 1 }}
+             exit={{ opacity: 0 }}
+             whileHover={{
+               scale: 1.05,
+               backgroundPosition: "100% 50%",  // move gradient horizontally on hover
+               boxShadow: "0 0 8px rgba(129, 140, 248, 0.8)",
+             }}
+             transition={{
+               type: "spring",
+               stiffness: 300,
+               damping: 20,
+               backgroundPosition: { duration: 1, ease: "easeInOut" },
+             }}
+             className="w-full p-3 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 bg-[length:200%_200%] text-white font-bold"
+           >
+             Start your journey
+           </motion.a>
+         
+           <motion.a
+             key="quiz-cta-2"
+             href="/signin"
+             initial={{ opacity: 0, backgroundPosition: "0% 50%" }}
+             animate={{ opacity: 1 }}
+             exit={{ opacity: 0 }}
+             whileHover={{
+               scale: 1.05,
+               backgroundPosition: "100% 50%",
+               boxShadow: "0 0 8px rgba(129, 140, 248, 0.8)",
+             }}
+             transition={{
+               type: "spring",
+               stiffness: 300,
+               damping: 20,
+               backgroundPosition: { duration: 1, ease: "easeInOut" },
+             }}
+             className="w-full p-3 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 bg-[length:200%_200%] text-white font-bold mt-4 ml-5"
+           >
+             Login
+           </motion.a>
+         </>
+                
         ) : (
           <motion.div
             key="analyzer"

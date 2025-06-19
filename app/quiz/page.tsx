@@ -2,135 +2,118 @@
 /* eslint-disable react/no-unescaped-entities */
 'use client'
 
-import { useState, useEffect } from "react"
-import { createClient, User } from "@supabase/supabase-js"
+import { useState } from "react"
 import { Input } from "../components/ui/Input"
 import { Button } from "../components/ui/Button"
 import { Card, CardContent } from "../components/ui/Card"
-// import { Textarea } from "@/components/ui/Textarea"
+import { motion, AnimatePresence } from "framer-motion"
+import { generateInsights } from "@/lib/openaiClient";
 
 interface QuizAnswers {
-  q1: string
-  q2: string
-  q3: string
+  [key: string]: string
 }
 
-interface Results {
-  titles: string[]
-  hashtags: string[]
-  thumbnail: {
-    suggested_text: string
-    visual_hook: string
-    emotion: string
-  }
+function formatGrowthPlan(plan: string): string {
+  // Convert markdown to HTML with proper styling
+  let html = plan
+    // Headers
+    .replace(/^## (.*$)/gm, '<h3 class="text-xl font-semibold text-cyan-300 mb-1">$1</h3>')
+    .replace(/^# (.*$)/gm, '<h2 class="text-2xl font-bold text-purple-400 mb-1">$1</h2>')
+    // Bold text
+    .replace(/\*\*(.*?)\*\*/g, '<span class="font-medium text-yellow-300">$1</span>')
+    // Italics
+    .replace(/\*(.*?)\*/g, '<em class="text-cyan-200">$1</em>')    
+    // Lists
+    .replace(/^\* (.*$)/gm, '<li class="ml-5">$1</li>')
+    .replace(/^\- (.*$)/gm, '<li class="ml-5">$1</li>')
+    .replace(/(<li>.*<\/li>)/gs, '<ul class="list-disc pl-5 space-y-2 marker:text-cyan-400">$1</ul>')
+    // Phase sections
+    .replace(/^Phase (\d+): (.*?) \((.*?)\)/gm, 
+      '<div class="phase-section p-5 bg-slate-900/50 rounded-lg border-l-4 border-$3-400 mt-2">' +
+      '<h4 class="text-lg font-semibold text-$3-300 mb-2">Phase $1: $2</h4>')    
+    // Action items
+    .replace(/^\* \*\*(.*?)\*\*:/gm, '<p class="action-item font-medium text-yellow-200">$1:</p>')
+    // Add line breaks
+    .replace(/\n/g, '<br/>');
+  // Close phase sections
+  html = html.replace(/Phase \d+:/g, '</div>$&');
+  return html;
 }
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
+async function generateGrowthPlanWithAI(answers: QuizAnswers): Promise<string> {
+  const formatted = Object.entries(answers)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join("\n");
+  
+  const res = await fetch("/api/growth-plan", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      query: `Generate a personalized growth plan in markdown format with these sections:
+              ## Overall Impression
+              ## Phase 1: Foundations (Weeks 1-4)
+              ## Phase 2: Refinement (Weeks 5-8) 
+              ## Phase 3: Growth (Week 9+)
+              Include action items with *bold* labels.
+              Based on these responses:
+              ${formatted}`,
+      tone: "motivational"
+    })
+  });
+
+  const data = await res.json();
+  return data.plan || "## Could not generate plan\nWe couldn't generate a plan at this time. Please try again later.";
+}
 
 export default function ButlrApp() {
-//   const [videoTopic, setVideoTopic] = useState<string>("")
-//   const [platform, setPlatform] = useState<string>("YouTube")
-//   const [style, setStyle] = useState<string>("epic")
-  const [results, setResults] = useState<Results | null>(null)
-  const [loading, setLoading] = useState<boolean>(false)
-  const [user, setUser] = useState<User | null>(null)
-  const [email, setEmail] = useState<string>("")
-  const [password, setPassword] = useState<string>("")
   const [showQuiz, setShowQuiz] = useState<boolean>(true)
-  const [quizAnswers, setQuizAnswers] = useState<QuizAnswers>({ q1: "", q2: "", q3: "" })
+  const [quizAnswers, setQuizAnswers] = useState<QuizAnswers>({})
   const [growthPlan, setGrowthPlan] = useState<string>("")
+  const [currentStep, setCurrentStep] = useState<number>(0)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [showAuthPrompt, setShowAuthPrompt] = useState<boolean>(false)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false) // You'll need to implement actual auth logic
 
-  useEffect(() => {
-    const fetchUserAndQuiz = async () => {
-      const { data } = await supabase.auth.getUser()
-      setUser(data?.user || null)
-      if (data?.user) {
-        const { data: quizData } = await supabase
-          .from("creator_profiles")
-          .select("quiz_q1, quiz_q2, quiz_q3, growth_plan")
-          .eq("user_id", data.user.id)
-          .single()
-        if (quizData) {
-          setQuizAnswers({
-            q1: quizData.quiz_q1 || "",
-            q2: quizData.quiz_q2 || "",
-            q3: quizData.quiz_q3 || ""
-          })
-          setGrowthPlan(quizData.growth_plan)
-          setShowQuiz(false)
-        }
-      }
-    }
-    fetchUserAndQuiz()
-  }, [])
-
-  const handleGenerate = async () => {
-    if (!user) return alert("Please log in to use Butlr's content tools.")
-    setLoading(true)
-    const mockResponse: Results = {
-      titles: [
-        "Bonito vs Ultralight Gear – Deep Sea Chaos!",
-        "Microrod, Monster Fish – You Won’t Believe It",
-        "Ultralight Madness: Bonito Battle Offshore!"
-      ],
-      hashtags: [
-        "#ultralightfishing",
-        "#bonitofishing",
-        "#deepseafishing",
-        "#saltwaterlife",
-        "#pennreels"
-      ],
-      thumbnail: {
-        suggested_text: "ULTRA vs MONSTER",
-        visual_hook: "Bent rod + fish splash at boat-side",
-        emotion: "Shock and awe; ocean blue and red highlights"
-      }
-    }
-    setTimeout(() => {
-      setResults(mockResponse)
-      setLoading(false)
-    }, 1000)
-  }
-
-  const handleLogin = async () => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) return alert(error.message)
-    setUser(data.user)
-  }
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-  }
+  const quizSteps = [
+    { key: "q1", question: "How would you rate your current creative confidence?", options: ["High", "Moderate", "Low"] },
+    { key: "q2", question: "How often do you create new content?", options: ["Daily", "Weekly", "Rarely"] },
+    { key: "q3", question: "Do you feel you have a unique voice as a creator?", options: ["Yes", "Sometimes", "No"] },
+    { key: "q4", question: "What type of content do you primarily create?", options: ["Video", "Photo", "Written", "Audio", "Mixed"] },
+    { key: "q5", question: "Which platforms do you focus on the most?", options: ["YouTube", "Instagram", "TikTok", "X / Twitter", "Podcast", "Blog", "Other"] },
+    { key: "q6", question: "What's your main goal as a creator?", options: ["Monetize", "Grow audience", "Express myself", "Promote business", "Learn and experiment"] },
+    { key: "q7", question: "How comfortable are you with using AI tools?", options: ["Very comfortable", "Somewhat familiar", "New to AI tools"] },
+    { key: "q8", question: "What's your biggest struggle right now?", options: ["Consistency", "Ideas", "Engagement", "Time", "Tools & Workflow"] },
+    { key: "q9", question: "How much time per week do you dedicate to content creation?", options: ["<1 hour", "1–3 hours", "4–7 hours", "8+ hours"] },
+    { key: "q10", question: "Would you be open to receiving content suggestions or automation help?", options: ["Yes", "Maybe", "No"] }
+  ]
 
   const handleQuizSubmit = async () => {
-    const { q1, q2, q3 } = quizAnswers
-    let plan = ""
-
-    if (q1 === "Low" || q2 === "Rarely" || q3 === "No") {
-      plan = "🧠 1-week creative mindset reboot: Daily short-form content exercises, watch top trending creators for 15 mins/day, and journal 1 idea per night."
-    } else {
-      plan = "🚀 4-week growth accelerator: Weekly upload plan, AI workflow integration, audience engagement checklist, and title testing."
-    }
-    setGrowthPlan(plan)
+    setLoading(true)
     setShowQuiz(false)
+    const plan = await generateGrowthPlanWithAI(quizAnswers)
+    setGrowthPlan(plan)
+    setLoading(false)
+    setShowAuthPrompt(true) // Show auth prompt after generating the plan
+  }
 
-    if (user) {
-      await supabase.from("creator_profiles").upsert({
-        user_id: user.id,
-        quiz_q1: q1,
-        quiz_q2: q2,
-        quiz_q3: q3,
-        growth_plan: plan
-      }, { onConflict: "user_id" })
+  const handleAnswer = (value: string) => {
+    const key = quizSteps[currentStep].key
+    setQuizAnswers((prev) => ({ ...prev, [key]: value }))
+
+    if (currentStep < quizSteps.length - 1) {
+      setTimeout(() => setCurrentStep(currentStep + 1), 300)
+    } else {
+      handleQuizSubmit()
     }
+  }
+
+  const handleAuthSuccess = () => {
+    setIsAuthenticated(true)
+    setShowAuthPrompt(false)
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 text-white p-6">
-      {/* Header */}
       <div className="max-w-4xl mx-auto text-center mb-8">
         <h1 className="text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500">
           Butlr
@@ -140,57 +123,99 @@ export default function ButlrApp() {
         </p>
       </div>
 
-      {/* Auth Section or Quiz */}
-      {!user ? (
-        <Card className="mb-6 bg-slate-900/60 backdrop-blur-md border border-slate-700 shadow-lg">
-          <CardContent className="space-y-4 p-6">
-            <h2 className="text-xl font-bold text-cyan-300">Sign in to continue</h2>
-            <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-slate-800 border border-slate-700 placeholder-slate-400" />
-            <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="bg-slate-800 border border-slate-700 placeholder-slate-400" />
-            <Button onClick={handleLogin} className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-bold">Sign In</Button>
-          </CardContent>
-        </Card>
-      ) : showQuiz ? (
-        <Card id="quiz-section" className="mb-6 bg-slate-900/60 border border-slate-700">
-          <CardContent className="space-y-4 p-6">
-            <h2 className="text-xl font-bold text-yellow-300">Let's get to know your creator profile</h2>
-            <div className="space-y-2">
-              <label>How would you rate your current creative confidence?</label>
-              <select value={quizAnswers.q1} onChange={(e) => setQuizAnswers({ ...quizAnswers, q1: e.target.value })} className="text-black">
-                <option value="">Select</option>
-                <option>High</option>
-                <option>Moderate</option>
-                <option>Low</option>
-              </select>
-              <label>How often do you create new content?</label>
-              <select value={quizAnswers.q2} onChange={(e) => setQuizAnswers({ ...quizAnswers, q2: e.target.value })} className="text-black">
-                <option value="">Select</option>
-                <option>Daily</option>
-                <option>Weekly</option>
-                <option>Rarely</option>
-              </select>
-              <label>Do you feel you have a unique voice as a creator?</label>
-              <select value={quizAnswers.q3} onChange={(e) => setQuizAnswers({ ...quizAnswers, q3: e.target.value })} className="text-black">
-                <option value="">Select</option>
-                <option>Yes</option>
-                <option>Sometimes</option>
-                <option>No</option>
-              </select>
-              <Button onClick={handleQuizSubmit} className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold">Submit Quiz</Button>
+      {loading ? (
+        <div className="flex justify-center py-4 mt-5">
+          <video
+            autoPlay
+            loop
+            muted
+            className="w-54 h-54 object-contain overflow-hidden"
+            style={{ backgroundColor: "transparent" }}
+          >
+            <source src="/loading.webm" type="video/webm" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      ) : null}
+
+      {showAuthPrompt && !isAuthenticated && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-slate-800 p-8 rounded-xl border border-slate-700 shadow-2xl max-w-md w-full"
+          >
+            <h2 className="text-2xl font-bold text-yellow-300 mb-4 text-center">Your Growth Plan is Ready!</h2>
+            <p className="text-slate-300 mb-6 text-center">
+              Sign up or log in to view your personalized growth plan and save it to your account.
+            </p>
+            <div className="space-y-4">
+              <Button 
+                className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3"
+                onClick={handleAuthSuccess} // Replace with actual signup handler
+              >
+                Sign Up
+              </Button>
+              <Button 
+                className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3"
+                onClick={handleAuthSuccess} // Replace with actual login handler
+              >
+                Log In
+              </Button>
+              <p className="text-sm text-slate-400 text-center mt-4">
+                By continuing, you agree to our Terms and Privacy Policy
+              </p>
             </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <></>
+          </motion.div>
+        </div>
       )}
 
-      {/* Additional content such as results and user manual would go here */}
-      {/* This placeholder can be expanded with more JSX sections */}
+      {showQuiz ? (
+        <Card id="quiz-section" className="mb-6 bg-slate-900/60 border border-slate-700 overflow-hidden">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-bold text-yellow-300 text-center mb-4">Let's get to know you</h2>
+            <div className="h-2 w-full bg-slate-700 rounded-full mb-6">
+              <motion.div
+                className="h-full bg-yellow-400 rounded-full"
+                style={{ width: `${((currentStep + 1) / quizSteps.length) * 100}%` }}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
 
-      {/* Footer */}
-      <footer className="mt-12 text-slate-400 text-sm max-w-4xl mx-auto border-t border-slate-700 pt-10">
-        <p className="text-center">&copy; {new Date().getFullYear()} Butlr. All rights reserved.</p>
-      </footer>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={quizSteps[currentStep].key}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{ duration: 0.4 }}
+                className="space-y-4"
+              >
+                <p className="text-lg text-white">{quizSteps[currentStep].question}</p>
+                <div className="grid gap-3">
+                  {quizSteps[currentStep].options.map((opt) => (
+                    <button
+                      key={opt}
+                      onClick={() => handleAnswer(opt)}
+                      className="w-full py-3 px-4 bg-slate-800 text-white border border-slate-600 hover:border-yellow-400 hover:text-yellow-300 transition-colors rounded-xl"
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </CardContent>
+        </Card>
+      ) : growthPlan && isAuthenticated && (
+        <div className="bg-slate-800 p-6 rounded-xl text-white border border-slate-700 shadow-lg mb-6 max-w-2xl mx-auto">
+          <h2 className="text-xl font-bold text-yellow-300 text-center mb-4">Your Personalized Growth Plan</h2>
+          <div 
+            className="markdown-content space-y-6 text-slate-200"
+            dangerouslySetInnerHTML={{ __html: formatGrowthPlan(growthPlan) }}
+          />
+        </div>
+      )}
     </div>
   )
 }

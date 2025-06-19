@@ -2,13 +2,11 @@
 
 import { usePathname } from "next/navigation";
 import Sidebar from "@/app/components/SideBar";
+import { hideOnRoutes } from "@/app/constants/toHide";
 
 export default function SidebarWrapper() {
   const pathname = usePathname();
-
-  // Hide sidebar on the same pages as top bar
-  const hideOn = ["/signin", "/signup", "/login", "/"];
-  const shouldHide = hideOn.includes(pathname);
+  const shouldHide = hideOnRoutes.includes(pathname);
 
   return !shouldHide ? <Sidebar /> : null;
 }
