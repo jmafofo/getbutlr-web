@@ -47,3 +47,5 @@ supabase/.env.local
 
 package-lock.json
 .vscode/
+
+.DS_Store
