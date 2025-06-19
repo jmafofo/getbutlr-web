@@ -1,4 +1,5 @@
 'use client';
+
 export default function Sidebar() {
   return (
     <aside className="sidebar">
@@ -11,4 +12,3 @@ export default function Sidebar() {
     </aside>
   );
 }
-

@@ -1,8 +1,9 @@
-export async function generateInsights(query: string, tone: string) {
-  const r = await fetch("/api/insights", {
-    method: "POST", body: JSON.stringify({ query, tone })
+import { InsightData } from "@/types/insights";
+
+export async function generateInsights(query: string, tone: string): Promise<InsightData> {
+  const res = await fetch("/api/insights_ollama", {
+    method: "POST",
+    body: JSON.stringify({ query, tone }),
   });
-  return r.json();
+  return await res.json();
 }
-
-

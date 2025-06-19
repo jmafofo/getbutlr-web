@@ -1,14 +1,14 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import TopBar from "../components/TopBar";
+import Sidebar from "@/app/components/SideBar";
 
-export default function TopBarWrapper() {
+export default function SidebarWrapper() {
   const pathname = usePathname();
 
-  // Hide top bar only on sign-in page
+  // Hide sidebar on the same pages as top bar
   const hideOn = ["/signin", "/signup", "/login", "/"];
   const shouldHide = hideOn.includes(pathname);
 
-  return !shouldHide ? <TopBar /> : null;
+  return !shouldHide ? <Sidebar /> : null;
 }

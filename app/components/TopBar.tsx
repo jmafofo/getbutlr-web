@@ -61,7 +61,7 @@ export default function TopBar() {
   const avatarLetter = user?.email?.charAt(0)?.toUpperCase() || "?";
 
   return (
-    <div className="w-full px-6 py-4 bg-slate-950 shadow-md flex justify-between items-center">
+    <div className="w-full px-6 py-4 bg-slate-800 text-gray-200 shadow-lg flex justify-between items-center">
       <img src="/logo_btlr.svg" alt="Butlr AI Logo" className="h-8 w-auto" />
       {user ? (
         <div className="relative" ref={dropdownRef}>

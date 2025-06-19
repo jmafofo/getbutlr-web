@@ -2,9 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["*"]
     },
     "lib": [
       "dom",
@@ -39,6 +37,7 @@
   "exclude": [
     "node_modules",
     ".next",
-    "supabase/functions"
+    "supabase/functions",
+    "ext"
   ]
 }
