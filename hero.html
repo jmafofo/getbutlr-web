@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GetButlr Canvas + Marquee</title>
+  <style>
+    body { margin: 0; overflow: hidden; font-family: 'Inter', sans-serif; }
+    canvas { display: block; }
+    .cta-btn {
+      position: absolute; left: 50%; top: 60%;
+      transform: translate(-50%, -50%);
+      padding: 0.8rem 2rem; font-size: 1.2rem;
+      background: #4f46e5; color: #fff;
+      border: none; border-radius: 8px; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="hero"></canvas>
+  <button class="cta-btn" onclick="onClickCTA()">Start Free Trial</button>
+
+  <script>
+    const canvas = document.getElementById('hero');
+    const ctx = canvas.getContext('2d');
+    const tools = ['🔍 SEO', '📸 Thumbnails', '🧪 A/B Testing', '📈 Trend Alerts', '🚀 Gamified Growth'];
+    let marqueeX;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight * 0.5;
+      marqueeX = canvas.width;
+      draw();
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function draw() {
+      const w = canvas.width, h = canvas.height;
+
+      // Background Gradient
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      grad.addColorStop(0, '#3b82f6');
+      grad.addColorStop(1, '#4f46e5');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Hero Text
+      ctx.font = 'bold 48px Inter';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.fillText('Grow Smarter, Not Harder', w / 2, h / 3);
+
+      ctx.font = '24px Inter';
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.fillText('AI-powered YouTube growth tools — 14‑day free trial', w / 2, h / 2);
+
+      // Marquee Text
+      ctx.font = '20px Inter';
+      ctx.fillStyle = '#fff';
+      const text = tools.join('  •  ');
+      const textWidth = ctx.measureText(text).width;
+
+      ctx.fillText(text, marqueeX, h * 0.8);
+      marqueeX -= 2;
+
+      if (marqueeX < -textWidth) {
+        marqueeX = w;
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    function onClickCTA() {
+      alert('Free trial clicked! Replace with actual tracking/navigation.');
+    }
+  </script>
+</body>
+</html>
+

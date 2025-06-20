@@ -1,0 +1,76 @@
+.lp-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  font-family: 'Inter', sans-serif;
+  color: #1f2937;
+}
+
+.hero {
+  text-align: center;
+  padding: 4rem 0;
+}
+.hero h1 {
+  font-size: 3rem; color: #4f46e5;
+}
+.tagline {
+  font-size: 1.5rem; margin-top: 0.5rem;
+}
+.subtag {
+  font-size: 1.125rem; margin-bottom: 1.5rem;
+}
+.cta {
+  background: linear-gradient(135deg, #4f46e5, #3b82f6);
+  color: #fff; padding: 0.75rem 2rem;
+  border: none; border-radius: 8px;
+  font-size: 1.125rem; cursor: pointer;
+  transition: opacity 0.2s;
+}
+.cta:hover { opacity: 0.9; }
+
+.features, .testimonials, .final-cta {
+  margin: 3rem 0;
+}
+.features h2, .testimonials h2, .final-cta h2 {
+  text-align: center; margin-bottom: 1.5rem;
+}
+.feature-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+}
+.feature-list li {
+  font-size: 1.125rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.testimonials {
+  background: #f3f4f6;
+  padding: 2rem; border-radius: 8px;
+}
+.testimonial-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+.testimonial-cards blockquote {
+  background: #fff; padding: 1rem; border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  font-style: italic;
+}
+.testimonial-cards cite {
+  display: block; margin-top: 0.75rem;
+  text-align: right; font-style: normal; color: #374151;
+}
+
+.final-cta {
+  text-align: center;
+}
+.final-cta h2 {
+  font-size: 1.75rem; margin-bottom: 1rem;
+}
+

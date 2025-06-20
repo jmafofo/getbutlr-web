@@ -1,8 +1,12 @@
-'use client'; // ensure BillingBanner and ChatWidget run client-side
+// app/layout.tsx
+'use client';
 
-import { useState, useEffect, PropsWithChildren } from 'react';
-// import { supabase } from '@/lib/supabaseClient';
-import ChatWidget from '../lib/ChatWidget';
+import { useEffect, PropsWithChildren } from 'react';
+import { supabase } from '@/lib/supabaseClient';
+import ChatWidget from '@/lib/ChatWidget';
+import { initAuthListener } from '@/lib/authListener';
+import '../styles/globals.css';
+import { LogAnalyticsPageView } from '@/lib/LogAnalytics';
 
 function BillingBanner() {
   const [sub, setSub] = useState<any>(null);
@@ -34,13 +38,18 @@ function BillingBanner() {
 }
 
 export default function RootLayout({ children }: PropsWithChildren<{}>) {
+  useEffect(() => {
+    initAuthListener(); // Track SIGNED_IN / SIGNED_OUT via Supabase :contentReference[oaicite:6]{index=6}
+  }, []);
+
   return (
     <html lang="en">
       <head>
         <title>GetButlr</title>
-        <meta name="description" content="AI-powered growth tools for creators" />
+        <meta name="description" content="AI‑powered growth tools for creators" />
       </head>
       <body className="min-h-screen flex flex-col">
+        <LogAnalyticsPageView /> {/* Tracks router-based page views using App Router hooks :contentReference[oaicite:7]{index=7} */}
         <BillingBanner />
         <main className="flex-grow">{children}</main>
         <ChatWidget />
