@@ -1,13 +1,18 @@
-"use client";
-import { useState, useEffect } from "react";
-import { supabase } from "../../lib/supabaseClient";
-import { generateInsights } from "../../lib/openaiClient";
+'use client';
+
+import { useEffect, useState } from 'react';
+import { supabase } from '../../lib/supabaseClient';
+import { generateInsights } from '../../lib/openaiClient';
+import { getAnalyses } from '@/lib/db/analysis';
+import VideoChartCard from '@/components/VideoChartCard';
 
 export default function InsightsPage() {
-  const [query, setQuery] = useState("");
-  const [tone, setTone] = useState("SEO‑Rich");
+  const [query, setQuery] = useState('');
+  const [tone, setTone] = useState('SEO‑Rich');
   const [res, setRes] = useState<any>();
   const [saved, setSaved] = useState<any[]>([]);
+  const [chartData, setChartData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   async function run() {
     const data = await generateInsights(query, tone);
@@ -24,6 +29,10 @@ export default function InsightsPage() {
 
   useEffect(() => {
     fetchSaved();
+    getAnalyses().then((res) => {
+      setChartData(res);
+      setLoading(false);
+    });
   }, []);
 
   return (
@@ -47,7 +56,10 @@ export default function InsightsPage() {
           </option>
         ))}
       </select>
-      <button onClick={run} className="btn-primary px-4 py-2 bg-blue-600 text-white rounded">
+      <button
+        onClick={run}
+        className="btn-primary px-4 py-2 bg-blue-600 text-white rounded"
+      >
         Get Insights
       </button>
 
@@ -74,7 +86,10 @@ export default function InsightsPage() {
         </div>
       )}
 
-      <button onClick={fetchSaved} className="btn-secondary px-4 py-2 bg-gray-300 rounded">
+      <button
+        onClick={fetchSaved}
+        className="btn-secondary px-4 py-2 bg-gray-300 rounded"
+      >
         Refresh Saved
       </button>
 
@@ -99,6 +114,11 @@ export default function InsightsPage() {
           ))}
         </div>
       )}
+
+      <div className="pt-8">
+        <h2 className="text-xl font-semibold mb-2">Performance Chart</h2>
+        {loading ? <p>Loading chart...</p> : <VideoChartCard data={chartData} />}
+      </div>
     </div>
   );
 }
