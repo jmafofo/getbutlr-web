@@ -6,6 +6,7 @@ import TopBarWrapper from "@/app/components/TopBarWrapper";
 import SidebarWrapper from "@/app/components/SidebarWrapper";
 import Footer from "@/app/components/Footer";
 import "./globals.css"
+import { supabase } from "@/lib/supabaseClient";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,6 +31,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  
   return (
     <html lang="en" className="h-full">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex h-full`}>
@@ -38,10 +40,10 @@ export default function RootLayout({
           <TopBarWrapper />
           <BillingBanner />
           <main className="flex-1 p-6 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 overflow-auto">
-            {children}
-            <Footer/>
+            {children}            
           </main>
           <ChatWidget />
+          <Footer/>
         </div>
       </body>
     </html>
