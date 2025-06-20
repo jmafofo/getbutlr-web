@@ -3,13 +3,70 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { animationVariants, defaultTheme } from '@/lib/uiConfig';
-import Footer from '@/components/Footer';
+import Footer from './components/Footer';
+import TestimonialCarousel from './components/TestimonialCarousel';
+import { animationVariants, defaultTheme } from './lib/uiConfig';
 
-const features = [...];
-const pricing = [...];
-const faqs = [...];
-const testimonials = [...];
+const features = [
+  "AI-powered SEO optimized titles and tag generation",
+  "Script writing guidance to increase viewer engagement",
+  "Audience targeting and growth recommendations using AI",
+  "Thumbnail A/B testing and visual performance suggestions",
+  "Promotional support and exposure guarantees",
+  "Video upload checklist to maximize SEO reach",
+  "Content creator course modules: niche review, filming, editing"
+];
+
+const pricing = [
+  {
+    title: "Free Plan",
+    price: "$0",
+    features: ["Basic AI Title & Tag Generator", "Limited Insights", "Email Tips"],
+    cta: "/signup"
+  },
+  {
+    title: "Creator+",
+    price: "$10/mo",
+    features: ["Unlimited Suggestions", "Thumbnail A/B Testing", "Weekly Growth Email"],
+    cta: "/subscribe?plan=creator"
+  },
+  {
+    title: "Studio Pro",
+    price: "$29/mo",
+    features: ["All Creator+ features", "Course Library Access", "Priority Support"],
+    cta: "/subscribe?plan=studio"
+  }
+];
+
+const faqs = [
+  {
+    q: "What platforms does Butlr support?",
+    a: "We currently support YouTube with plans for TikTok and Instagram Reels soon."
+  },
+  {
+    q: "Can I use Butlr for free?",
+    a: "Yes! You can access basic features and upgrade anytime."
+  },
+  {
+    q: "What kind of courses do you offer?",
+    a: "We offer step-by-step guidance on scriptwriting, video editing, and niche analysis tailored to your content."
+  }
+];
+
+const testimonials = [
+  {
+    name: "Jay from The Angler's Tales",
+    text: "Butlr helped me grow my fishing channel more in 3 weeks than the past 6 months. Highly recommend."
+  },
+  {
+    name: "Layla Vlogs",
+    text: "I love how easy it is to test thumbnails and get AI insights. Butlr is a game changer."
+  },
+  {
+    name: "TechTalk UAE",
+    text: "The content courses are surprisingly useful and affordable. Production quality up 10x!"
+  }
+];
 
 export default function LandingPage() {
   const [expanded, setExpanded] = useState<number | null>(null);
@@ -39,9 +96,7 @@ export default function LandingPage() {
 
   return (
     <>
-      <main className="min-h-screen bg-gradient-to-b from-white to-blue-100 dark:from-black dark:to-gray-900 p-8 text-gray-800 dark:text-white">
-        {/* Hero, Features, Pricing, FAQ, Testimonials, Signup form go here */}
-
+      <main className="bg-white dark:bg-black text-gray-800 dark:text-gray-100">
         <motion.section
           id="signup"
           className="py-16 text-center max-w-xl mx-auto"
@@ -72,6 +127,23 @@ export default function LandingPage() {
           {signupStatus === 'success' && <p className="text-green-600 mt-2">Thanks! You’re on the list.</p>}
           {signupStatus === 'error' && <p className="text-red-600 mt-2">Oops! Something went wrong.</p>}
         </motion.section>
+
+        <motion.section
+          id="quiz-promo"
+          className="py-16 text-center bg-blue-50 dark:bg-blue-950"
+          initial={animationVariants.fadeInUp.initial}
+          whileInView={animationVariants.fadeInUp.animate}
+          transition={animationVariants.fadeInUp.transition}
+          viewport={{ once: true }}
+        >
+          <h2 className="text-3xl font-bold mb-4">Not sure where to begin?</h2>
+          <p className="mb-6">Take our quiz and get AI-powered feedback on your niche, style, and video opportunities.</p>
+          <Link href="/courses">
+            <button className="bg-black text-white px-8 py-3 rounded-full shadow hover:bg-gray-800">Start Quiz</button>
+          </Link>
+        </motion.section>
+
+        <TestimonialCarousel testimonials={testimonials} />
       </main>
       <Footer />
     </>
