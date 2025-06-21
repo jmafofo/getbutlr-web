@@ -1,11 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./*"
-      ]
-    },
+    "target": "esnext",
     "lib": [
       "dom",
       "dom.iterable",
@@ -14,19 +9,27 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
+    "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-    "incremental": true,
-    "module": "esnext",
     "esModuleInterop": true,
+    "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "incremental": true,
+    "baseUrl": ".", // 👈 Base directory
+    "paths": {
+      "@/*": [
+        "./*"
+      ] // 👈 Enables '@/lib/uiConfig' or '@/components/Footer'
+    },
     "plugins": [
       {
         "name": "next"
       }
-    ]
+    ],
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",
@@ -35,5 +38,9 @@
     "**/*.js",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules", ".next", "supabase/functions"]
+  "exclude": [
+    "node_modules",
+    ".next",
+    "supabase/functions"
+  ]
 }
