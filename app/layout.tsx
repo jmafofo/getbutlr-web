@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import ChatWidget from '../lib/ChatWidget';
+import ChatWrapper from "./components/ChatWrapper";
 import BillingBanner from "../app/components/BillingBanner";
 import TopBarWrapper from "@/app/components/TopBarWrapper";
 import SidebarWrapper from "@/app/components/SidebarWrapper";
@@ -42,7 +42,7 @@ export default function RootLayout({
           <main className="flex-1 p-6 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 overflow-auto">
             {children}            
           </main>
-          <ChatWidget />
+          <ChatWrapper />
           <Footer/>
         </div>
       </body>

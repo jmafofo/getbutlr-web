@@ -1,172 +1,135 @@
-// File: app/page.tsx
 'use client';
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '../lib/supabaseClient';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { animationVariants } from '@/lib/uiConfig';
 
 export default function LandingPage() {
-  const [userProfile, setUserProfile] = useState<any>();
-  const [titleInput, setTitleInput] = useState('');
-  const [suggestions, setSuggestions] = useState<any>();
+  const [email, setEmail] = useState('');
+  const [signupStatus, setSignupStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-  useEffect(() => {
-    async function fetchProfile() {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error || !session) return;
-  
-      const user = session.user;
-      const { data, error: profileError } = await supabase
-        .from('creator_profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-  
-      if (!profileError) setUserProfile(data);
+  async function handleEmailSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSignupStatus('loading');
+    // Validate email format or do any pre-checks
+    if (!email) return;
+    setSignupStatus('idle');
+    setShowPasswordModal(true); // Open modal
+  }
+
+  async function handleFullSignup(e: React.FormEvent) {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
     }
-  
-    fetchProfile();
-  }, []);
-  
-  async function analyze() {
-    if (!userProfile) return;
-    const res = await fetch('/api/analyze-title', {
-      method: 'POST',
-      body: JSON.stringify({
-        user_id: userProfile.user_id,
-        original_title: titleInput,
-        tone: userProfile.tone_preference,
-        style: userProfile.content_style,
-      }),
-    });
-    setSuggestions(await res.json());
+
+    setSignupStatus('loading');
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (res.ok) {
+        setSignupStatus('success');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+        setShowPasswordModal(false);
+      } else {
+        setSignupStatus('error');
+      }
+    } catch (err) {
+      setSignupStatus('error');
+    }
   }
 
   return (
-      <div className="min-h-screen text-white">
-        <div className="max-w-5xl mx-auto px-6 pt-40 pb-12 text-center">
-        <motion.h1
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-6xl font-extrabold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent"
+    <div className="text-white flex flex-col items-center justify-center flex-1">
+      <div className="w-full max-w-xl px-6 text-center">
+        <motion.section
+          id="signup"
+          className="py-16 text-center max-w-xl mx-auto"
+          initial={animationVariants.fadeInUp.initial}
+          whileInView={animationVariants.fadeInUp.animate}
+          transition={animationVariants.fadeInUp.transition}
+          viewport={{ once: true }}
         >
-          GetButlr
-        </motion.h1>
-        <motion.h1
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-2xl font-extrabold bg-gradient-to-r from-cyan-100 to-purple-500 bg-clip-text text-transparent"
-        >
-          AI-Powered Creator Growth Suite 
-        </motion.h1>
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2 }}
-          className="mt-10 space-y-4 max-w-md mx-auto"
-        >       
-        <AnimatePresence mode="wait">
-        {!userProfile ? (
-           <>
-           <motion.a
-             key="quiz-cta-1"
-             href="/quiz"
-             initial={{ opacity: 0, backgroundPosition: "0% 50%" }}
-             animate={{ opacity: 1 }}
-             exit={{ opacity: 0 }}
-             whileHover={{
-               scale: 1.05,
-               backgroundPosition: "100% 50%",  // move gradient horizontally on hover
-               boxShadow: "0 0 8px rgba(129, 140, 248, 0.8)",
-             }}
-             transition={{
-               type: "spring",
-               stiffness: 300,
-               damping: 20,
-               backgroundPosition: { duration: 1, ease: "easeInOut" },
-             }}
-             className="w-full p-3 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 bg-[length:200%_200%] text-white font-bold"
-           >
-             Start your journey
-           </motion.a>
-         
-           <motion.a
-             key="quiz-cta-2"
-             href="/signin"
-             initial={{ opacity: 0, backgroundPosition: "0% 50%" }}
-             animate={{ opacity: 1 }}
-             exit={{ opacity: 0 }}
-             whileHover={{
-               scale: 1.05,
-               backgroundPosition: "100% 50%",
-               boxShadow: "0 0 8px rgba(129, 140, 248, 0.8)",
-             }}
-             transition={{
-               type: "spring",
-               stiffness: 300,
-               damping: 20,
-               backgroundPosition: { duration: 1, ease: "easeInOut" },
-             }}
-             className="w-full p-3 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 bg-[length:200%_200%] text-white font-bold mt-4 ml-5"
-           >
-             Login
-           </motion.a>
-         </>
-                
-        ) : (
-          <motion.div
-            key="analyzer"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="space-y-4"
-          >
-            <input
-              type="text"
-              placeholder="Type your video title idea..."
-              className="border p-3 w-full"
-              value={titleInput}
-              onChange={e => setTitleInput(e.target.value)}
-            />
-            <motion.button
-              onClick={analyze}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="btn-primary px-6 py-3 bg-blue-600 text-white rounded"
-            >
-              Analyze Title
-            </motion.button>
-          </motion.div>
-        )}
-        </AnimatePresence>
-        </motion.div>
-        {suggestions && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-gray-100 p-4 rounded space-y-4"
+            transition={{ duration: 0.8 }}
+            className="text-5xl font-extrabold bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 bg-clip-text text-transparent"
           >
-            <h2 className="text-2xl font-semibold">Title Suggestions</h2>
-            <ul className="list-disc ml-4">
-              {suggestions.generated_titles.map((t: string, i: number) => (
-                <li key={i}>{t}</li>
-              ))}
-            </ul>
-            <h3 className="font-medium">Trending Examples:</h3>
-            <ul className="list-disc ml-4">
-              {suggestions.trend_stats.map((v: any, i: number) => (
-                <li key={i}>
-                  “{v.title}” – {v.views} views, {v.likes} likes
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        )}
-        
-        </div>
+            Join Butlr for Free
+          </motion.h1>
+          <p className="mb-6">Enter your email to get started and receive updates.</p>
+          <form onSubmit={handleEmailSubmit} className="flex flex-col sm:flex-row gap-4 justify-center">
+            <input
+              type="email"
+              placeholder="Your email"
+              className="p-3 rounded-lg bg-slate-800 text-white border border-slate-700 sm:w-2/3"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <button
+              type="submit"
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-60"
+              disabled={signupStatus === 'loading'}
+            >
+              {signupStatus === 'loading' ? 'Processing...' : 'Sign Up'}
+            </button>
+          </form>
+          {signupStatus === 'success' && <p className="text-green-600 mt-2">Thanks! You’re on the list.</p>}
+          {signupStatus === 'error' && <p className="text-red-600 mt-2">Oops! Something went wrong.</p>}
+        </motion.section>
       </div>
+
+      {/* Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="bg-slate-900 rounded-xl p-6 w-full max-w-md shadow-lg text-left">
+            <h2 className="text-xl font-semibold mb-4">Set Your Password</h2>
+            <form onSubmit={handleFullSignup} className="space-y-4">
+              <input
+                type="password"
+                placeholder="Password"
+                className="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-700"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <input
+                type="password"
+                placeholder="Retype Password"
+                className="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-700"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              <div className="flex justify-end gap-4 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowPasswordModal(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                >
+                  Create Account
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
-
