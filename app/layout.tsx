@@ -4,7 +4,7 @@ import ChatWrapper from "./components/ChatWrapper";
 import BillingBanner from "../app/components/BillingBanner";
 import TopBarWrapper from "@/app/components/TopBarWrapper";
 import SidebarWrapper from "@/app/components/SidebarWrapper";
-import Footer from "@/app/components/Footer";
+import FootWrapper from "./components/FooterWrapper";
 import "./globals.css"
 import { supabase } from "@/lib/supabaseClient";
 
@@ -39,13 +39,14 @@ export default function RootLayout({
         <div className="flex-1 flex flex-col min-h-screen overflow-hidden shadow-lg">
           <TopBarWrapper />
           <BillingBanner />
-          <main className="flex-1 p-6 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 overflow-auto">
+          <main className="flex-1 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 overflow-auto">
             {children}            
           </main>
           <ChatWrapper />
-          <Footer/>
+          <FootWrapper/>
         </div>
       </body>
+      
     </html>
   );
 }
