@@ -10,28 +10,86 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
 
   const handleSignIn = async () => {
     setMessage("Signing in...");
-    const { error } = await supabase.auth.signInWithPassword({
+  
+    const { data: signInData, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-
+  
     if (error) {
-      setMessage(error.message);
+      if (
+        error.message.toLowerCase().includes("email not confirmed") ||
+        error.code === "email_not_confirmed"
+      ) {
+        setShowVerificationModal(true);
+        setMessage("");
+        await resendVerification();
+        return;
+      }
+    
+      setMessage(error.message); // other errors
+      return;
+    }
+  
+    const user = signInData?.user;
+    if (!user) {
+      setMessage("No user data found.");
+      return;
+    }
+  
+    const { data: profileData, error: profileError } = await supabase
+      .from("creator_profiles")
+      .select("completed_survey")
+      .eq("user_id", user.id)
+      .single();
+  
+    if (profileError) {
+      setMessage("Error fetching profile: " + profileError.message);
+      return;
+    }
+  
+    if (profileData?.completed_survey) {
+      router.push("/dashboard");
     } else {
-      setMessage("Signed in successfully!");
-      router.push("/insights");
+      router.push("/quiz");
+    }
+  
+    setMessage("Signed in successfully!");
+  };
+
+  const resendVerification = async () => {
+    setIsResending(true);
+    setResendMessage("");
+  
+    const res = await fetch("/api/auth/verification", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+  
+    const data = await res.json();
+    setIsResending(false);
+  
+    if (res.ok) {
+      setResendMessage("Verification email resent! Check your inbox.");
+    } else {
+      setResendMessage(`Error: ${data.error}`);
     }
   };
+  
 
   const handleRedirectToSignup = () => {
     router.push("/signup");
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 text-white relative">
       <div className="max-w-5xl mx-auto px-6 pt-40 pb-12 text-center">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
@@ -93,6 +151,34 @@ export default function SignInPage() {
           {message && <p className="text-sm text-slate-300 mt-2">{message}</p>}
         </motion.div>
       </div>
+
+      {showVerificationModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-slate-900 p-6 rounded-xl w-full max-w-sm text-center border border-slate-700">
+            <h2 className="text-xl font-bold text-white mb-2">Email not verified</h2>
+            <p className="text-slate-300 mb-4 text-sm">
+              You need to verify your email before signing in. Please check your inbox.
+            </p>
+
+            <button
+              onClick={resendVerification}
+              disabled={isResending}
+              className="w-full p-2 rounded bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-semibold"
+            >
+              {isResending ? "Resending..." : "Resend Verification Email"}
+            </button>
+
+            {resendMessage && <p className="text-sm text-slate-300 mt-2">{resendMessage}</p>}
+
+            <button
+              onClick={() => setShowVerificationModal(false)}
+              className="mt-4 text-slate-400 underline text-sm"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

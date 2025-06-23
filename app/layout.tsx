@@ -7,6 +7,7 @@ import SidebarWrapper from "@/app/components/SidebarWrapper";
 import FootWrapper from "./components/FooterWrapper";
 import "./globals.css"
 import { supabase } from "@/lib/supabaseClient";
+import AuthProvider from '@/app/components/AuthProvider';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +36,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex h-full`}>
+      <AuthProvider>
         <SidebarWrapper />
         <div className="flex-1 flex flex-col min-h-screen overflow-hidden shadow-lg">
           <TopBarWrapper />
@@ -45,6 +47,7 @@ export default function RootLayout({
           <ChatWrapper />
           <FootWrapper/>
         </div>
+      </AuthProvider>  
       </body>
       
     </html>
