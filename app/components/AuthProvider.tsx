@@ -1,13 +1,16 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 
 let activityTimeout: NodeJS.Timeout;
 
+const EXEMPT_ROUTES = ['/', '/signin', '/signup', '/login'];
+
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
   const router = useRouter();
 
   const checkSession = useCallback(async () => {
@@ -21,10 +24,9 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       return;
     }
 
-    // Extend session if active
-    const currentTime = Date.now() / 1000; // seconds
+    const currentTime = Date.now() / 1000; // in seconds
     const expiresIn = session.expires_at ?? 0;
-    const bufferTime = 60; // seconds before expiry to refresh
+    const bufferTime = 60;
 
     if (expiresIn - currentTime <= bufferTime) {
       const { error: refreshError } = await supabase.auth.refreshSession();
@@ -36,19 +38,22 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     setIsLoading(false);
   }, [router]);
 
-  // 🟡 Check session on load
   useEffect(() => {
+    // ⛔ Skip auth check if route is exempt
+    if (EXEMPT_ROUTES.includes(pathname)) {
+      setIsLoading(false);
+      return;
+    }
+
     checkSession();
 
-    // 🟢 Handle session refresh on activity
     const handleActivity = () => {
       clearTimeout(activityTimeout);
       activityTimeout = setTimeout(() => {
-        checkSession(); // refresh if near expiry
-      }, 30 * 1000); // check every 30 seconds after interaction
+        checkSession();
+      }, 30 * 1000); // check 30s after interaction
     };
 
-    // Listen to user interactions
     window.addEventListener('mousemove', handleActivity);
     window.addEventListener('keydown', handleActivity);
     window.addEventListener('click', handleActivity);
@@ -59,10 +64,21 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       window.removeEventListener('click', handleActivity);
       clearTimeout(activityTimeout);
     };
-  }, [checkSession]);
+  }, [pathname, checkSession]);
 
   if (isLoading) {
-    return <div className="text-white text-center mt-20">Loading...</div>;
+    return <div className="text-white text-center mt-20">
+      <video
+          autoPlay
+          loop
+          muted
+          className="w-54 h-54 object-contain overflow-hidden"
+          style={{ backgroundColor: "transparent" }}
+        >
+          <source src="/loading_page.webm" type="video/webm" />
+          Your browser does not support the video tag.
+        </video>
+    </div>;
   }
 
   return <>{children}</>;
