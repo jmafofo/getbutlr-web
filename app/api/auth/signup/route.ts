@@ -6,7 +6,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export async function POST(request: Request) {
-  const { email, password, firstname, lastname, channelId, channelName } = await request.json()
+  const { email, password, selectedChannelId, selectedChannelName } = await request.json()
 
   if (!email || !password) {
     return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
@@ -21,16 +21,30 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
 
-  // Insert into creators_profile table (YouTube info)
-  if (channelId && channelName) {
+  if (selectedChannelId && selectedChannelName) {
     const { error: creatorError } = await supabase
-      .from('creators_profile')
+      .from('creator_profiles')
       .insert([
         {
           user_id: data.user?.id,
-          youtube_channel_id: channelId,
-          youtube_channel_name: channelName,
-          has_completed_survey: false,
+          youtube_channel_id: selectedChannelId,
+          youtube_channel_name: selectedChannelName,
+          completed_survey: false,
+        },
+      ])
+
+    if (creatorError) {
+      return NextResponse.json({ error: `Failed to save creator profile: ${creatorError.message}` }, { status: 500 })
+    }
+  }
+
+  else {
+    const { error: creatorError } = await supabase
+      .from('creator_profiles')
+      .insert([
+        {
+          user_id: data.user?.id,
+          completed_survey: false,
         },
       ])
 

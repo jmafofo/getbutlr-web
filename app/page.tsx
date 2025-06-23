@@ -3,8 +3,10 @@ import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { animationVariants } from '@/lib/uiConfig';
 import { logEvent } from '@/lib/analytics';
+import { useRouter } from 'next/navigation';
 
 export default function LandingPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [signupStatus, setSignupStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -18,7 +20,7 @@ export default function LandingPage() {
   const [selectedChannelId, setSelectedChannelId] = useState('');
   const [selectedChannelName, setSelectedChannelName] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
-
+  const [signupError, setSignupError] = useState('');
 
 
   const formatSubscribers = (count: string | undefined): string => {
@@ -176,11 +178,21 @@ export default function LandingPage() {
 
   async function handleFullSignup(e: React.FormEvent) {
     e.preventDefault();
+    setSignupError(''); // Clear previous errors
+  
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      setSignupError('❌ Passwords do not match.');
       return;
     }
-
+  
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setSignupError(
+        '❌ Password must be at least 8 characters and include uppercase, lowercase, number, and special character.'
+      );
+      return;
+    }
+  
     setSignupStatus('loading');
     try {
       const res = await fetch('/api/auth/signup', {
@@ -188,6 +200,7 @@ export default function LandingPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, selectedChannelId, selectedChannelName }),
       });
+  
       if (res.ok) {
         setSignupStatus('success');
         setSelectedChannelId('');
@@ -196,13 +209,16 @@ export default function LandingPage() {
         setPassword('');
         setConfirmPassword('');
         setShowPasswordModal(false);
+        router.push("/signin");
       } else {
         setSignupStatus('error');
+        setSignupError('❌ Signup failed. Email may already be used.');
       }
     } catch (err) {
       setSignupStatus('error');
+      setSignupError('❌ An error occurred. Please try again.');
     }
-  }
+  }  
 
   function handleChannelClick(channel: any) {
     setSelectedChannelId(channel.id);
@@ -517,17 +533,30 @@ export default function LandingPage() {
       {/* Modal */}
       {showPasswordModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-          <div className="bg-slate-900 rounded-xl p-8 w-full max-w-md shadow-lg text-left border border-white/10">
+          {/* Loading overlay */}
+          {signupStatus === 'loading' && (
+            <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-xl">
+              <div className="text-white text-lg font-semibold">Creating Account...</div>
+              <div className="ml-4 animate-spin rounded-full h-6 w-6 border-t-2 border-white"></div>
+            </div>
+          )}
+
+          {/* Modal content */}
+          <div
+            className={`bg-slate-900 rounded-xl p-8 w-full max-w-md shadow-lg text-left border border-white/10 relative transition duration-300 ${
+              signupStatus === 'loading' ? 'blur-sm opacity-60 pointer-events-none' : ''
+            }`}
+          >
             <h2 className="text-2xl font-bold mb-6">Create Your Account</h2>
             <form onSubmit={handleFullSignup} className="space-y-6">
               {selectedChannelName && (
-                  <div>
-                    <label className="block text-gray-400 mb-2">Selected Channel</label>
-                    <div className="w-full p-3 rounded-lg bg-slate-700 text-white border border-slate-700">
-                      {selectedChannelName}
-                    </div>
+                <div>
+                  <label className="block text-gray-400 mb-2">Selected Channel</label>
+                  <div className="w-full p-3 rounded-lg bg-slate-700 text-white border border-slate-700">
+                    {selectedChannelName}
                   </div>
-                )}
+                </div>
+              )}
               <div>
                 <label className="block text-gray-400 mb-2">Email</label>
                 <input
@@ -548,7 +577,6 @@ export default function LandingPage() {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              
               <div>
                 <label className="block text-gray-400 mb-2">Confirm Password</label>
                 <input
@@ -560,20 +588,24 @@ export default function LandingPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </div>
-              
+                {signupError && (
+                  <p className="text-red-400 text-sm mt-2">{signupError}</p>
+                )}
               <div className="flex justify-between items-center pt-4">
                 <button
                   type="button"
                   onClick={() => setShowPasswordModal(false)}
                   className="text-gray-400 hover:text-white px-6 py-2"
+                  disabled={signupStatus === 'loading'}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-lg hover:opacity-90 transition-opacity"
+                  disabled={signupStatus === 'loading'}
                 >
-                  Create Account
+                  {signupStatus === 'loading' ? 'Processing...' : 'Create Account'}
                 </button>
               </div>
             </form>
