@@ -8,6 +8,7 @@ import { Button } from "../components/ui/Button"
 import { Card, CardContent } from "../components/ui/Card"
 import { motion, AnimatePresence } from "framer-motion"
 import { generateInsights } from "@/lib/openaiClient";
+import { useRouter } from "next/navigation";
 
 interface QuizAnswers {
   [key: string]: string
@@ -71,8 +72,7 @@ export default function ButlrApp() {
   const [growthPlan, setGrowthPlan] = useState<string>("")
   const [currentStep, setCurrentStep] = useState<number>(0)
   const [loading, setLoading] = useState<boolean>(false)
-  const [showAuthPrompt, setShowAuthPrompt] = useState<boolean>(false)
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false) // You'll need to implement actual auth logic
+  const router = useRouter();
 
   const quizSteps = [
     { key: "q1", question: "How would you rate your current creative confidence?", options: ["High", "Moderate", "Low"] },
@@ -90,10 +90,10 @@ export default function ButlrApp() {
   const handleQuizSubmit = async () => {
     setLoading(true)
     setShowQuiz(false)
+    console.log(quizAnswers);
     const plan = await generateGrowthPlanWithAI(quizAnswers)
     setGrowthPlan(plan)
     setLoading(false)
-    setShowAuthPrompt(true) // Show auth prompt after generating the plan
   }
 
   const handleAnswer = (value: string) => {
@@ -107,14 +107,9 @@ export default function ButlrApp() {
     }
   }
 
-  const handleAuthSuccess = () => {
-    setIsAuthenticated(true)
-    setShowAuthPrompt(false)
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 text-white p-6">
-      <div className="max-w-4xl mx-auto text-center mb-8">
+      <div className="max-w-5xl mx-auto text-center mb-8">
         <h1 className="text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500">
           Butlr
         </h1>
@@ -122,7 +117,6 @@ export default function ButlrApp() {
           Built for Creators. Ready for Every Platform.
         </p>
       </div>
-
       {loading ? (
         <div className="flex justify-center py-4 mt-5">
           <video
@@ -138,40 +132,8 @@ export default function ButlrApp() {
         </div>
       ) : null}
 
-      {showAuthPrompt && !isAuthenticated && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-slate-800 p-8 rounded-xl border border-slate-700 shadow-2xl max-w-md w-full"
-          >
-            <h2 className="text-2xl font-bold text-yellow-300 mb-4 text-center">Your Growth Plan is Ready!</h2>
-            <p className="text-slate-300 mb-6 text-center">
-              Sign up or log in to view your personalized growth plan and save it to your account.
-            </p>
-            <div className="space-y-4">
-              <Button 
-                className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3"
-                onClick={handleAuthSuccess} // Replace with actual signup handler
-              >
-                Sign Up
-              </Button>
-              <Button 
-                className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3"
-                onClick={handleAuthSuccess} // Replace with actual login handler
-              >
-                Log In
-              </Button>
-              <p className="text-sm text-slate-400 text-center mt-4">
-                By continuing, you agree to our Terms and Privacy Policy
-              </p>
-            </div>
-          </motion.div>
-        </div>
-      )}
-
       {showQuiz ? (
-        <Card id="quiz-section" className="mb-6 bg-slate-900/60 border border-slate-700 overflow-hidden">
+        <Card id="quiz-section" className="mx-auto max-w-xl mb-6 bg-slate-900/60 border border-slate-700 overflow-hidden">
           <CardContent className="p-6">
             <h2 className="text-xl font-bold text-yellow-300 text-center mb-4">Let's get to know you</h2>
             <div className="h-2 w-full bg-slate-700 rounded-full mb-6">
@@ -197,7 +159,7 @@ export default function ButlrApp() {
                     <button
                       key={opt}
                       onClick={() => handleAnswer(opt)}
-                      className="w-full py-3 px-4 bg-slate-800 text-white border border-slate-600 hover:border-yellow-400 hover:text-yellow-300 transition-colors rounded-xl"
+                      className="w-full py-3 px-4 bg-slate-800 text-white border border-slate-600 hover:border-slate-800 hover:text-slate-700 transition-colors rounded-xl"
                     >
                       {opt}
                     </button>
@@ -207,14 +169,28 @@ export default function ButlrApp() {
             </AnimatePresence>
           </CardContent>
         </Card>
-      ) : growthPlan && isAuthenticated && (
+      ) : growthPlan && (
         <div className="bg-slate-800 p-6 rounded-xl text-white border border-slate-700 shadow-lg mb-6 max-w-2xl mx-auto">
-          <h2 className="text-xl font-bold text-yellow-300 text-center mb-4">Your Personalized Growth Plan</h2>
-          <div 
-            className="markdown-content space-y-6 text-slate-200"
-            dangerouslySetInnerHTML={{ __html: formatGrowthPlan(growthPlan) }}
-          />
+        <h2 className="text-xl font-bold text-yellow-300 text-center mb-4">Your Personalized Growth Plan</h2>
+        <div
+          className="markdown-content space-y-6 text-slate-200"
+          dangerouslySetInnerHTML={{ __html: formatGrowthPlan(growthPlan) }}
+        />
+        
+        <div className="flex gap-4 justify-center mt-6">
+          <button
+            className="py-3 px-6 text-white bg-gradient-to-r from-green-300 to-green-400 hover:from-green-500 hover:to-green-700 hover:text-slate-900 transition-all duration-300 ease-in-out rounded-xl"
+          >
+            Save Plan
+          </button>
+          <button
+            onClick={() => window.location.reload()}
+            className="py-3 px-6 text-white bg-gradient-to-r from-rose-200 to-red-300 hover:from-rose-500 hover:to-red-600 hover:text-slate-900 transition-all duration-300 ease-in-out rounded-xl"
+          >
+            Re-take
+          </button>
         </div>
+      </div>      
       )}
     </div>
   )

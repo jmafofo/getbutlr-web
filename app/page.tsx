@@ -228,6 +228,25 @@ export default function LandingPage() {
 
   return (
     <div className="text-white">
+      <motion.div
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ delay: 2.5 }}
+  className="absolute top-4 right-8 z-50"
+>
+  <button
+    type="submit"
+    onClick={() => router.push('/signin')}
+    className="text-white px-6 py-3 rounded-lg 
+               bg-slate-800 
+               transition-all duration-600 ease-in-out
+               hover:bg-white/10 hover:backdrop-blur-lg hover:shadow-lg 
+               hover:border hover:border-white/10 hover:text-white"
+  >
+    <span>User Portal</span>
+  </button>
+</motion.div>
+
       {/* Hero Section */}
       <section className="min-h-screen flex flex-col items-center justify-center px-6 py-16 text-center bg-gradient-to-br from-slate-900 to-slate-800">
         <motion.div
