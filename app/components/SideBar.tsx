@@ -4,18 +4,26 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import type { User } from "@supabase/supabase-js";
 import { usePathname, useRouter } from "next/navigation";
-import { 
-  FiHome, 
-  FiTrendingUp, 
-  FiSettings, 
-  FiLogOut, 
-  FiChevronDown, 
+import {
+  FiHome,
+  FiTrendingUp,
+  FiSettings,
+  FiLogOut,
+  FiChevronDown,
   FiChevronUp,
   FiMenu,
   FiX,
   FiSearch,
   FiCamera,
-  FiDivide
+  FiDivide,
+  FiMusic,
+  FiVideo,
+  FiEdit,
+  FiTag,
+  FiCheckCircle,
+  FiSliders,
+  FiLink,
+  FiShield
 } from "react-icons/fi";
 
 export default function Sidebar() {
@@ -95,21 +103,23 @@ export default function Sidebar() {
       submenu: []
     },
     {
-      name: "Analytics",
+      name: "Courses",
       icon: FiTrendingUp,
       submenu: [
-        { name: "Reports", path: "/analytics/reports" },
-        { name: "Insights", path: "/analytics/insights" },
-        { name: "Metrics", path: "/analytics/metrics" }
+        { name: "Editing Sound", path: "/courses/editing-sound", icon: FiMusic },
+        { name: "Filming Tips", path: "/courses/filming-tips", icon: FiVideo },
+        { name: "Script Coach", path: "/courses/script-coach", icon: FiEdit },
+        { name: "Niche Review", path: "/courses/niche-review", icon: FiTag },
+        { name: "SEO Checklist", path: "/courses/seo-checklist", icon: FiCheckCircle }
       ]
     },
     {
       name: "Configuration",
       icon: FiSettings,
       submenu: [
-        { name: "Preferences", path: "/config/preferences" },
-        { name: "Integrations", path: "/config/integrations" },
-        { name: "Security", path: "/config/security" }
+        { name: "Preferences", path: "/config/preferences", icon: FiSliders },
+        { name: "Integrations", path: "/config/integrations", icon: FiLink },
+        { name: "Security", path: "/config/security", icon: FiShield }
       ]
     }
   ];
@@ -176,7 +186,7 @@ export default function Sidebar() {
                               pathname === subItem.path ? "text-purple-400" : ""
                             }`}
                           >
-                            <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+                            {subItem.icon && <subItem.icon className="text-sm text-gray-400" />}
                             {subItem.name}
                           </button>
                         </li>
