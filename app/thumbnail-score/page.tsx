@@ -18,7 +18,7 @@ export default function ThumbnailScorePage() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5">
           <div className="bg-slate-800 rounded-2xl shadow-md p-6">
             <motion.div
               initial={{ opacity: 0, y: 10 }}

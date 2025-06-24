@@ -9,6 +9,8 @@ import { Card, CardContent } from "../components/ui/Card"
 import { motion, AnimatePresence } from "framer-motion"
 import { generateInsights } from "@/lib/openaiClient";
 import { useRouter } from "next/navigation";
+import useSupabaseSession from '@/app/hooks/useSupabaseSession'
+import { supabase } from '@/lib/supabaseClient'
 
 interface QuizAnswers {
   [key: string]: string
@@ -73,6 +75,11 @@ export default function ButlrApp() {
   const [currentStep, setCurrentStep] = useState<number>(0)
   const [loading, setLoading] = useState<boolean>(false)
   const router = useRouter();
+  const session = useSupabaseSession()
+
+  if (session === null) {
+    return <p className="text-center mt-10">Loading session…</p>
+  }
 
   const quizSteps = [
     { key: "q1", question: "How would you rate your current creative confidence?", options: ["High", "Moderate", "Low"] },
@@ -87,15 +94,13 @@ export default function ButlrApp() {
     { key: "q10", question: "Would you be open to receiving content suggestions or automation help?", options: ["Yes", "Maybe", "No"] }
   ]
 
-  const handleQuizSubmit = async () => {
+  const handleQuizSubmit = async (finalAnswers: QuizAnswers) => {
     setLoading(true)
-    setShowQuiz(false)
-    console.log(quizAnswers);
-    const plan = await generateGrowthPlanWithAI(quizAnswers)
+    setShowQuiz(false)   
+    const plan = await generateGrowthPlanWithAI(finalAnswers)
     setGrowthPlan(plan)
     setLoading(false)
   }
-
   const handleAnswer = (value: string) => {
     const key = quizSteps[currentStep].key
     setQuizAnswers((prev) => ({ ...prev, [key]: value }))
@@ -103,10 +108,49 @@ export default function ButlrApp() {
     if (currentStep < quizSteps.length - 1) {
       setTimeout(() => setCurrentStep(currentStep + 1), 300)
     } else {
-      handleQuizSubmit()
+      const key = quizSteps[currentStep].key;
+      const updatedAnswers = { ...quizAnswers, [key]: value };
+      setQuizAnswers(updatedAnswers);
+      handleQuizSubmit(updatedAnswers);
     }
+    
   }
 
+  const handleSavePlan = async () => {
+    try {
+      const res = await fetch('/api/crud/q_answers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quizAnswers,
+          growthPlan,
+        }),
+      });
+  
+      if (res.status === 401) {
+        router.push('/signin');
+        return;
+      }
+  
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error('Save failed:', errorData.error || 'Unknown error');
+        alert('Failed to save plan. Please try again.');
+        return;
+      }
+  
+      alert('Your plan has been saved successfully!');
+    } catch (error) {
+      console.error('Save error:', error);
+      alert('There was an error saving your plan.');
+    }
+  };  
+
+  if (!session) {
+    return (
+     router.push('/signin')
+    )
+  }
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 text-white p-6">
       <div className="max-w-5xl mx-auto text-center mb-8">
@@ -179,6 +223,7 @@ export default function ButlrApp() {
         
         <div className="flex gap-4 justify-center mt-6">
           <button
+            onClick={handleSavePlan}
             className="py-3 px-6 text-white bg-gradient-to-r from-green-300 to-green-400 hover:from-green-500 hover:to-green-700 hover:text-slate-900 transition-all duration-300 ease-in-out rounded-xl"
           >
             Save Plan

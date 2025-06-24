@@ -7,18 +7,32 @@ import { motion } from 'framer-motion'
 export default function SignUpPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
-  const [firstname, setFirstName] = useState('')
-  const [lastname, setLastName] = useState('')
   const [password, setPassword] = useState('')
+  const [password2, setPassword2] = useState('')
   const [message, setMessage] = useState('')
 
   const handleSignup = async () => {
+    if (!password || !password2) {
+      setMessage('Please enter and confirm your password.')
+      return
+    }
+  
+    if (password !== password2) {
+      setMessage('Passwords do not match.')
+      return
+    }
+  
+    if (password.length < 8) {
+      setMessage('Password must be at least 6 characters long.')
+      return
+    }
+
     setMessage('Creating account...')
 
     const res = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, firstname, lastname }),
+      body: JSON.stringify({ email, password }),
     })
 
     const data = await res.json()
@@ -26,8 +40,6 @@ export default function SignUpPage() {
       setMessage(data.error)
     } else {
       setMessage('Signup successful! Please check your email.')
-      // Optionally redirect after signup:
-      // router.push('/signin')
     }
   }
 
@@ -58,20 +70,6 @@ export default function SignUpPage() {
           />
           <input
             className="w-full p-3 rounded bg-slate-800 text-white border border-slate-700"
-            type="text"
-            placeholder="First Name"
-            value={email}
-            onChange={(e) => setFirstName(e.target.value)}
-          />
-          <input
-            className="w-full p-3 rounded bg-slate-800 text-white border border-slate-700"
-            type="text"
-            placeholder="Last Name"
-            value={email}
-            onChange={(e) => setLastName(e.target.value)}
-          />
-          <input
-            className="w-full p-3 rounded bg-slate-800 text-white border border-slate-700"
             type="password"
             placeholder="Choose a password"
             value={password}
@@ -81,8 +79,8 @@ export default function SignUpPage() {
             className="w-full p-3 rounded bg-slate-800 text-white border border-slate-700"
             type="password"
             placeholder="Retype your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={password2}
+            onChange={(e) => setPassword2(e.target.value)}
           />
 
           <motion.button

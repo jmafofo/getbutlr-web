@@ -47,22 +47,17 @@ export default function TopBar() {
     setDropdownOpen(false);
   };
 
-  const handleInsights = async () => {
-    router.push("/insights");
-    setDropdownOpen(false);
-  };
-
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    router.push("/");
+    router.push("/signin");
   };
 
   const avatarLetter = user?.email?.charAt(0)?.toUpperCase() || "?";
 
   return (
     <div className="w-full px-6 py-4 bg-slate-800 text-gray-200 shadow-lg flex justify-between items-center">
-      <img src="/logo_btlr.svg" alt="Butlr AI Logo" className="h-8 w-auto" />
+      <img src="" alt="" className="h-8 w-auto" />
       {user ? (
         <div className="relative" ref={dropdownRef}>
           <button
@@ -83,14 +78,6 @@ export default function TopBar() {
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-50">
               <ul className="py-1 text-sm text-gray-800">
-                <li>
-                  <button
-                    onClick={handleInsights}
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                  >
-                    Insights
-                  </button>
-                </li>
                 <li>
                   <button
                     onClick={handleSettings}

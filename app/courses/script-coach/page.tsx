@@ -19,7 +19,7 @@ export default function ScriptCoachPage() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5">
           <div className="bg-slate-800 rounded-2xl shadow-md p-6">
       <h1 className="text-3xl font-bold mb-4">✍️ Script Writing Coach</h1>
       <p className="mb-4">Train with Butlr's AI to write engaging video intros, hooks, and story arcs tailored to your audience.</p>

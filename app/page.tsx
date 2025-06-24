@@ -9,6 +9,7 @@ export default function LandingPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [signupStatus, setSignupStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [subscriberStatus, setSubscriberStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');  
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -198,27 +199,29 @@ export default function LandingPage() {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, selectedChannelId, selectedChannelName }),
-      });
-  
+        body: JSON.stringify({ email: email.trim(), password, selectedChannelId, selectedChannelName }),
+      })
+    
+      const data = await res.json()
+    
       if (res.ok) {
-        setSignupStatus('success');
-        setSelectedChannelId('');
-        setSelectedChannelName('');
-        setEmail('');
-        setPassword('');
-        setConfirmPassword('');
-        setShowPasswordModal(false);
-        router.push("/signin");
+        setSignupStatus('success')
+        setSelectedChannelId('')
+        setSelectedChannelName('')
+        setEmail('')
+        setPassword('')
+        setConfirmPassword('')
+        setShowPasswordModal(false)
+        router.push('/signin')
       } else {
-        setSignupStatus('error');
-        setSignupError('❌ Signup failed. Email may already be used.');
+        setSignupStatus('error')
+        setSignupError(data.error || '❌ Signup failed. Email may already be used.')
       }
     } catch (err) {
-      setSignupStatus('error');
-      setSignupError('❌ An error occurred. Please try again.');
+      setSignupStatus('error')
+      setSignupError('❌ An error occurred. Please try again.')
     }
-  }  
+  }
 
   function handleChannelClick(channel: any) {
     setSelectedChannelId(channel.id);
@@ -226,26 +229,47 @@ export default function LandingPage() {
     setShowPasswordModal(true);
   }
 
+  async function subscribe(e: React.FormEvent) {
+    e.preventDefault(); // prevent full page reload
+  
+    setSubscriberStatus('loading');
+    try {
+      const res = await fetch('/api/subscriber', {
+        method: 'POST',
+        body: JSON.stringify({ email: email.trim() }),
+        headers: { 'Content-Type': 'application/json' },
+      });
+  
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Unknown error');
+  
+      setSubscriberStatus('success');
+    } catch (err) {
+      console.error(err);
+      setSubscriberStatus('error');
+    }
+  } 
+
   return (
-    <div className="text-white">
+    <div className="text-white rounded-lg">
       <motion.div
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  transition={{ delay: 2.5 }}
-  className="absolute top-4 right-8 z-50"
->
-  <button
-    type="submit"
-    onClick={() => router.push('/signin')}
-    className="text-white px-6 py-3 rounded-lg 
-               bg-slate-800 
-               transition-all duration-600 ease-in-out
-               hover:bg-white/10 hover:backdrop-blur-lg hover:shadow-lg 
-               hover:border hover:border-white/10 hover:text-white"
-  >
-    <span>User Portal</span>
-  </button>
-</motion.div>
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2.5 }}
+        className="absolute top-4 right-8 z-50"
+      >
+        <button
+          type="submit"
+          onClick={() => router.push('/signin')}
+          className="text-white px-6 py-3 rounded-lg 
+                    bg-slate-800 
+                    transition-all duration-600 ease-in-out
+                    hover:bg-white/10 hover:backdrop-blur-lg hover:shadow-lg 
+                    hover:border hover:border-white/10 hover:text-white"
+        >
+          <span>User Portal</span>
+        </button>
+      </motion.div>
 
       {/* Hero Section */}
       <section className="min-h-screen flex flex-col items-center justify-center px-6 py-16 text-center bg-gradient-to-br from-slate-900 to-slate-800">
@@ -336,6 +360,7 @@ export default function LandingPage() {
                                       hover:bg-slate-700 hover:scale-[1.02] transition-all duration-200"
                           >
                             <img
+                              loading="lazy"
                               src={thumbUrl || '/placeholder-channel.jpg'}
                               onError={(e) => {
                                 (e.currentTarget as HTMLImageElement).src = '/placeholder-channel.jpg';
@@ -521,7 +546,7 @@ export default function LandingPage() {
           
           <p className="mb-8 text-gray-300 text-xl">Enter your email to get started and receive updates.</p>
           
-          <form onSubmit={handleEmailSubmit} className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
+          <form onSubmit={subscribe} className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
             <input
               type="email"
               placeholder="Your email"
@@ -533,14 +558,14 @@ export default function LandingPage() {
             <button
               type="submit"
               className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-60"
-              disabled={signupStatus === 'loading'}
+              disabled={subscriberStatus === 'loading'}
             >
-              {signupStatus === 'loading' ? 'Processing...' : 'Sign Up'}
+              {subscriberStatus === 'loading' ? 'Processing...' : 'Sign Up'}
             </button>
           </form>
           
-          {signupStatus === 'success' && <p className="text-green-600 mt-2">Thanks! You’re on the list.</p>}
-          {signupStatus === 'error' && <p className="text-red-600 mt-2">Oops! Something went wrong.</p>}
+          {subscriberStatus === 'success' && <p className="text-green-600 mt-2">Thanks! You’re on the list.</p>}
+          {subscriberStatus === 'error' && <p className="text-red-600 mt-2">Oops! Something went wrong.</p>}
           
           <p className="mt-6 text-gray-500 text-sm max-w-lg mx-auto">
             By signing up, you agree to our Terms of Service and Privacy Policy. 

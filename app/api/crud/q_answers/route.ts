@@ -1,57 +1,37 @@
-import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
+import { NextResponse } from 'next/server';
+import { createClient } from '@/app/utils/supabase/server';
 
 export async function POST(request: Request) {
-  const { email, password, selectedChannelId, selectedChannelName } = await request.json()
+  const supabase = await createClient()
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
 
-  if (!email || !password) {
-    return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
+  if (!sessionData.session || sessionError) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password
-  })
+  const { quizAnswers, growthPlan } = await request.json();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 })
+  if (!quizAnswers || !growthPlan) {
+    return NextResponse.json({ error: 'Missing quiz answers or growth plan' }, { status: 400 });
   }
 
-  if (selectedChannelId && selectedChannelName) {
-    const { error: creatorError } = await supabase
-      .from('creator_profiles')
-      .insert([
-        {
-          user_id: data.user?.id,
-          youtube_channel_id: selectedChannelId,
-          youtube_channel_name: selectedChannelName,
-          completed_survey: false,
-        },
-      ])
+  const userId = sessionData.session.user.id;
 
-    if (creatorError) {
-      return NextResponse.json({ error: `Failed to save creator profile: ${creatorError.message}` }, { status: 500 })
-    }
+  const { error: updateError } = await supabase
+    .from('creator_profiles')
+    .update({
+      ...quizAnswers,
+      growth_plan: growthPlan,
+      completed_survey: true
+    })
+    .eq('user_id', userId);
+
+  if (updateError) {
+    return NextResponse.json(
+      { error: `Failed to update creator profile: ${updateError.message}` },
+      { status: 500 }
+    );
   }
 
-  else {
-    const { error: creatorError } = await supabase
-      .from('creator_profiles')
-      .insert([
-        {
-          user_id: data.user?.id,
-          completed_survey: false,
-        },
-      ])
-
-    if (creatorError) {
-      return NextResponse.json({ error: `Failed to save creator profile: ${creatorError.message}` }, { status: 500 })
-    }
-  }
-
-  return NextResponse.json({ user: data.user })
+  return NextResponse.json({ success: true });
 }

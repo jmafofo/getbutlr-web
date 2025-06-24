@@ -2,7 +2,7 @@
 
 export default function FilmingTipsPage() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5">
           <div className="bg-slate-800 rounded-2xl shadow-md p-6">
       <h1 className="text-3xl font-bold mb-6">🎥 Filming Tips & Gear Suggestions</h1>
       <p className="mb-4">Upgrade your content quality with smart tips and affordable gear suggestions tailored to your creator level.</p>

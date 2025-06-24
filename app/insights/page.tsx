@@ -81,7 +81,7 @@ export default function InsightsPage() {
   }
 
   return (
-    <div>
+    <div className="p-5">
       {loader ? (
         <div className="flex justify-center py-4 mt-5">
           <video

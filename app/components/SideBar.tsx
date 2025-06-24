@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import type { User } from "@supabase/supabase-js";
 import { usePathname, useRouter } from "next/navigation";
+import { stripEmailDomain } from "@/app/utils/rmEmail";
 import {
   FiHome,
   FiTrendingUp,
@@ -23,7 +24,8 @@ import {
   FiCheckCircle,
   FiSliders,
   FiLink,
-  FiShield
+  FiShield,
+  FiCoffee
 } from "react-icons/fi";
 
 export default function Sidebar() {
@@ -118,6 +120,7 @@ export default function Sidebar() {
       icon: FiSettings,
       submenu: [
         { name: "Preferences", path: "/config/preferences", icon: FiSliders },
+        { name: "Subscription", path: "/subscription", icon: FiCoffee },
         { name: "Integrations", path: "/config/integrations", icon: FiLink },
         { name: "Security", path: "/config/security", icon: FiShield }
       ]
@@ -140,8 +143,9 @@ export default function Sidebar() {
       <div className="p-6 border-b border-slate-800 flex items-center justify-center">
         <div className="flex items-center gap-3">
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-md"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-md"
             style={{
+              fontSize: "1vw",
               background: "linear-gradient(to right, #8b5cf6, #ec4899)",
             }}
           >
@@ -149,8 +153,10 @@ export default function Sidebar() {
           </div>
           {!isCollapsed && (
             <div>
-              <p className="font-medium truncate">{user?.email || "Guest User"}</p>
-              <p className="text-xs text-gray-400">Administrator</p>
+              <p className="font-small truncate">
+                {stripEmailDomain(user?.email)}
+              </p>
+              <p className="text-l text-gray-400">Gold</p>
             </div>
           )}
         </div>

@@ -21,6 +21,8 @@ export default function SignInPage() {
       email,
       password,
     });
+
+    const accessToken = signInData?.session?.access_token;
   
     if (error) {
       if (
@@ -42,7 +44,7 @@ export default function SignInPage() {
       setMessage("No user data found.");
       return;
     }
-  
+    
     const { data: profileData, error: profileError } = await supabase
       .from("creator_profiles")
       .select("completed_survey")

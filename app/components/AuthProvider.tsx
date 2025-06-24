@@ -24,7 +24,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       return;
     }
 
-    const currentTime = Date.now() / 1000; // in seconds
+    const currentTime = Date.now() / 1000; // seconds
     const expiresIn = session.expires_at ?? 0;
     const bufferTime = 60;
 
@@ -39,7 +39,6 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   }, [router]);
 
   useEffect(() => {
-    // ⛔ Skip auth check if route is exempt
     if (EXEMPT_ROUTES.includes(pathname)) {
       setIsLoading(false);
       return;
@@ -47,11 +46,24 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
     checkSession();
 
+    // 🔁 Real-time session handling
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('[Auth Event]', event);
+
+      if (event === 'SIGNED_OUT') {
+        router.push('/signin');
+      }     
+
+      if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') {
+        setIsLoading(false);
+      }
+    });
+
     const handleActivity = () => {
       clearTimeout(activityTimeout);
       activityTimeout = setTimeout(() => {
         checkSession();
-      }, 30 * 1000); // check 30s after interaction
+      }, 30 * 1000);
     };
 
     window.addEventListener('mousemove', handleActivity);
@@ -63,12 +75,14 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       window.removeEventListener('keydown', handleActivity);
       window.removeEventListener('click', handleActivity);
       clearTimeout(activityTimeout);
+      listener?.subscription.unsubscribe();
     };
   }, [pathname, checkSession]);
 
   if (isLoading) {
-    return <div className="text-white text-center mt-20">
-      <video
+    return (
+      <div className="text-white text-center mt-20">
+        <video
           autoPlay
           loop
           muted
@@ -78,7 +92,8 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
           <source src="/loading_page.webm" type="video/webm" />
           Your browser does not support the video tag.
         </video>
-    </div>;
+      </div>
+    );
   }
 
   return <>{children}</>;

@@ -41,7 +41,7 @@ export default function NicheReviewPage() {
 
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5">
             <div className="bg-slate-800 rounded-2xl shadow-md p-6">
         <h1 className="text-3xl font-bold mb-4">🔍 Guided Niche Review</h1>
         <p className="mb-6">Answer a few questions and let Butlr analyze trends, competition, and opportunities in your content area.</p>

@@ -1,1 +1,1 @@
-export const hideOnRoutes = ["/signin", "/signup", "/login", "/", "/quiz"];
+export const hideOnRoutes = ["/signin", "/signup", "/"];
