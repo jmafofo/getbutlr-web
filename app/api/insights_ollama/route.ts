@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
     });
 
     const data = await ollamaRes.json();
+    console.log("Ollama API Raw Response:", data);
 
     if (!ollamaRes.ok) {
       console.error("Ollama Error:", data);

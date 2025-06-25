@@ -48,12 +48,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: userError?.message || 'User not found' }, { status: 401 });
   }
 
-  const { tier, trial, plan } = await req.json();
+  const { tier, trial, plan, status } = await req.json();
 
   const values: any = {
     user_id: user.id,
     tier,
-    plan
+    plan,
+    status
   };
 
   if (trial) {
@@ -61,11 +62,12 @@ export async function POST(req: NextRequest) {
     const exp = new Date(start.getTime() + 14 * 24 * 60 * 60 * 1000);
     values.trial_started = start;
     values.trial_expires = exp;
+    values.status = status
   }
 
   const { data: newSub, error } = await supabase
     .from('subscriptions')
-    .upsert(values)
+    .upsert(values, { onConflict: 'user_id' })
     .select('*')
     .single();
 

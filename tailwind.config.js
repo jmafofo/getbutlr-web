@@ -6,6 +6,6 @@ module.exports = {
         screen: '100dvh',
       }
     },
-    plugins: [],
+    plugins: [require('@tailwindcss/typography')],
   }
   

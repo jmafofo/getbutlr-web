@@ -39,7 +39,8 @@ export default function SubscriptionPage() {
       body: JSON.stringify({
         tier: 'pro',
         plan: 'monthly',
-        trial: true
+        trial: true,
+        status: 'active'
       }),
     });
 

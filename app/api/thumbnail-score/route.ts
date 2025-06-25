@@ -1,41 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import OpenAI from 'openai';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+import { callOllama } from '../ollama_query/route';
 
 export async function POST(req: NextRequest) {
-  const { user_id, video_id, thumbnail_url } = await req.json();
+  try {
+    const { clip_result, title } = await req.json();
 
-  const prompt = `
-You are an expert YouTube thumbnail evaluator.
-Evaluate the following thumbnail URL: ${thumbnail_url}
-Provide a score from 0 to 100 and written feedback based on:
-1. Clarity and composition,
-2. Emotional engagement,
-3. Text readability,
-4. Brand consistency.
+    const prompt = `
+      You are an expert YouTube thumbnail evaluator.
+      Evaluate the following thumbnail description: ${clip_result} 
+      For the video titled: ${title}
+      
+      Provide a score from 0 to 100 and written feedback based on:
+      1. Clarity and composition,
+      2. Emotional engagement,
+      3. Text readability,
+      4. Brand consistency.
 
-Response format:
-{"score": <integer>, "feedback": "<your feedback>"}
-`;
+      Return your response in strict JSON format:
+      {"score": number, "feedback": string}
+    `;
 
-  const resp = await openai.chat.completions.create({
-    model: 'gpt-4',
-    messages: [{ role: 'user', content: prompt }],
-    temperature: 0.3,
-  });
+    const rawResult = await callOllama(prompt);
 
-  const result = JSON.parse(resp.choices[0].message.content);
+    // If we get a direct JSON response, use it
+    if (typeof rawResult === 'object' && rawResult !== null) {
+      return NextResponse.json(rawResult);
+    }
 
-  await supabase.from('thumbnail_scores').insert({
-    user_id, video_id, thumbnail_url, score: result.score, feedback: result.feedback
-  });
+    // Otherwise, try to parse the string response
+    let parsedResult;
+    try {
+      const cleaned = rawResult.replace(/```json/g, '').replace(/```/g, '').trim();
+      parsedResult = JSON.parse(cleaned);
+    } catch (e) {
+      // If parsing fails, wrap the raw result in a proper format
+      parsedResult = {
+        score: 0,
+        feedback: rawResult || 'No feedback could be generated'
+      };
+    }
 
-  return NextResponse.json(result);
+    return NextResponse.json(parsedResult);
+
+  } catch (error) {
+    console.error('Error in thumbnail-score API:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Internal Server Error' },
+      { status: 500 }
+    );
+  }
 }
-

@@ -1,7 +1,6 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { animationVariants } from '@/lib/uiConfig';
 import { logEvent } from '@/lib/analytics';
 import { useRouter } from 'next/navigation';
 
@@ -23,7 +22,6 @@ export default function LandingPage() {
   const [hasSearched, setHasSearched] = useState(false);
   const [signupError, setSignupError] = useState('');
 
-
   const formatSubscribers = (count: string | undefined): string => {
     const num = parseInt(count || '0', 10);
     if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + 'M';
@@ -36,8 +34,7 @@ export default function LandingPage() {
     setLoading(true);
     setHasSearched(true);
 
-    const apiKey = 'AIzaSyD71q9jQuPD5n4Krq9xnQ7orSuwhGjfvg4';
-
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_API;
     try {
       const searchRes = await fetch(
         `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${encodeURIComponent(query)}&maxResults=10&key=${apiKey}`
