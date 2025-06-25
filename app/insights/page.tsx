@@ -1,38 +1,35 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabaseClient';
-import { generateInsights } from '../../lib/openaiClient';
-import { getAnalyses } from '@/lib/db/analysis';
-import VideoChartCard from '@/components/VideoChartCard';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabaseClient';
+import { generateInsights } from '@/lib/openaiClient';
+import { detectLocations } from '@/lib/geoParser';
+import LocationChecklist from '../seo_tools/location_checklist';
 
 export default function InsightsPage() {
   const [query, setQuery] = useState('');
   const [tone, setTone] = useState('SEO‑Rich');
   const [res, setRes] = useState<any>();
   const [saved, setSaved] = useState<any[]>([]);
-  const [chartData, setChartData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [detectedLocations, setDetectedLocations] = useState<string[]>([]);
 
   async function run() {
     const data = await generateInsights(query, tone);
+    const locations = detectLocations(query);
     setRes(data);
+    setDetectedLocations(locations);
   }
 
   async function fetchSaved() {
     const { data } = await supabase
-      .from("suggestions")
-      .select("*")
-      .order("created_at", { ascending: false });
+      .from('suggestions')
+      .select('*')
+      .order('created_at', { ascending: false });
     setSaved(data || []);
   }
 
   useEffect(() => {
     fetchSaved();
-    getAnalyses().then((res) => {
-      setChartData(res);
-      setLoading(false);
-    });
   }, []);
 
   return (
@@ -67,10 +64,10 @@ export default function InsightsPage() {
         <div className="bg-gray-100 p-4 rounded space-y-2">
           <h2>Suggestions ({tone})</h2>
           <div>
-            <strong>Keywords:</strong> {res.keywords.join(", ")}
+            <strong>Keywords:</strong> {res.keywords.join(', ')}
           </div>
           <div>
-            <strong>Tags:</strong> {res.tags.join(", ")}
+            <strong>Tags:</strong> {res.tags.join(', ')}
           </div>
           <div>
             <strong>Titles:</strong>
@@ -83,6 +80,12 @@ export default function InsightsPage() {
           <div>
             <strong>Thumbnail Prompt:</strong> {res.thumbnail_prompt}
           </div>
+        </div>
+      )}
+
+      {detectedLocations.length > 0 && (
+        <div className="mt-6">
+          <LocationChecklist locations={detectedLocations} />
         </div>
       )}
 
@@ -105,20 +108,15 @@ export default function InsightsPage() {
                 <strong>Tone:</strong> {item.tone}
               </div>
               <div>
-                <strong>Keywords:</strong> {item.keywords.join(", ")}
+                <strong>Keywords:</strong> {item.keywords.join(', ')}
               </div>
               <div>
-                <strong>Tags:</strong> {item.tags.join(", ")}
+                <strong>Tags:</strong> {item.tags.join(', ')}
               </div>
             </details>
           ))}
         </div>
       )}
-
-      <div className="pt-8">
-        <h2 className="text-xl font-semibold mb-2">Performance Chart</h2>
-        {loading ? <p>Loading chart...</p> : <VideoChartCard data={chartData} />}
-      </div>
     </div>
   );
 }
