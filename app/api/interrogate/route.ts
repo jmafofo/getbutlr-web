@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   }
 
   const backendUrl = process.env.BACKEND_URL
-
+  
   const backendFormData = new FormData()
   if (imageFile) backendFormData.append('image_file', imageFile as Blob)
   if (imageUrl) backendFormData.append('image_url', imageUrl as string)

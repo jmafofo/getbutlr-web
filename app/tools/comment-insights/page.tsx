@@ -1,8 +1,9 @@
 'use client';
 import { useState } from 'react';
-import Link from 'next/link';
+import { motion } from "framer-motion";
 
 export default function ContentPerformance() {
+  const [description, setDescription] = useState('');
   const [url, setUrl] = useState('');
   const [results, setResults] = useState<any>(null);
   const [error, setError] = useState('');
@@ -43,24 +44,33 @@ export default function ContentPerformance() {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-4xl mx-auto bg-white shadow-md rounded-2xl">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5">
+      <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="col-6-m space-y-4"
+        >
+      <div className="bg-slate-800 rounded-2xl shadow-md p-6">   
       <h1 className="text-3xl font-bold mb-4">Comment Insight Tool</h1>
-      <p className="mb-6 text-gray-700">Enter a comments to extract sentiment and insights.</p>
+      <p className="mb-4">Enter a comments to extract sentiment and insights.</p>
 
-      <div className="flex flex-col sm:flex-row gap-2 mb-4">
+      <div className="flex flex-col-1 sm:flex-row gap-2 mb-4">
         <input
           type="text"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="https://www.youtube.com/watch?v=xyz123"
-          className="flex-1 border rounded-lg px-4 py-2"
+          className="w-full p-3 rounded bg-slate-700 text-white border border-slate-600"
         />
-        <button
-          onClick={handleCommentAnalyze}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          Analyze
-        </button>
+        <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleCommentAnalyze}
+            className="w-full p-3 rounded bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold"
+          >
+            Analyze
+          </motion.button>
       </div>
 
       {error && <p className="text-red-600 mb-4">{error}</p>}
@@ -101,8 +111,8 @@ export default function ContentPerformance() {
           </div>
         </div>
       )}
-
-      <Link href="/tools" className="text-blue-500 mt-6 inline-block">← Back to Tools</Link>
+      </div>
+      </motion.div>
     </div>
   );
 }
