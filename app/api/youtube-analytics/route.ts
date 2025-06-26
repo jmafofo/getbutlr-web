@@ -55,30 +55,75 @@ export async function GET(req: NextRequest) {
 
     // --- Fetch video stats ---
     const videosRes = await fetch(
-      `https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet&id=${videoIds.join(
+      `https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet,contentDetails&id=${videoIds.join(
         ','
       )}&key=${API_KEY}`
     );
     const videosData = await videosRes.json();
 
-    const videos = videosData.items?.map((video: any) => ({
-      title: video.snippet?.title,
-      viewCount: parseInt(video.statistics?.viewCount || '0', 10),
-    }));
+    const videos = videosData.items?.map((video: any) => {
+      const duration = video.contentDetails?.duration || '';
+      const isShort =
+        parseISO8601Duration(duration) < 60 &&
+        video.snippet?.title.toLowerCase().includes('short') ||
+        video.snippet?.description?.toLowerCase().includes('#shorts') ||
+        false;
 
-    // --- Sort by viewCount descending ---
+      const isLive =
+        video.snippet?.liveBroadcastContent === 'live' ||
+        video.snippet?.liveBroadcastContent === 'completed';
+
+      return {
+        title: video.snippet?.title,
+        viewCount: parseInt(video.statistics?.viewCount || '0', 10),
+        isShort,
+        isLive,
+      };
+    });
+
+    // --- Top videos ---
     const topVideos = videos
       ?.sort((a: any, b: any) => b.viewCount - a.viewCount)
       .slice(0, 3);
+
+    // --- Content Type Performance ---
+    let shortsViews = 0;
+    let videosViews = 0;
+    let liveViews = 0;
+
+    videos?.forEach((v) => {
+      if (v.isShort) {
+        shortsViews += v.viewCount;
+      } else if (v.isLive) {
+        liveViews += v.viewCount;
+      } else {
+        videosViews += v.viewCount;
+      }
+    });
 
     return NextResponse.json({
       subscribers: stats?.subscriberCount || 0,
       views: stats?.viewCount || 0,
       videos: stats?.videoCount || 0,
       topVideos: topVideos || [],
+      contentTypePerformance: {
+        shorts: shortsViews,
+        videos: videosViews,
+        live: liveViews,
+      },
     });
   } catch (error) {
     console.error('Error fetching YouTube data:', error);
     return NextResponse.json({ error: 'Failed to fetch YouTube data' }, { status: 500 });
   }
+}
+
+// --- Helper to parse ISO8601 Duration (e.g., PT1M5S -> 65 seconds) ---
+function parseISO8601Duration(duration: string): number {
+  const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
+  const matches = duration.match(regex);
+  const hours = parseInt(matches?.[1] || '0', 10);
+  const minutes = parseInt(matches?.[2] || '0', 10);
+  const seconds = parseInt(matches?.[3] || '0', 10);
+  return hours * 3600 + minutes * 60 + seconds;
 }

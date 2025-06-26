@@ -11,9 +11,13 @@ export default function DashboardPage() {
     videos: 0,
     realtimeViews: 0,
     last7DaysViews: [120, 150, 90, 180, 220, 160, 200],
-    topVideos: []
+    topVideos: [],
+    contentTypePerformance: {
+      shorts: 0,
+      videos: 0,
+      live: 0,
+    },
   });
-
   useEffect(() => {
     const fetchYoutubeData = async () => {
       const res = await fetch('/api/youtube-analytics');
@@ -56,28 +60,36 @@ export default function DashboardPage() {
 
         {/* ✅ CONTENT TAB */}
         <TabsContent value="content">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 bg-slate-800 rounded-2xl shadow-md p-4 mb-5">
           <ChartCard
               title="Top Performing Videos"
               labels={youtubeData.topVideos.map((video) => video.title)}
               dataValues={youtubeData.topVideos.map((video) => video.viewCount)}
             />
+            </div>
+            <div className="grid grid-cols-1 gap-6 bg-slate-800 rounded-2xl shadow-md p-4">
             <ChartCard
               title="Content Type Performance"
               labels={['Shorts', 'Videos', 'Live']}
-              dataValues={[3000, 1500, 500]}
+              dataValues={[
+                youtubeData.contentTypePerformance.shorts,
+                youtubeData.contentTypePerformance.videos,
+                youtubeData.contentTypePerformance.live,
+              ]}
             />
           </div>
         </TabsContent>
 
         {/* ✅ AUDIENCE TAB */}
         <TabsContent value="audience">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 bg-slate-800 rounded-2xl shadow-md p-4 mb-5">
             <ChartCard
               title="Returning vs New Viewers"
               labels={['New', 'Returning']}
               dataValues={[2500, 800]}
             />
+            </div>
+            <div className="grid grid-cols-1 gap-6 bg-slate-800 rounded-2xl shadow-md p-4">
             <ChartCard
               title="Top Geographies"
               labels={['US', 'PH', 'IN']}
@@ -88,12 +100,14 @@ export default function DashboardPage() {
 
         {/* ✅ TRENDS TAB */}
         <TabsContent value="trends">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 bg-slate-800 rounded-2xl shadow-md p-4 mb-5">
             <ChartCard
               title="Traffic Sources"
               labels={['Search', 'Suggested', 'External']}
               dataValues={[1200, 900, 400]}
             />
+            </div>
+            <div className="grid grid-cols-1 gap-6 bg-slate-800 rounded-2xl shadow-md p-4">
             <ChartCard
               title="Device Types"
               labels={['Mobile', 'Desktop', 'Tablet']}
