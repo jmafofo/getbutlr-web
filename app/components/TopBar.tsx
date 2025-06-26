@@ -35,7 +35,6 @@ export default function TopBar() {
 
     fetchYoutubeData();
   }, []);
-  console.log(youtubeData)
   useEffect(() => {
     async function fetchUser() {
       const { data } = await supabase.auth.getSession();

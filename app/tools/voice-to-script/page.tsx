@@ -1,116 +1,138 @@
 'use client';
-import { useState } from 'react';
-import { motion } from "framer-motion";
 
-export default function ContentPerformance() {
-  const [url, setUrl] = useState('');
-  const [results, setResults] = useState<any>(null);
-  const [error, setError] = useState('');
+import { useState, useCallback } from 'react';
+import { motion } from 'framer-motion';
 
-  const handleTranscribe = async () => {
-    setError('');
-    setResults(null);
-    const videoId = url.split("v=")[1]?.split("&")[0];
-    if (!videoId) {
-      setError('Invalid YouTube URL');
+export default function TranscribePage() {
+  const [file, setFile] = useState<File | null>(null);
+  const [result, setResult] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>('');
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const droppedFile = e.dataTransfer.files[0];
+    if (
+      droppedFile &&
+      (droppedFile.type.startsWith('audio/') || droppedFile.type.startsWith('video/'))
+    ) {
+      setFile(droppedFile);
+    } else {
+      setError('Please upload an audio or video file.');
+    }
+  }, []);
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      setError('Please select a file');
       return;
     }
 
-    try {
-      const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics,contentDetails&id=${videoId}&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`);
-      const data = await res.json();
-      if (!data.items || data.items.length === 0) {
-        setError('Video not found or invalid API key');
-        return;
-      }
+    setLoading(true);
+    setError('');
+    setResult('');
 
-      const stats = data.items[0].statistics;
-      setResults({
-        viewCount: stats.viewCount,
-        impressions: 'N/A (requires YouTube Analytics API)',
-        ctr: 'N/A (requires YouTube Analytics API)',
-        avgViewDuration: 'N/A (requires YouTube Analytics API)',
-        retentionData: [100, 90, 80, 60, 50, 30],
-        tips: [
-          'Use timestamps and structured segments.',
-          'Improve thumbnail and title clarity.',
-          'Hook your audience in the first 15 seconds.'
-        ]
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/transcriber', {
+        method: 'POST',
+        body: formData,
       });
-    } catch (err) {
-      setError('Error fetching data from YouTube API');
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Failed to transcribe');
+      } else {
+        setResult(data.transcription);
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5">
       <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="col-6-m space-y-4"
-        >
-      <div className="bg-slate-800 rounded-2xl shadow-md p-6">  
-      <h1 className="text-3xl font-bold mb-4">Voice-to-Script Recorder</h1>
-      <p className="mb-4">Enter a recorded voice to turn into a script.</p>
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="space-y-4"
+      >
+        <div className="bg-slate-800 rounded-2xl shadow-md p-6">
+          <h1 className="text-2xl font-bold mb-4 text-white">
+            Audio/Video Transcription
+          </h1>
 
-      <div className="flex flex-col sm:flex-row gap-2 mb-4">
-        <input
-          type="text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://www.youtube.com/watch?v=xyz123"
-          className="flex-1 border rounded-lg px-4 py-2"
-        />
-        <motion.button
+          <div
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            className="border-2 border-dashed border-slate-500 rounded-lg p-6 text-center cursor-pointer hover:border-slate-300"
+          >
+            <label className="block text-white mb-2">
+              Upload Audio or Video
+            </label>
+            <input
+              type="file"
+              accept="audio/*,video/*"
+              onChange={handleFileChange}
+              className="hidden"
+              id="fileInput"
+            />
+            <label
+              htmlFor="fileInput"
+              className="cursor-pointer text-slate-300"
+            >
+              {file ? file.name : 'Drag & drop or click to upload'}
+            </label>
+          </div>
+
+          <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
-            onClick={handleTranscribe}
-            className="w-full p-3 rounded bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold"
+            onClick={handleUpload}
+            disabled={loading}
+            className="w-full p-3 rounded bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold mt-4 disabled:opacity-50"
           >
-            Analyze
+            {loading ? 'Transcribing...' : 'Upload & Transcribe'}
           </motion.button>
-      </div>
 
-      {error && <p className="text-red-600 mb-4">{error}</p>}
-
-      {results && (
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-xl font-semibold">Performance Metrics</h2>
-            <ul className="list-disc pl-6 text-gray-700">
-              <li>View Count: {results.viewCount}</li>
-              <li>Impressions: {results.impressions}</li>
-              <li>CTR: {results.ctr}</li>
-              <li>Average View Duration: {results.avgViewDuration}</li>
-            </ul>
-          </div>
-
-          <div>
-            <h2 className="text-xl font-semibold">Retention Curve (Simulated)</h2>
-            <div className="bg-gray-200 h-32 rounded-lg flex items-end gap-1 p-1">
-              {results.retentionData.map((val: number, i: number) => (
-                <div
-                  key={i}
-                  className="bg-blue-500 rounded-sm"
-                  style={{ height: `${val}%`, width: '14%' }}
-                  title={`Minute ${i + 1}: ${val}%`}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h2 className="text-xl font-semibold">Improvement Tips</h2>
-            <ul className="list-disc pl-6 text-gray-700">
-              {results.tips.map((tip: string, i: number) => (
-                <li key={i}>{tip}</li>
-              ))}
-            </ul>
-          </div>
+          {error && <p className="text-red-500 mt-4">{error}</p>}
         </div>
-      )}
-        </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="bg-slate-800 rounded-2xl shadow-md p-6"
+      >
+        {result ? (
+          <div>
+            <h2 className="text-xl font-semibold mb-2 text-white">
+              Transcription Result:
+            </h2>
+            <p className="bg-gray-100 p-4 rounded text-black">{result}</p>
+          </div>
+        ) : (
+          <p className="text-slate-400">
+            Transcription will appear here after upload.
+          </p>
+        )}
       </motion.div>
     </div>
   );
