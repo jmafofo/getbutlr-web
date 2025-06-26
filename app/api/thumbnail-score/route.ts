@@ -7,16 +7,16 @@ export async function POST(req: NextRequest) {
 
     const prompt = `
       You are an expert YouTube thumbnail evaluator.
-      Evaluate the following thumbnail description: ${clip_result} 
-      For the video titled: ${title}
-      
-      Provide a score from 0 to 100 and written feedback based on:
-      1. Clarity and composition,
-      2. Emotional engagement,
-      3. Text readability,
-      4. Brand consistency.
+        Step 1 - Trim the ${clip_result} description to take only the content of the image and don't include the metadata.
+        Step 2 - Evaluate the trimmed description along with the title ${title}.
+        Step 3 - Provide a score from 0 to 100 and written feedback based on:
+                    1. Clarity and composition,
+                    2. Emotional engagement,
+                    3. Text readability,
+                    4. Brand consistency.
 
       Return your response in strict JSON format:
+      
       {"score": number, "feedback": string}
     `;
 

@@ -25,7 +25,13 @@ import {
   FiSliders,
   FiLink,
   FiShield,
-  FiCoffee
+  FiCoffee,
+  FiTool,
+  FiCrosshair,
+  FiActivity,
+  FiLayers,
+  FiTriangle,
+  FiVoicemail
 } from "react-icons/fi";
 
 export default function Sidebar() {
@@ -113,6 +119,18 @@ export default function Sidebar() {
         { name: "Script Coach", path: "/courses/script-coach", icon: FiEdit },
         { name: "Niche Review", path: "/courses/niche-review", icon: FiTag },
         { name: "SEO Checklist", path: "/courses/seo-checklist", icon: FiCheckCircle }
+      ]
+    },
+    {
+      name: "Tools",
+      icon: FiTool,
+      submenu: [
+        { name: "Comment Insights", path: "/tools/comment-insights", icon: FiCrosshair },
+        { name: "Content Performance", path: "/tools/content-performance", icon: FiActivity },
+        { name: "Growth Planner", path: "/tools/growth-planner", icon: FiTrendingUp },
+        { name: "Hook Analyzer", path: "/tools/hook-analyzer", icon: FiTriangle },
+        { name: "Idea Generator", path: "/tools/idea-generator", icon: FiLayers },
+        { name: "Voice to Script", path: "/tools/voice-to-script", icon: FiVoicemail }
       ]
     },
     {
