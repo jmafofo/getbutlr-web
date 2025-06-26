@@ -10,7 +10,32 @@ export default function TopBar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const [youtubeData, setYoutubeData] = useState({
+    title: 0,
+    description: 0,
+    thumbnails: {
+      default: {
+        url: ""
+      },
+      medium: {
+        url: ""
+      },
+      high: {
+        url: ""
+      }
+    }
+  });
 
+  useEffect(() => {
+    const fetchYoutubeData = async () => {
+      const res = await fetch('/api/youtube-profile');
+      const data = await res.json();
+      setYoutubeData(data);
+    };
+
+    fetchYoutubeData();
+  }, []);
+  console.log(youtubeData)
   useEffect(() => {
     async function fetchUser() {
       const { data } = await supabase.auth.getSession();
@@ -70,7 +95,8 @@ export default function TopBar() {
                 background: "linear-gradient(to right, #8b5cf6, #ec4899)",
               }}
             >
-              {avatarLetter}
+              <img className="w-9 h-9 rounded-full shadow-md" src={youtubeData.thumbnails.default.url}/>
+              {/* // {avatarLetter} */}
             </div>
             <span>{user.email}</span>
           </button>

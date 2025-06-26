@@ -40,6 +40,31 @@ export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const [youtubeData, setYoutubeData] = useState({
+    title: "Name",
+    description: "Description",
+    thumbnails: {
+      default: {
+        url: ""
+      },
+      medium: {
+        url: ""
+      },
+      high: {
+        url: ""
+      }
+    }
+  });
+
+  useEffect(() => {
+    const fetchYoutubeData = async () => {
+      const res = await fetch('/api/youtube-profile');
+      const data = await res.json();
+      setYoutubeData(data);
+    };
+
+    fetchYoutubeData();
+  }, []);
 
   useEffect(() => {
     async function fetchUser() {
@@ -161,20 +186,25 @@ export default function Sidebar() {
       <div className="p-6 border-b border-slate-800 flex items-center justify-center">
         <div className="flex items-center gap-3">
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-md"
+            className="w-10 h-10 bg-gradient-to-r from-amber-900 to-yellow-300 rounded-full flex items-center justify-center text-white shadow-md"
             style={{
               fontSize: "1vw",
-              background: "linear-gradient(to right, #8b5cf6, #ec4899)",
             }}
           >
-            {avatarLetter}
+            <img className="w-9 h-9 rounded-full shadow-md" src={youtubeData.thumbnails.default.url}/>
+            {/* {avatarLetter} */}
           </div>
           {!isCollapsed && (
-            <div>
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+            <div className="col-12-m">
               <p className="font-small truncate">
                 {stripEmailDomain(user?.email)}
               </p>
               <p className="text-l text-gray-400">Gold</p>
+            </div>
+            {/* <div className="col-12-m">
+              <p className="text-l text-gray-400">{youtubeData.title}</p>
+            </div> */}
             </div>
           )}
         </div>
