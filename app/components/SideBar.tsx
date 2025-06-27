@@ -41,20 +41,15 @@ export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const [youtubeData, setYoutubeData] = useState({
-    title: "Name",
-    description: "Description",
+    title: '',
+    description: '',
     thumbnails: {
-      default: {
-        url: ""
-      },
-      medium: {
-        url: ""
-      },
-      high: {
-        url: ""
-      }
-    }
+      default: { url: '' },
+      medium: { url: '' },
+      high: { url: '' },
+    },
   });
+  
 
   useEffect(() => {
     const fetchYoutubeData = async () => {
@@ -109,6 +104,7 @@ export default function Sidebar() {
   };
 
   const avatarLetter = user?.email?.charAt(0)?.toUpperCase() || "?";
+  const avatarUrl = youtubeData?.thumbnails?.default?.url || '/12225935.png';
 
   const menuItems = [
     {
@@ -191,7 +187,7 @@ export default function Sidebar() {
               fontSize: "1vw",
             }}
           >
-            <img className="w-9 h-9 rounded-full shadow-md" src={youtubeData.thumbnails.default.url}/>
+            <img className="w-9 h-9 rounded-full shadow-md" src={avatarUrl}/>
             {/* {avatarLetter} */}
           </div>
           {!isCollapsed && (

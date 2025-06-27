@@ -4,29 +4,80 @@ import { useEffect, useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/app/components/ui/tabs';
 import ChartCard from '@/components/ChartCard';
 
-export default function DashboardPage() {
-  const [youtubeData, setYoutubeData] = useState({
-    views: 0,
-    subscribers: 0,
-    videos: 0,
-    realtimeViews: 0,
-    last7DaysViews: [120, 150, 90, 180, 220, 160, 200],
-    topVideos: [],
-    contentTypePerformance: {
-      shorts: 0,
-      videos: 0,
-      live: 0,
+type VideoData = {
+  title: string;
+  viewCount: number;
+};
+
+type YoutubeData = {
+  views: number;
+  subscribers: number;
+  videos: number;
+  realtimeViews: number;
+  last7DaysViews: number[];
+  topVideos: VideoData[];
+  contentTypePerformance: {
+    shorts: number;
+    videos: number;
+    live: number;
+  };
+};
+
+const initialYoutubeData: YoutubeData = {
+  views: 0,
+  subscribers: 0,
+  videos: 0,
+  realtimeViews: 0,
+  last7DaysViews: [120, 150, 90, 180, 220, 160, 200],
+  topVideos: [
+    {
+      title: "",
+      viewCount: 0,
     },
-  });
+  ],
+  contentTypePerformance: {
+    shorts: 0,
+    videos: 0,
+    live: 0,
+  },
+};
+
+export default function DashboardPage() {
+  const [youtubeData, setYoutubeData] = useState<YoutubeData>(initialYoutubeData);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchYoutubeData = async () => {
-      const res = await fetch('/api/youtube-analytics');
-      const data = await res.json();
-      setYoutubeData(data);
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch('/api/youtube-analytics');
+        if (!res.ok) {
+          throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
+        }
+        const data = await res.json();
+        setYoutubeData(prev => ({
+          ...prev,
+          ...data,
+        }));
+      } catch (err: any) {
+        setError(err.message || 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchYoutubeData();
   }, []);
+
+  if (loading) {
+    return <div className="p-5 text-white">Loading YouTube analytics...</div>;
+  }
+
+  if (error) {
+    return <div className="p-5 text-red-500">Error: {error}</div>;
+  }
 
   return (
     <div className="p-5">
@@ -61,13 +112,13 @@ export default function DashboardPage() {
         {/* ✅ CONTENT TAB */}
         <TabsContent value="content">
           <div className="grid grid-cols-1 gap-6 bg-slate-800 rounded-2xl shadow-md p-4 mb-5">
-          <ChartCard
+            <ChartCard
               title="Top Performing Videos"
-              labels={youtubeData.topVideos.map((video) => video.title)}
-              dataValues={youtubeData.topVideos.map((video) => video.viewCount)}
+              labels={youtubeData.topVideos?.map((video) => video.title) ?? []}
+              dataValues={youtubeData.topVideos?.map((video) => video.viewCount) ?? []}
             />
-            </div>
-            <div className="grid grid-cols-1 gap-6 bg-slate-800 rounded-2xl shadow-md p-4">
+          </div>
+          <div className="grid grid-cols-1 gap-6 bg-slate-800 rounded-2xl shadow-md p-4">
             <ChartCard
               title="Content Type Performance"
               labels={['Shorts', 'Videos', 'Live']}
@@ -82,14 +133,14 @@ export default function DashboardPage() {
 
         {/* ✅ AUDIENCE TAB */}
         <TabsContent value="audience">
-        <div className="grid grid-cols-1 gap-6 bg-slate-800 rounded-2xl shadow-md p-4 mb-5">
+          <div className="grid grid-cols-1 gap-6 bg-slate-800 rounded-2xl shadow-md p-4 mb-5">
             <ChartCard
               title="Returning vs New Viewers"
               labels={['New', 'Returning']}
               dataValues={[2500, 800]}
             />
-            </div>
-            <div className="grid grid-cols-1 gap-6 bg-slate-800 rounded-2xl shadow-md p-4">
+          </div>
+          <div className="grid grid-cols-1 gap-6 bg-slate-800 rounded-2xl shadow-md p-4">
             <ChartCard
               title="Top Geographies"
               labels={['US', 'PH', 'IN']}
@@ -100,14 +151,14 @@ export default function DashboardPage() {
 
         {/* ✅ TRENDS TAB */}
         <TabsContent value="trends">
-        <div className="grid grid-cols-1 gap-6 bg-slate-800 rounded-2xl shadow-md p-4 mb-5">
+          <div className="grid grid-cols-1 gap-6 bg-slate-800 rounded-2xl shadow-md p-4 mb-5">
             <ChartCard
               title="Traffic Sources"
               labels={['Search', 'Suggested', 'External']}
               dataValues={[1200, 900, 400]}
             />
-            </div>
-            <div className="grid grid-cols-1 gap-6 bg-slate-800 rounded-2xl shadow-md p-4">
+          </div>
+          <div className="grid grid-cols-1 gap-6 bg-slate-800 rounded-2xl shadow-md p-4">
             <ChartCard
               title="Device Types"
               labels={['Mobile', 'Desktop', 'Tablet']}

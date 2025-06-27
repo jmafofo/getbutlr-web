@@ -10,6 +10,7 @@
     "test:supabase": "ts-node scripts/test-tables.ts"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.4",
     "@mui/icons-material": "^7.1.1",
     "@radix-ui/react-slot": "^1.2.3",
     "@supabase/ssr": "^0.6.1",
