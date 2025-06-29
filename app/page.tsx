@@ -288,7 +288,7 @@ export default function LandingPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            AI-powered tools that optimize SEO, thumbnails, trends & more—all in one intuitive dashboard.
+            AI powered social media growth platform, with intuitive dashboards at your fingertips.
           </motion.p>
           
           <motion.p 

@@ -66,7 +66,7 @@ export default function SubscriptionPage() {
     {
       name: 'Pro Plan - 14 days trial',
       price: '(∞)',
-      features: ['14 Projects', 'Priority Support', 'AI Enhancements'],
+      features: ['5 Projects', 'Priority Support', 'AI Enhancements'],
       gradient: 'from-purple-500 to-pink-600',
       tierKey: 'trial',
     },
