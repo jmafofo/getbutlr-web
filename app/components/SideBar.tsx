@@ -53,9 +53,18 @@ export default function Sidebar() {
 
   useEffect(() => {
     const fetchYoutubeData = async () => {
-      const res = await fetch('/api/youtube-profile');
-      const data = await res.json();
-      setYoutubeData(data);
+      try {
+        const res = await fetch("/api/youtube-profile");
+        const result = await res.json();
+
+        setYoutubeData({
+          title: result.data.title,
+          description: result.data.description,
+          thumbnails: result.data.thumbnails,
+        });
+      } catch (err) {
+        console.error("Fetch error:", err);
+      }
     };
 
     fetchYoutubeData();

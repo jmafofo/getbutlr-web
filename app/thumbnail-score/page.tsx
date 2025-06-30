@@ -9,8 +9,48 @@ export default function ThumbnailScorePage() {
   const [file, setFile] = useState<File | null>(null);
   const [clipResult, setClipResult] = useState<string | null>(null);
   const [title, setTitle] = useState<string>('');
-  const [result, setResult] = useState<{ score: number; feedback: string } | null>(null);
+  const [result, setResult] = useState<{ 
+    score: number; 
+    feedback: string 
+  } | null>(null);
   const [loader, setLoader] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [genImage, setgenImage] = useState<{
+    feedback: string;
+    score: number;
+    image: string;
+  } | null>(null);
+
+  const handleImageGenSubmit = async () => {
+    if (!title) return;
+    setLoading(true);
+  
+    try {
+      const response = await fetch('/api/thumbnail-gen', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title
+        })
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to generate thumbnail');
+      }
+  
+      const data = await response.json();
+      setgenImage({
+        feedback: data.feedback,
+        score: data.score,
+        image: data.image_base64,
+      });
+    } catch (error) {
+      console.error('Thumbnail generation failed:', error);
+      alert('Failed to generate thumbnail');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -225,6 +265,25 @@ export default function ThumbnailScorePage() {
               >
                 Evaluate Thumbnail
               </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleImageGenSubmit}
+                disabled={!title || loading}
+                className={`w-full p-3 rounded bg-gradient-to-l from-sky-400 to-indigo-900 text-white font-bold 
+                ${!title || loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                {loading ? 'Generating...' : 'Generate Sample Thumbnail'}
+              </motion.button>
+              {genImage && (
+                  <div className="mt-4 space-y-4">
+                    <p className="text-sm text-gray-500">Feedback: {genImage.feedback}</p>
+                    <p className="text-sm text-gray-500">Score: {genImage.score}</p>
+                    {genImage.image && (
+                      <img src={genImage.image} alt="Generated Thumbnail" className="w-full rounded" />
+                    )}
+                  </div>
+                )}
             </motion.div>
           </div>
 

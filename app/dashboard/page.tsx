@@ -93,12 +93,12 @@ export default function DashboardPage() {
 
         {/* ✅ OVERVIEW TAB */}
         <TabsContent value="overview">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <MetricCard title="Views (28 days)" value={youtubeData.views} />
-            <MetricCard title="Subscribers" value={youtubeData.subscribers} />
-            <MetricCard title="Videos Published" value={youtubeData.videos} />
-            <MetricCard title="Realtime Views" value={youtubeData.realtimeViews} />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+          <MetricCard title="Views (28 days)" value={Number(youtubeData.views).toLocaleString()} />
+          <MetricCard title="Subscribers" value={Number(youtubeData.subscribers).toLocaleString()} />
+          <MetricCard title="Videos Published" value={Number(youtubeData.videos).toLocaleString()} />
+          <MetricCard title="Realtime Views" value={Number(youtubeData.realtimeViews).toLocaleString()} />
+        </div>
 
           <div className="bg-slate-800 rounded-2xl shadow-md p-4">
             <ChartCard
