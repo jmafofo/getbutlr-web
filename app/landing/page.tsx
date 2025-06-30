@@ -1,8 +1,10 @@
 'use client';
+
 import '../styles/landing.css';
 import { logEvent } from '@/lib/analytics';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import Image from 'next/image';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -17,48 +19,57 @@ export default function LandingPage() {
   };
 
   return (
-    <main className="lp-container">
+    <main className="lp-container sky-background">
+      {/* Logo at top */}
+      <div className="logo-wrapper">
+        <Image
+          src="/logo-getbutlr.png"
+          alt="GetButlr Logo"
+          width={220}
+          height={220}
+          className="logo-image"
+          priority
+        />
+      </div>
+
       <section className="hero">
-        <h1>Grow Smarter, Not Harder</h1>
-        <p className="tagline">
-          AI-powered tools that optimize SEO, thumbnails, trends & more—
-          all in one intuitive dashboard.
-        </p>
+        <h1 className="hero-title">Where Creators<br />Grow Smarter.</h1>
+        <p className="tagline">Turn insight into influence with AI that works.</p>
         <p className="subtag">
-          Start your <strong>14‑day free trial</strong>—no credit card required.
+          All-in-one AI platform to help you rank higher, hook faster, and grow your audience—
+          with less guesswork and more results.
         </p>
         <button className="cta" onClick={startTrial}>Start Free Trial</button>
       </section>
 
       <section className="features">
-        <h2>Become the Creator You Deserve to Be</h2>
+        <h2>📊 Everything You Need to Grow</h2>
         <ul className="feature-list">
-          <li>🔍 <strong>SEO Suggestions:</strong> AI-optimized titles, descriptions & tags</li>
-          <li>📸 <strong>Thumbnail Grader:</strong> Score visuals & get instant feedback</li>
-          <li>🧪 <strong>A/B Testing:</strong> Compare performance with real analytics</li>
-          <li>📈 <strong>Trend Watchlist:</strong> Stay ahead with real-time insights</li>
+          <li>🔍 <strong>SEO Engine:</strong> AI-curated titles, tags & descriptions that rank</li>
+          <li>🎯 <strong>Audience Targeting:</strong> Promote to real viewers likely to engage</li>
+          <li>📸 <strong>Thumbnail Coach:</strong> Score, improve, and test your visuals</li>
+          <li>💡 <strong>Trend Scanner:</strong> Spot what’s rising—before it explodes</li>
         </ul>
       </section>
 
       <section className="testimonials">
-        <h2>What Creators Are Saying</h2>
+        <h2>🎤 What Creators Are Saying</h2>
         <div className="testimonial-cards">
           <blockquote>
-            “GetButlr’s thumbnail AI lifted my CTR by 35% in just a week!”<br />
+            “The thumbnail coach alone paid for my subscription in 3 days.”<br />
             <cite>— Amy J., Cooking Creator</cite>
           </blockquote>
           <blockquote>
-            “I doubled my video views after SEO optimization using GetButlr!”<br />
+            “SEO and promotion tools doubled my views. This is my secret weapon.”<br />
             <cite>— Raj P., Tech Reviewer</cite>
           </blockquote>
         </div>
       </section>
 
       <section className="final-cta">
-        <h2>Ready to Level Up Your Channel?</h2>
+        <h2>🚀 Ready to Grow Smarter?</h2>
         <button className="cta" onClick={startTrial}>Start 14-Day Free Trial</button>
       </section>
     </main>
   );
 }
-
