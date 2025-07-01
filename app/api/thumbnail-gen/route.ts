@@ -3,35 +3,30 @@ import { callOllama } from '../ollama_query/route';
 
 export async function POST(req: NextRequest) {
   try {
-    const { clip_result, title } = await req.json();
+    const { title } = await req.json();
 
     const ollamaPrompt = `
-      You are an expert YouTube thumbnail evaluator and generator.
-      Step 1 - Evaluate the title description: "${title}".
-      Step 2 - Provide a detailed prompt to be passed to a text-to-image generator to create the image.
+    YouTube title: "${title}". Create a text-to-image prompt with one key visual and a bold text banner (visibly part of the image) containing a short, catchy phrase. Output only the image description.
     `;
 
     const rawResult = await callOllama(ollamaPrompt);
-
+    console.log(rawResult);
     let parsedResult;
     try {
-      const cleaned = rawResult.replace(/```json/g, '').replace(/```/g, '').trim();
+      const cleaned = rawResult.match(/```json([\s\S]*?)```/)?.[1]?.trim() || rawResult.trim();
       parsedResult = JSON.parse(cleaned);
-    } catch (e) {
+    } catch {
       parsedResult = {
         score: 0,
-        feedback: rawResult || 'No feedback could be generated',
+        feedback: rawResult || 'Feedback could not be generated',
         image_prompt: rawResult || title
       };
     }
 
     const imagePrompt = parsedResult.image_prompt || rawResult || title;
 
-    // Call the generate-image API
-    const imageResponse = await fetch(`${process.env.BACKEND_URL}/generate-image`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: imagePrompt })
+    const imageResponse = await fetch(`${process.env.BACKEND_URL_S2}/api/v1/generate-flux?prompt=${imagePrompt}&return_base64=false`, {
+      method: 'POST'
     });
 
     if (!imageResponse.ok) {

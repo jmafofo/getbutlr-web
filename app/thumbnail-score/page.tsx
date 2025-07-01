@@ -16,8 +16,6 @@ export default function ThumbnailScorePage() {
   const [loader, setLoader] = useState(false);
   const [loading, setLoading] = useState(false);
   const [genImage, setgenImage] = useState<{
-    feedback: string;
-    score: number;
     image: string;
   } | null>(null);
 
@@ -40,13 +38,10 @@ export default function ThumbnailScorePage() {
   
       const data = await response.json();
       setgenImage({
-        feedback: data.feedback,
-        score: data.score,
         image: data.image_base64,
       });
     } catch (error) {
       console.error('Thumbnail generation failed:', error);
-      alert('Failed to generate thumbnail');
     } finally {
       setLoading(false);
     }
@@ -197,7 +192,7 @@ export default function ThumbnailScorePage() {
         </div>
       
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
           {/* Left - Upload */}
           <div className="bg-slate-800 rounded-2xl shadow-md p-6">
             <motion.div
@@ -275,18 +270,29 @@ export default function ThumbnailScorePage() {
               >
                 {loading ? 'Generating...' : 'Generate Sample Thumbnail'}
               </motion.button>
-              {genImage && (
+            </motion.div>
+          </div>
+          <div className="bg-slate-800 rounded-2xl shadow-md p-6">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="space-y-4"
+            >
+              <h2 className="text-white font-bold text-lg">Generated Sample Thumbnail</h2>
+              {genImage ? (
                   <div className="mt-4 space-y-4">
-                    <p className="text-sm text-gray-500">Feedback: {genImage.feedback}</p>
-                    <p className="text-sm text-gray-500">Score: {genImage.score}</p>
                     {genImage.image && (
                       <img src={genImage.image} alt="Generated Thumbnail" className="w-full rounded" />
                     )}
                   </div>
+                ) : (
+                  <div className="text-slate-400">
+                    No image yet. Image thumbnail will be generated from the title
+                  </div>
                 )}
             </motion.div>
           </div>
-
           {/* Right - Thumbnail Score */}
           <div className="bg-slate-800 rounded-2xl shadow-md p-6">
             <motion.div
