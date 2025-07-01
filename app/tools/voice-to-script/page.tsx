@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import '@/styles/tool.css';
 
 export default function ContentPerformance() {
   const [url, setUrl] = useState('');

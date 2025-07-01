@@ -1,18 +1,24 @@
+'use client';
 import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-100 py-6 text-center text-sm text-gray-600 border-t">
-      <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center px-4">
+    <footer className="footer">
+      <div className="footer-container">
         <p>&copy; {new Date().getFullYear()} GetButlr. All rights reserved.</p>
-        <div className="space-x-4 mt-2 md:mt-0">
-          <Link href="/preferences" className="hover:underline">
+        <div className="footer-links">
+          <Link href="/preferences" className="footer-link">
             Email Preferences
           </Link>
-          <Link href="/unsubscribe" className="hover:underline">
+          <Link href="/unsubscribe" className="footer-link">
             Unsubscribe
           </Link>
-          <a href="https://getbutlr.ai/privacy" className="hover:underline" target="_blank" rel="noopener noreferrer">
+          <a
+            href="https://getbutlr.ai/privacy"
+            className="footer-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Privacy Policy
           </a>
         </div>
@@ -20,4 +26,3 @@ export default function Footer() {
     </footer>
   );
 }
-

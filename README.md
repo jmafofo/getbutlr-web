@@ -1,58 +1,30 @@
-# GetButlr – AI-Powered Creator Growth Suite 🚀
+# GetButlr — AI-Powered Growth Tools for Creators
 
-**GetButlr** is a lightweight, open-source platform that empowers YouTube creators with AI-driven tools—SEO-optimized titles, thumbnail scoring, A/B testing, trend tracking, and gamified performance advice—all bundled in an intuitive web app + browser extension.
-
----
-
-## 🌟 Key Features
-
-- **Personalized SEO Suggestions**  
-  Generates optimized video titles, descriptions, and tags using GPT-4 and YouTube trend data.
-
-- **Thumbnail Scoring**  
-  Rates visual appeal (0–100) with feedback on composition, readability, and branding.
-
-- **A/B Testing & Performance Dashboard**  
-  Enables multiple title/thumbnail tests with CTR and watch-time analysis.
-
-- **Trend Watchlist + Alerts**  
-  Tracks trending keywords and notifies creators when spikes occur.
-
-- **YouTube Studio Extension**  
-  Integrates directly into YouTube Studio with real-time suggestions and gamified effects.
-
-- **Gamified Progress Tracking**  
-  Logs performance metrics and celebrates wins with confetti and sparkly overlays.
-
-- **14‑Day Trial + Tiered Pricing**  
-  Start with a free trial, then continue with affordable Growth or Pro plans.
+**GetButlr** is your personal AI assistant for growing your online content presence. Designed for YouTubers, TikTokers, and Reels creators, GetButlr offers a sleek, intuitive platform packed with tools to optimize, enhance, and scale your content impact.
 
 ---
 
-## 📋 Table of Contents
+### 🌟 Features
 
-1. [Getting Started](#getting-started)  
-2. [Project Structure](#project-structure)  
-3. [Usage & Examples](#usage--examples)  
-4. [Roadmap](#roadmap)  
-5. [Contributing](#contributing)  
-6. [License](#license)  
-7. [Contact & Support](#contact--support)
+- **SEO Engine**: Generate optimized titles, tags, and descriptions that actually rank.
+- **Audience Targeting**: Promote your content to viewers who are more likely to engage and subscribe.
+- **Thumbnail Coach**: Upload, score, improve, and test your thumbnails with AI.
+- **Trend Scanner**: Discover early signals from rising topics before they go viral.
+- **Hook Analyzer**: Break down your intros and improve retention.
+- **Comment Insights**: Reveal sentiment, hidden requests, and audience patterns from your YouTube comments.
+- **Voice-to-Script**: Dictate scripts and get instant formatting and tone suggestions.
+- **Weekly Growth Planner**: Create a tailored plan to grow smarter, not harder.
 
 ---
 
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js (v16+)
-- Supabase CLI (for Edge Functions)
-- Google & OpenAI API keys
-- Optional: Stripe account
-
-### Setup
+### 🚀 Get Started
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/getbutlr-web.git
-cd getbutlr-web
+# Install dependencies
 npm install
+
+# Run the dev server
+npm run dev
+
+# Visit your app
+http://www.getbutlr.ai

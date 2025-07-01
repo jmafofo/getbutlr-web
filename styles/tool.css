@@ -1,0 +1,22 @@
+.tool-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tool-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.tool-icon {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+}
+
+.tool-description {
+  font-size: 1rem;
+  color: var(--text-light);
+}
+
