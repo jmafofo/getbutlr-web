@@ -281,9 +281,25 @@ export default function ThumbnailScorePage() {
             >
               <h2 className="text-white font-bold text-lg">Generated Sample Thumbnail</h2>
               {genImage ? (
-                  <div className="mt-4 space-y-4">
-                    {genImage.image && (
-                      <img src={genImage.image} alt="Generated Thumbnail" className="w-full rounded" />
+                  <div className="mt-4 space-y-4 flex justify-center items-center">
+                    {loading ? (
+                      <video
+                        autoPlay
+                        loop
+                        muted
+                        className="w-32 h-32"
+                      >
+                        <source src="/loading.webm" type="video/webm" />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      genImage.image && (
+                        <img
+                          src={genImage.image}
+                          alt="Generated Thumbnail"
+                          className="w-full rounded"
+                        />
+                      )
                     )}
                   </div>
                 ) : (
@@ -291,7 +307,7 @@ export default function ThumbnailScorePage() {
                     No image yet. Image thumbnail will be generated from the title
                   </div>
                 )}
-            </motion.div>
+              </motion.div>
           </div>
           {/* Right - Thumbnail Score */}
           <div className="bg-slate-800 rounded-2xl shadow-md p-6">
