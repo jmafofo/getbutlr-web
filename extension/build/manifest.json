@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "GetButlr Extension",
+  "version": "1.1",
+  "description": "AI-powered assistant for content creators across platforms.",
+  "permissions": ["storage", "tabs", "scripting", "activeTab"],
+  "host_permissions": [
+    "https://www.youtube.com/*",
+    "https://studio.youtube.com/*",
+    "https://www.instagram.com/*",
+    "https://www.tiktok.com/*",
+    "https://www.facebook.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.youtube.com/*",
+        "https://studio.youtube.com/*",
+        "https://www.instagram.com/*",
+        "https://www.tiktok.com/*",
+        "https://www.facebook.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["scripts/yt-sidebar.css"]
+    }
+  ],
+  "externally_connectable": {
+    "matches": ["*://localhost/*", "*://getbutlr.ai/*"]
+  },
+  "icons": {
+    "128": "icons/icon128.png"
+  }
+}

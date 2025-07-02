@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GetButlr Snapshot</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div id="popup">
+    <header>
+      <img src="icons/icon128.png" alt="GetButlr Logo" class="logo" />
+      <h1>GetButlr Insights</h1>
+    </header>
+
+    <div id="metadata-section">
+      <h2>Video Metadata</h2>
+      <ul id="metadata-list">
+        <li><strong>Title:</strong> <span id="video-title">Loading...</span></li>
+        <li><strong>Description:</strong> <span id="video-description">Loading...</span></li>
+        <li><strong>Tags:</strong> <span id="video-tags">Loading...</span></li>
+      </ul>
+    </div>
+
+    <div id="score-section">
+      <h2>AI Suggestions</h2>
+      <ul id="score-suggestions">
+        <li><strong>SEO Score:</strong> <span id="seo-score">...</span></li>
+        <li><strong>Title Optimization:</strong> <span id="title-feedback">...</span></li>
+        <li><strong>Hashtags:</strong> <span id="hashtag-feedback">...</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

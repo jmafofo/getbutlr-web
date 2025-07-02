@@ -1,0 +1,27 @@
+
+#getbutlr-sidebar {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 260px;
+  background: #ffffff;
+  color: #111827;
+  font-family: 'Segoe UI', sans-serif;
+  border: 2px solid #6366f1;
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  padding: 1rem;
+  z-index: 9999;
+}
+
+.butlr-header {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+  color: #3b82f6;
+}
+
+.butlr-section {
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}

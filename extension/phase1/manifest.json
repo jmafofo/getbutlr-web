@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "GetButlr Extension",
+  "version": "0.1",
+  "description": "Optimize your content directly in YouTube Studio with GetButlr.",
+  "permissions": ["storage", "scripting", "activeTab"],
+  "host_permissions": ["https://studio.youtube.com/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://studio.youtube.com/*"],
+      "js": ["content.js"],
+      "css": ["scripts/yt-sidebar.css"]
+    }
+  ],
+  "icons": {
+    "128": "icons/icon128.png"
+  }
+}

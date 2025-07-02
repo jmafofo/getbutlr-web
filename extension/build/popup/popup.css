@@ -1,0 +1,24 @@
+.popup-container {
+  font-family: 'Arial', sans-serif;
+  width: 300px;
+  padding: 20px;
+  background: #f9fafb;
+  color: #1f2937;
+}
+.popup-container h1 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+#analyze-btn {
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+#results {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}

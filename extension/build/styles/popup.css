@@ -1,0 +1,53 @@
+.popup-container {
+  font-family: 'Inter', sans-serif;
+  width: 300px;
+  padding: 1rem;
+  background: #f9fafb;
+  color: #1f2937;
+  border-radius: 10px;
+}
+
+.popup-container h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.metrics {
+  margin-top: 1rem;
+}
+
+.score-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.score-card h4 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #111827;
+}
+
+.score-card span {
+  color: #2563eb;
+}
+
+.score-card ul {
+  font-size: 0.85rem;
+  padding-left: 1.25rem;
+}
+
+.open-studio {
+  display: block;
+  margin-top: 1rem;
+  text-align: center;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
