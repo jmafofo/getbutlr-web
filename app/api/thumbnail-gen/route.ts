@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     const imagePrompt = parsedResult.image_prompt || rawResult || title;
 
     const imageResponse = await fetch(`${process.env.BACKEND_URL_S2}/api/v1/generate-flux?prompt=${imagePrompt}&return_base64=false`, {
-      method: 'POST'
+      method: 'GET'
     });
 
     if (!imageResponse.ok) {

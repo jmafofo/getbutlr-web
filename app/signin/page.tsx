@@ -35,7 +35,7 @@ export default function SignInPage() {
         return;
       }
     
-      setMessage(error.message); // other errors
+      setMessage(error.message);
       return;
     }
   
