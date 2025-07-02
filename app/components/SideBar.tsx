@@ -31,7 +31,8 @@ import {
   FiActivity,
   FiLayers,
   FiTriangle,
-  FiVoicemail
+  FiVoicemail,
+  FiPlusSquare
 } from "react-icons/fi";
 
 export default function Sidebar() {
@@ -121,6 +122,13 @@ export default function Sidebar() {
       icon: FiHome,
       path: "/dashboard",
       submenu: []
+    },
+    {
+      name: "Project",
+      icon: FiLayers,
+      submenu: [
+        { name: "Add Project", path: "/project/youtube-upload", icon: FiPlusSquare }
+      ]
     },
     {
       name: "SEO Suggestion",

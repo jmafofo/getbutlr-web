@@ -6,7 +6,9 @@ export async function POST(req: NextRequest) {
     const { title } = await req.json();
 
     const ollamaPrompt = `
-    YouTube title: "${title}". Create a text-to-image prompt with one key visual and a bold text banner (visibly part of the image) containing a short, catchy phrase. Output only the image description.
+    YouTube title: "${title}". Create a text-to-image prompt with one key visual and a bold text banner (visibly part of the image) containing a short, catchy phrase. Output only the image full and detailed description.
+    Note:
+        - If the title has given a place consider it's environment and structure.
     `;
 
     const rawResult = await callOllama(ollamaPrompt);
