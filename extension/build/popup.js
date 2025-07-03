@@ -1,12 +1,24 @@
+import { scoreTitle, scoreTags, scoreDescription } from './utils/scoring.js';
 
-// popup.js - Requests metadata and populates the popup UI
 document.addEventListener('DOMContentLoaded', () => {
-  chrome.runtime.sendMessage({ type: 'REQUEST_METADATA' }, (response) => {
-    if (response && response.success) {
-      const { title, description, tags } = response.data || {};
-      document.getElementById('video-title').textContent = title || 'No title found';
-      document.getElementById('video-description').textContent = description || 'No description found';
-      document.getElementById('video-tags').textContent = tags?.join(', ') || 'No tags found';
-    }
+  chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+    chrome.tabs.sendMessage(tab.id, 'GET_VIDEO_DATA', (data) => {
+      if (!data) return;
+
+      const { title, tags, description } = data;
+
+      // 🧠 Score content
+      const titleScore = scoreTitle(title);
+      const tagScore = scoreTags(tags);
+      const descScore = scoreDescription(description);
+
+      const totalScore = Math.round((titleScore + tagScore + descScore) / 3);
+
+      // 📊 Update UI
+      document.getElementById('title-score').textContent = `🎯 Title Score: ${titleScore}%`;
+      document.getElementById('tags-score').textContent = `🏷️ Tags Score: ${tagScore}%`;
+      document.getElementById('desc-score').textContent = `🧾 Description Score: ${descScore}%`;
+      document.getElementById('total-score').textContent = `⭐ Overall Score: ${totalScore}%`;
+    });
   });
 });

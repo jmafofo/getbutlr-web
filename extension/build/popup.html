@@ -1,31 +1,43 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GetButlr Insights</title>
-  <style>
-    body { font-family: sans-serif; padding: 1rem; width: 300px; }
-    h2 { margin-top: 0; }
-    .section { margin-bottom: 1rem; }
-    .label { font-weight: bold; }
-  </style>
+  <title>GetButlr Score</title>
+  <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
-  <h2>📊 Video Insights</h2>
-  <div class="section">
-    <div class="label">Title:</div>
-    <div id="video-title">Loading...</div>
+  <div class="popup-container">
+    <h1 class="title">🎯 GetButlr Quick Analysis</h1>
+
+    <div class="section">
+      <h2 class="section-title">Video Title</h2>
+      <p id="video-title">Loading...</p>
+      <p id="title-score" class="score">🎯 Title Score: --</p>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Video Description</h2>
+      <p id="video-desc">Loading...</p>
+      <p id="desc-score" class="score">🧾 Description Score: --</p>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Tags</h2>
+      <p id="video-tags">Loading...</p>
+      <p id="tags-score" class="score">🏷️ Tags Score: --</p>
+    </div>
+
+    <div class="section total">
+      <h2 id="total-score" class="overall-score">⭐ Overall Score: --</h2>
+    </div>
+
+    <footer class="footer">
+      <p>GetButlr Extension v1.0</p>
+    </footer>
   </div>
-  <div class="section">
-    <div class="label">Description:</div>
-    <div id="video-description">Loading...</div>
-  </div>
-  <div class="section">
-    <div class="label">Tags:</div>
-    <div id="video-tags">Loading...</div>
-  </div>
-  <script src="popup.js"></script>
+
+  <script type="module" src="popup.js"></script>
 </body>
 </html>
+
