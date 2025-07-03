@@ -1,72 +1,78 @@
-
 'use client';
 
-import { useEffect } from 'react';
-import { logEvent } from '@/lib/analytics';
-import ToolCard from '@/components/ToolCard';
+import Link from 'next/link';
+import { FaLightbulb, FaBullseye, FaRegCommentDots, FaChartBar, FaMicrophone, FaRobot } from 'react-icons/fa';
 
-const tools = [
-  {
-    name: 'SEO Coach',
-    href: '/tools/seo-checklist',
-    description: 'Optimize your video titles, tags, and descriptions',
-    icon: '🔍',
-  },
-  {
-    name: 'Thumbnail Coach',
-    href: '/tools/thumbnail-score',
-    description: 'Score and improve your thumbnails for higher CTR',
-    icon: '🖼️',
-  },
-  {
-    name: 'Content Analyzer',
-    href: '/tools/content-analyzer',
-    description: 'Break down what works in your current videos',
-    icon: '📊',
-  },
-  {
-    name: 'Voice-to-Script',
-    href: '/tools/voice-script',
-    description: 'Turn your audio ideas into full video scripts',
-    icon: '🎙️',
-  },
-  {
-    name: 'Comment Insights',
-    href: '/tools/comment-insights',
-    description: 'AI-powered feedback from your community',
-    icon: '💬',
-  },
-  {
-    name: 'Smart Idea Generator',
-    href: '/tools/idea-generator',
-    description: 'Generate new content ideas from trending topics',
-    icon: '⚡',
-  },
-];
+const tools = {
+  'AI Coaching Tools': [
+    {
+      icon: <FaChartBar />,
+      title: 'Content Performance',
+      description: 'Analyze how your videos perform over time.',
+      href: '/tools/content-performance',
+    },
+    {
+      icon: <FaLightbulb />,
+      title: 'Hook Analyzer',
+      description: 'Evaluate your video hooks for retention power.',
+      href: '/tools/hook-analyzer',
+    },
+    {
+      icon: <FaRobot />,
+      title: 'Smart Ideas',
+      description: 'Generate fresh, viral video ideas.',
+      href: '/tools/idea-generator',
+    },
+    {
+      icon: <FaMicrophone />,
+      title: 'Voice-to-Script',
+      description: 'Convert spoken ideas into scripts instantly.',
+      href: '/tools/voice-to-script',
+    },
+  ],
+  'Audience Insight Tools': [
+    {
+      icon: <FaRegCommentDots />,
+      title: 'Comment Insights',
+      description: 'See what your audience is really saying.',
+      href: '/tools/comment-insights',
+    },
+    {
+      icon: <FaBullseye />,
+      title: 'Weekly Growth Planner',
+      description: 'Plan your weekly content goals and strategy.',
+      href: '/tools/growth-planner',
+    },
+  ],
+  'Promotion Tools': [
+    {
+      icon: <FaBullseye />,
+      title: 'Boost Planner',
+      description: 'AI-powered targeting for paid promotions.',
+      href: '/boost',
+    },
+  ],
+};
 
 export default function DashboardPage() {
-  useEffect(() => {
-    logEvent('dashboard_viewed');
-  }, []);
-
   return (
-    <main className="dashboard-container">
-      <header className="dashboard-header">
-        <h1 className="dashboard-title">🎛️ Your Creator Dashboard</h1>
-        <p className="dashboard-subtitle">All your tools in one place—ready when you are.</p>
-      </header>
-
-      <section className="tool-grid">
-        {tools.map((tool) => (
-          <ToolCard
-            key={tool.name}
-            title={tool.name}
-            icon={tool.icon}
-            description={tool.description}
-            href={tool.href}
-          />
-        ))}
-      </section>
-    </main>
+    <div className="tool-grid">
+      {Object.entries(tools).map(([group, groupTools]) => (
+        <section key={group}>
+          <h2 className="sidebar-title">{group}</h2>
+          <div className="tool-grid">
+            {groupTools.map(({ icon, title, description, href }) => (
+              <Link href={href} key={title} className="tool-card">
+                <div className="tool-icon">{icon}</div>
+                <div>
+                  <div className="tool-name">{title}</div>
+                  <div className="tool-description">{description}</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
   );
 }

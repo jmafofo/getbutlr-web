@@ -14,12 +14,19 @@
   padding: 1rem;
 }
 
-/* Sidebar title */
+/* Sidebar group title */
 .sidebar-title {
-  font-size: 1.25rem;
-  color: #E0E0E0;
-  font-weight: 600;
-  margin-bottom: 1rem;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
+  padding-left: 0.25rem;
+}
+
+/* Group section container */
+.nav-section {
+  margin-bottom: 2rem;
 }
 
 /* Nav List */
@@ -209,4 +216,32 @@
 .tool-description {
   color: #6b7280;
   font-size: 0.875rem;
+}
+
+/* === Tool Header Styles === */
+.tool-header {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tool-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tool-icon {
+  font-size: 1.75rem;
+  display: inline-flex;
+}
+
+.tool-description {
+  font-size: 1rem;
+  color: #9ca3af;
+  max-width: 700px;
 }

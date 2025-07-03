@@ -1,34 +1,28 @@
+// app/api/voice-to-script/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-export async function POST() {
-  // Simulated audio input
-  const simulatedTranscript = `Today I want to show you the one trick that changed how I grow my audience. It's fast, free, and you can start right now. Let's get into it.`;
+export async function POST(req: NextRequest) {
+  try {
+    const { transcript } = await req.json();
 
-  const prompt = `Rewrite this raw voice transcription into a structured and engaging YouTube script:
-"""
-${simulatedTranscript}
-"""`;
+    if (!transcript || transcript.length < 5) {
+      return NextResponse.json({ error: 'Transcript too short.' }, { status: 400 });
+    }
 
-  const chatResponse = await openai.chat.completions.create({
-    model: 'gpt-4-turbo',
-    messages: [
-      {
-        role: 'system',
-        content: 'You are an expert YouTube scriptwriter helping creators polish their spoken thoughts.'
-      },
-      {
-        role: 'user',
-        content: prompt
-      }
-    ],
-    temperature: 0.7
-  });
+    const prompt = `Turn this into a clear, structured YouTube video script:\n\n"${transcript}"`;
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.7,
+    });
 
-  const polishedScript = chatResponse.choices[0].message.content || simulatedTranscript;
-
-  return NextResponse.json({ transcript: polishedScript });
+    const generatedScript = completion.choices[0]?.message.content || 'No script generated.';
+    return NextResponse.json({ script: generatedScript });
+  } catch (error) {
+    console.error('[VOICE-TO-SCRIPT ERROR]', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
+  }
 }
-

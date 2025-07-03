@@ -2,18 +2,49 @@
 
 import Link from 'next/link';
 
+const navSections = [
+  {
+    title: '🧠 AI Tools',
+    items: [
+      { name: 'Hook Analyzer', href: '/tools/hook-analyzer' },
+      { name: 'Content Analyzer', href: '/tools/content-analyzer' },
+      { name: 'Smart Ideas', href: '/tools/smart-ideas' },
+    ],
+  },
+  {
+    title: '📢 Promotion',
+    items: [
+      { name: 'Boost Tool', href: '/tools/boost' },
+    ],
+  },
+  {
+    title: '👤 Account',
+    items: [
+      { name: 'Dashboard', href: '/dashboard' },
+      { name: 'Profile', href: '/dashboard/profile' },
+    ],
+  },
+];
+
 export default function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="logo">GetButlr</div>
       <nav>
-        <ul>
-          <li><Link href="/dashboard">Dashboard</Link></li>
-          <li><Link href="/tools/hook-analyzer">Hook Analyzer</Link></li>
-          <li><Link href="/tools/content-analyzer">Content Analyzer</Link></li>
-          <li><Link href="/tools/smart-ideas">Smart Ideas</Link></li>
-          <li><Link href="/dashboard/profile">Profile</Link></li>
-        </ul>
+        {navSections.map((section) => (
+          <div key={section.title} className="nav-section">
+            <h3 className="sidebar-title">{section.title}</h3>
+            <ul className="nav-list">
+              {section.items.map((item) => (
+                <li key={item.name}>
+                  <Link href={item.href} className="nav-link">
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </nav>
     </aside>
   );

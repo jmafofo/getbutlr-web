@@ -1,109 +1,60 @@
+
 'use client';
+
 import { useState } from 'react';
-import Link from 'next/link';
-import '@/styles/tool.css';
+import ToolHeader from '@/components/ToolHeader';
 
-export default function ContentPerformance() {
-  const [url, setUrl] = useState('');
-  const [results, setResults] = useState<any>(null);
-  const [error, setError] = useState('');
+export default function HookAnalyzerPage() {
+  const [hookText, setHookText] = useState('');
+  const [result, setResult] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleHookAnalyze = async () => {
-    setError('');
-    setResults(null);
-    const videoId = url.split("v=")[1]?.split("&")[0];
-    if (!videoId) {
-      setError('Invalid YouTube URL');
-      return;
-    }
+  const handleSubmit = async () => {
+    if (!hookText.trim()) return;
+    setLoading(true);
+    setResult(null);
 
     try {
-      const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics,contentDetails&id=${videoId}&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`);
-      const data = await res.json();
-      if (!data.items || data.items.length === 0) {
-        setError('Video not found or invalid API key');
-        return;
-      }
-
-      const stats = data.items[0].statistics;
-      setResults({
-        viewCount: stats.viewCount,
-        impressions: 'N/A (requires YouTube Analytics API)',
-        ctr: 'N/A (requires YouTube Analytics API)',
-        avgViewDuration: 'N/A (requires YouTube Analytics API)',
-        retentionData: [100, 90, 80, 60, 50, 30],
-        tips: [
-          'Use timestamps and structured segments.',
-          'Improve thumbnail and title clarity.',
-          'Hook your audience in the first 15 seconds.'
-        ]
+      const response = await fetch('/api/hook-analyzer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hookText }),
       });
-    } catch (err) {
-      setError('Error fetching data from YouTube API');
+      const data = await response.json();
+      setResult(data.result);
+    } catch (error) {
+      setResult('Something went wrong.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-4xl mx-auto bg-white shadow-md rounded-2xl">
-      <h1 className="text-3xl font-bold mb-4">Hook Analyzer</h1>
-      <p className="mb-6 text-gray-700">Enter a video hook to score punchiness and engagement.</p>
+    <div className="tool-container">
+      <ToolHeader
+        icon="📢"
+        title="Hook Analyzer"
+        description="Test your video hook or intro to see how effective and compelling it is."
+      />
 
-      <div className="flex flex-col sm:flex-row gap-2 mb-4">
-        <input
-          type="text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://www.youtube.com/watch?v=xyz123"
-          className="flex-1 border rounded-lg px-4 py-2"
-        />
-        <button
-          onClick={handleHookAnalyze}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          Analyze
-        </button>
-      </div>
+      <textarea
+        className="tool-textarea"
+        rows={4}
+        value={hookText}
+        onChange={(e) => setHookText(e.target.value)}
+        placeholder="Paste your video hook here..."
+      />
 
-      {error && <p className="text-red-600 mb-4">{error}</p>}
+      <button className="tool-button" onClick={handleSubmit} disabled={loading}>
+        {loading ? 'Analyzing...' : 'Analyze Hook'}
+      </button>
 
-      {results && (
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-xl font-semibold">Performance Metrics</h2>
-            <ul className="list-disc pl-6 text-gray-700">
-              <li>View Count: {results.viewCount}</li>
-              <li>Impressions: {results.impressions}</li>
-              <li>CTR: {results.ctr}</li>
-              <li>Average View Duration: {results.avgViewDuration}</li>
-            </ul>
-          </div>
-
-          <div>
-            <h2 className="text-xl font-semibold">Retention Curve (Simulated)</h2>
-            <div className="bg-gray-200 h-32 rounded-lg flex items-end gap-1 p-1">
-              {results.retentionData.map((val: number, i: number) => (
-                <div
-                  key={i}
-                  className="bg-blue-500 rounded-sm"
-                  style={{ height: `${val}%`, width: '14%' }}
-                  title={`Minute ${i + 1}: ${val}%`}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h2 className="text-xl font-semibold">Improvement Tips</h2>
-            <ul className="list-disc pl-6 text-gray-700">
-              {results.tips.map((tip: string, i: number) => (
-                <li key={i}>{tip}</li>
-              ))}
-            </ul>
-          </div>
+      {result && (
+        <div className="tool-result">
+          <h4>Analysis Result</h4>
+          <p>{result}</p>
         </div>
       )}
-
-      <Link href="/tools" className="text-blue-500 mt-6 inline-block">← Back to Tools</Link>
     </div>
   );
 }
