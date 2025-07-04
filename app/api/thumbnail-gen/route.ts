@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { callOllama } from '../ollama_query/route';
 import { createClient } from '@/app/utils/supabase/server';
-import { UUID } from 'crypto';
 
 // Function to generate an image from a title using Ollama
-async function generateImageFromTitle(title: string, user_id: UUID) {
-  const supabase = await createClient()
+async function generateImageFromTitle(title: string, user_id: string) {
+  const supabase = await createClient();
   const ollamaPrompt = `
     YouTube title: "${title}". Create a text-to-image prompt with one key visual and a bold text banner (visibly part of the image) containing a short, catchy phrase. Output only the image full and detailed description.
     Note:
@@ -46,7 +45,7 @@ async function generateImageFromTitle(title: string, user_id: UUID) {
       title,
       prompt: imagePrompt,
       source: 'flux',
-      user_id: user_id || null,
+      user_id,
     },
   ]);
 
@@ -80,7 +79,7 @@ async function processImage({
   if (url) {
     formData.append('image_url', url);
   }
-  
+
   const res = await fetch(`${process.env.BACKEND_URL}/api/v1/interrogate`, {
     method: 'POST',
     body: formData,
@@ -90,13 +89,13 @@ async function processImage({
     throw new Error('Failed to process image via /api/interrogate');
   }
 
-  const data = await res.text(); // Adjust depending on your /api/interrogate response type
+  const data = await res.text();
   return data;
 }
 
 // Function to process an uploaded thumbnail
 async function processUploadedThumbnail(title: string, thumbnailFile: File) {
-  const clip_result = await processImage({file: thumbnailFile});
+  const clip_result = await processImage({ file: thumbnailFile });
 
   const ollamaPrompt = `
     You are an expert YouTube thumbnail evaluator.
@@ -125,7 +124,6 @@ async function processUploadedThumbnail(title: string, thumbnailFile: File) {
   imFormData.append('seed', Math.floor(Math.random() * 1000000).toString());
 
   const imageResponse = await fetch(`${process.env.BACKEND_URL_S2}/api/v1/generate-flux-im2im`, {
-    headers: {},
     method: 'POST',
     body: imFormData,
   });
@@ -145,10 +143,10 @@ async function processUploadedThumbnail(title: string, thumbnailFile: File) {
 
 // Main POST handler
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
+  const supabase = await createClient();
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-  
-  if (!sessionData.session || sessionError) {
+
+  if (!sessionData?.session || sessionError) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -157,19 +155,18 @@ export async function POST(req: NextRequest) {
   try {
     const contentType = req.headers.get('content-type') || '';
 
-    // --- Logic for JSON (title only) ---
     if (contentType.includes('application/json')) {
-      const { title, userId } = await req.json();
+      const body = await req.json();
+      const title = body.title?.trim();
       if (!title) {
         return NextResponse.json({ error: 'Title is required' }, { status: 400 });
       }
       return await generateImageFromTitle(title, userId);
     }
 
-    // --- Logic for FormData (title required, thumbnail optional) ---
-    else if (contentType.includes('multipart/form-data')) {
+    if (contentType.includes('multipart/form-data')) {
       const formData = await req.formData();
-      const title = formData.get('title') as string;
+      const title = (formData.get('title') as string)?.trim();
       const thumbnailFile = formData.get('thumbnail') as File | null;
 
       if (!title) {
@@ -189,7 +186,7 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     console.error('Error in thumbnail generator API:', error);
-    const errorMessage = error instanceof Error ? error.message : 'An unknown internal server error occurred';
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
