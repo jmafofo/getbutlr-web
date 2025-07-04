@@ -32,7 +32,8 @@ import {
   FiLayers,
   FiTriangle,
   FiVoicemail,
-  FiPlusSquare
+  FiPlusSquare,
+  FiList
 } from "react-icons/fi";
 
 export default function Sidebar() {
@@ -55,7 +56,7 @@ export default function Sidebar() {
   useEffect(() => {
     const fetchYoutubeData = async () => {
       try {
-        const res = await fetch("/api/youtube-profile");
+        const res = await fetch("/api/youtube/profile");
         const result = await res.json();
 
         setYoutubeData({
@@ -127,7 +128,8 @@ export default function Sidebar() {
       name: "Project",
       icon: FiLayers,
       submenu: [
-        { name: "Add Project", path: "/project/youtube-upload", icon: FiPlusSquare }
+        { name: "Upload Video", path: "/project/youtube-upload", icon: FiPlusSquare },
+        { name: "Upload List", path: "/project/youtube-list", icon: FiList }
       ]
     },
     {

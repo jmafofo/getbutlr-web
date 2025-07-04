@@ -18,18 +18,23 @@ export default function ThumbnailScorePage() {
   const [genImage, setgenImage] = useState<{
     image: string;
   } | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const handleImageGenSubmit = async () => {
     if (!title) return;
     setLoading(true);
   
     try {
+      const formData = new FormData();
+      formData.append('title', title);
+  
+      if (selectedFile) {
+        formData.append('thumbnail', selectedFile);
+      }
+  
       const response = await fetch('/api/thumbnail-gen', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title
-        })
+        body: formData,
       });
   
       if (!response.ok) {
@@ -45,28 +50,27 @@ export default function ThumbnailScorePage() {
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile && droppedFile.type.startsWith('image/')) {
-      setFile(droppedFile);
+      setSelectedFile(droppedFile);
       setUrl('');
     }
-  }, []);
+  }, []);  
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
       setUrl('');
     }
-  };
+  };  
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUrl(e.target.value);
@@ -76,11 +80,11 @@ export default function ThumbnailScorePage() {
   };
 
   const handleRemove = () => {
-    setFile(null);
+    setSelectedFile(null);
     setUrl('');
     setClipResult(null);
     setResult(null);
-  };
+  };  
 
   async function submitImage({
     file,
@@ -224,8 +228,16 @@ export default function ThumbnailScorePage() {
                   className="hidden"
                   id="fileInput"
                 />
+                {selectedFile && (
+                  <img
+                    src={URL.createObjectURL(selectedFile)}
+                    alt="Selected file preview"
+                    className="mt-2 max-h-32 mx-auto rounded"
+                  />
+                )}
+
                 <label htmlFor="fileInput" className="cursor-pointer text-slate-300">
-                  {file ? file.name : 'Drag & drop or click to upload'}
+                  {selectedFile ? selectedFile.name : 'Drag & drop or click to upload'}
                 </label>
               </div>
 
@@ -239,7 +251,7 @@ export default function ThumbnailScorePage() {
                 ${file ? 'opacity-50 pointer-events-none' : 'border-slate-600'}`}
               />
 
-              {(file || url) && (
+              {(selectedFile || url) && (
                 <motion.button
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
@@ -268,7 +280,33 @@ export default function ThumbnailScorePage() {
                 className={`w-full p-3 rounded bg-gradient-to-l from-sky-400 to-indigo-900 text-white font-bold 
                 ${!title || loading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                {loading ? 'Generating...' : 'Generate Sample Thumbnail'}
+                {loading ? (
+                            <>
+                            <svg
+                                className="animate-spin h-5 w-5 text-white"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                                ></circle>
+                                <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                ></path>
+                            </svg>
+                            Generating...
+                            </>
+                        ) : (
+                            "Generate Sample Thumbnail"
+                        )}
               </motion.button>
             </motion.div>
           </div>

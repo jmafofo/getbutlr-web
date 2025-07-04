@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 export default function UploadPage() {
   const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [visibility, setVisibility] = useState<'private' | 'public' | 'unlisted'>('private');
   const [audience, setAudience] = useState<'yes' | 'no' | ''>('');
   const [paidPromotion, setPaidPromotion] = useState(false);
@@ -16,28 +18,111 @@ export default function UploadPage() {
   const [captionCertification, setCaptionCertification] = useState('None');
   const [recordingDate, setRecordingDate] = useState('');
   const [videoLocation, setVideoLocation] = useState('');
-  const [license, setLicense] = useState('Standard YouTube License');
   const [allowEmbedding, setAllowEmbedding] = useState(true);
   const [notifySubscribers, setNotifySubscribers] = useState(true);
   const [remixOption, setRemixOption] = useState<'both' | 'audioOnly' | 'none'>('both');
-  const [category, setCategory] = useState('Gaming');
+  const [category, setCategory] = useState('Entertainment');
   const [comments, setComments] = useState<'on' | 'off'>('on');
   const [moderation, setModeration] = useState('none');
   const [sortCommentsBy, setSortCommentsBy] = useState('top');
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
+  const [applyingTrendIndex, setApplyingTrendIndex] = useState<number | null>(null);
+  const [selectedTrending, setSelectedTrending] = useState<number | null>(null);
+  
+  const [idea, setIdea] = useState('');
+  const [trendingVideos, setTrendingVideos] = useState<any[]>([]);
+  const [templates, setTemplates] = useState<{ title: string; description: string; tags: string }[]>([]);
+
+  const fetchTrendingVideos = async () => {
+        const res = await fetch(`/api/youtube/trending?q=${encodeURIComponent(idea)}`);
+        const data = await res.json();
+        setTrendingVideos(data.items);
+    };
+    useEffect(() => {
+        if (trendingVideos.length > 0) setLoading(false);
+      }, [trendingVideos]);
+  const handleSelectTrending = (video: any, idx: number) => {
+        setSelectedTrending(idx);
+      
+        const base = {
+          title: video.snippet.title,
+          thumbnail: video.snippet.thumbnail,
+          views: video.snippet.views,
+          description: `Check out this new video based on trending topic: ${video.snippet.title}`,
+          tags: video.snippet.title.split(' ').slice(0, 5).join(','),
+        };
+      
+        setTemplates([
+          base,
+          { ...base, title: `[2025] ${base.title}`, description: `${base.description}\nDon't forget to like!` },
+          { ...base, title: `🔥 ${base.title}`, description: `Inspired by trending now!\n${base.description}` },
+        ]);
+      };
+
+    const formatViews = (num: number) => {
+        if (!num) return '0';
+        if (num >= 1e9) return (num / 1e9).toFixed(1) + 'B';
+        if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
+        if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
+        return num.toString();
+      };
+      
+
+    const applyTemplate = async (tpl: { title: string; description: string; tags: string }, tidx: number) => {
+        setApplyingTrendIndex(tidx); 
+        const query = `Enhance this YouTube video template to make it more catchy and trending, add more description and tags, add icons. Return in JSON format:
+        {
+          "title": "...",
+          "description": "...",
+          "tags": "..."
+        }
+      
+        Original:
+        Title: ${tpl.title}
+        Description: ${tpl.description}
+        Tags: ${tpl.tags}`;
+      
+        try {
+            const res = await fetch("/api/ollama_query", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ query }),
+            });
+        
+            const data = await res.json();
+        
+            // Extract the first valid JSON object using regex
+            const match = data.insight.match(/\{[\s\S]*?\}/);
+            if (!match) throw new Error("No valid JSON object found in response");
+
+            const parsed = JSON.parse(match[0]);
+
+            setTitle(parsed.title);
+            setDescription(parsed.description);
+            setTags(parsed.tags);
+        } catch (err) {
+            console.error("Template enhancement failed", err);
+            setTitle(tpl.title);
+            setDescription(tpl.description);
+            setTags(tpl.tags);
+        } finally {
+            setApplyingTrendIndex(null);
+        }
+        };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!file) {
-      alert('Please select a video file');
+      toast.error('❌ Please select a video file');
       return;
     }
 
+    const uploadToast = toast.loading('⏳ Uploading...');
+
     setLoading(true);
-    setStatus('Uploading...');
 
     const formData = new FormData();
     formData.append('title', title);
@@ -52,7 +137,6 @@ export default function UploadPage() {
     formData.append('captionCertification', captionCertification);
     formData.append('recordingDate', recordingDate);
     formData.append('videoLocation', videoLocation);
-    formData.append('license', license);
     formData.append('allowEmbedding', String(allowEmbedding));
     formData.append('notifySubscribers', String(notifySubscribers));
     formData.append('remixOption', remixOption);
@@ -60,6 +144,11 @@ export default function UploadPage() {
     formData.append('comments', comments);
     formData.append('moderation', moderation);
     formData.append('sortCommentsBy', sortCommentsBy);
+
+    
+    if (thumbnail) {
+        formData.append('thumbnail', thumbnail);
+      }      
 
     try {
       const res = await fetch('/api/youtube/upload', {
@@ -70,13 +159,14 @@ export default function UploadPage() {
       const result = await res.json();
 
       if (res.ok) {
-        setStatus(`✅ Upload successful! Video ID: ${result.videoId}`);
+        toast.success(`✅ Upload successful! Video ID: ${result.videoId}`, { id: uploadToast });
       } else {
-        setStatus(`❌ Upload failed: ${result.error}`);
+        toast.error(`❌ Upload failed: ${result.error}`, { id: uploadToast });
       }
     } catch (err: any) {
-      setStatus(`❌ Upload failed: ${err.message}`);
+      toast.error(`❌ Upload failed: ${err.message}`, { id: uploadToast });
     } finally {
+        toast.dismiss(uploadToast);
       setLoading(false);
     }
   };
@@ -103,12 +193,13 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5">
+    <div className="grid grid-cols-5 gap-4 p-5">
+      {/* Youtube Upload Form Card Column */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="space-y-4"
+        className="col-span-3 row-span-5"
       >
         <div className="bg-slate-800 rounded-2xl shadow-md p-6">
           <h1 className="text-2xl font-bold mb-4 text-white">Upload Video to YouTube</h1>
@@ -276,20 +367,6 @@ export default function UploadPage() {
                 placeholder="e.g., Abu Dhabi, UAE"
               />
             </div>
-
-            {/* License */}
-            <div>
-              <label className="block font-medium text-white">License</label>
-              <select
-                value={license}
-                onChange={(e) => setLicense(e.target.value)}
-                className="w-full border p-2 rounded bg-slate-700 text-white"
-              >
-                <option value="Standard YouTube License">Standard YouTube License</option>
-                <option value="Creative Commons">Creative Commons</option>
-              </select>
-            </div>
-
             {/* Embedding */}
             <div>
               <label className="block font-medium text-white">
@@ -384,7 +461,28 @@ export default function UploadPage() {
                 <option value="newest">Newest</option>
               </select>
             </div>
-
+            {/* Thumbnail Upload */}
+            <div
+            className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer 
+                border-slate-600 hover:border-slate-500`}
+            >
+            <label className="block text-white mb-2">Upload Thumbnail (Optional)</label>
+            <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                const selected = e.target.files?.[0];
+                if (selected) {
+                    setThumbnail(selected);
+                }
+                }}
+                className="hidden"
+                id="thumbnailInput"
+            />
+            <label htmlFor="thumbnailInput" className="cursor-pointer text-slate-300">
+                {thumbnail ? thumbnail.name : 'Drag & drop or click to upload'}
+            </label>
+            </div>
             {/* File Upload */}
             <div
               onDrop={handleDrop}
@@ -417,10 +515,107 @@ export default function UploadPage() {
               {loading ? 'Uploading...' : 'Submit Video'}
             </motion.button>
           </form>
-
-          {status && <p className="mt-4 text-white">{status}</p>}
         </div>
       </motion.div>
-    </div>
+      {/* Hook Card Column */}
+      <div className="col-span-2 col-start-4 flex flex-col space-y-4">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+      <div className=" bg-slate-800 rounded-2xl shadow-md p-6 space-y-4">
+        <h2 className="text-xl font-bold text-white">Hook Trends</h2>
+        <input
+          value={idea}
+          onChange={(e) => setIdea(e.target.value)}
+          placeholder="Enter your idea..."
+          className="w-full p-2 bg-slate-700 text-white rounded"
+        />
+        <button
+          onClick={fetchTrendingVideos}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Search Trending
+        </button>
+        </div>
+        </motion.div>
+        {loading ? (
+            // Skeleton loader while loading
+            Array.from({ length: 3 }).map((_, idx) => (
+                <div key={idx} className="bg-slate-800 p-4 rounded animate-pulse mt-2">
+                <div className="h-4 bg-slate-600 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-slate-600 rounded w-1/2 mb-2"></div>
+                <div className="h-3 bg-slate-600 rounded w-full"></div>
+                </div>
+            ))
+            ) : (
+            trendingVideos.map((video, idx) => (
+                <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                >
+                <div
+                    onClick={() => handleSelectTrending(video, idx)}
+                    className="bg-slate-700 text-white mt-2 cursor-pointer hover:bg-slate-500 p-2 rounded"
+                >
+                    <div className="grid grid-cols-2 gap-4 p-5">
+                    <div className="col-span-1 col-start-1 flex flex-col space-y-4">
+                        <img src={video.snippet.thumbnail} className="w-50 rounded" />
+                    </div>
+                    <div>{video.snippet.title}</div>
+                    <div>{formatViews(video.snippet.views)} views</div>
+                    </div>
+                </div>
+
+                {/* Templates shown only when this video is selected */}
+                {selectedTrending === idx && templates.map((tpl, tidx) => (
+                <div key={tidx} className="bg-slate-800 text-white p-3 rounded mt-2 ml-4">
+                    <div className="font-bold">{tpl.title}</div>
+                    <p className="text-sm">{tpl.description.slice(0, 60)}...</p>
+                    <button
+                        onClick={() => applyTemplate(tpl, tidx)}
+                        className={`mt-2 bg-gradient-to-r from-sky-400 to-blue-800 text-white font-bold px-3 py-1 rounded w-80 transition-all duration-200 ease-in-out 
+                                    hover:brightness-110 hover:scale-105 hover:shadow-lg flex items-center justify-center gap-2`}
+                        disabled={applyingTrendIndex === tidx}
+                        >
+                        {applyingTrendIndex === tidx ? (
+                            <>
+                            <svg
+                                className="animate-spin h-4 w-4 text-white"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                                ></circle>
+                                <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                ></path>
+                            </svg>
+                            Applying Modification...
+                            </>
+                        ) : (
+                            "Modify & Use"
+                        )}
+                        </button>
+                </div>
+                ))}
+                </motion.div>
+            ))
+            )}
+
+      </div>
+      </div>
   );
 }

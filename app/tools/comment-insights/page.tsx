@@ -18,7 +18,7 @@ export default function ContentPerformance() {
     }
 
     try {
-      const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics,contentDetails&id=${videoId}&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`);
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics,contentDetails&id=${videoId}&key=${process.env.NEXT_PUBLIC_GOOGLE_API}`);
       const data = await res.json();
       if (!data.items || data.items.length === 0) {
         setError('Video not found or invalid API key');

@@ -7,6 +7,7 @@ import FootWrapper from "./components/FooterWrapper";
 import "./globals.css"
 import AuthProvider from '@/app/components/AuthProvider';
 import BillingWrapper from './components/BillingWrapper';
+import { Toaster } from 'react-hot-toast';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +37,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <TopBarWrapper />
             <BillingWrapper />
             <main className="flex-1 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 overflow-auto">
-              {children}            
+              {children}
+              <Toaster position="top-right" reverseOrder={false} />
             </main>
             <ChatWrapper />
             <FootWrapper />

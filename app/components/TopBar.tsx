@@ -78,7 +78,7 @@ export default function TopBar() {
   useEffect(() => {
     const fetchYoutubeData = async () => {
       try {
-        const res = await fetch("/api/youtube-profile");
+        const res = await fetch("/api/youtube/profile");
         const result = await res.json();
 
         if (!result.success) {
