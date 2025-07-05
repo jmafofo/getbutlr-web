@@ -52,14 +52,16 @@ async function generateImageFromTitle(title: string, user_id: string) {
   if (error) {
     console.error('Error saving to Supabase:', error);
   }
-
-  const imageBlob = await imageResponse.blob();
-  const imageArrayBuffer = await imageBlob.arrayBuffer();
-  const imageBase64 = Buffer.from(imageArrayBuffer).toString('base64');
-
   return NextResponse.json({
-    image_base64: `data:image/png;base64,${imageBase64}`
-  });
+      taskId: task_id
+    });
+  // const imageBlob = await imageResponse.blob();
+  // const imageArrayBuffer = await imageBlob.arrayBuffer();
+  // const imageBase64 = Buffer.from(imageArrayBuffer).toString('base64');
+
+  // return NextResponse.json({
+  //   image_base64: `data:image/png;base64,${imageBase64}`
+  // });
 }
 
 // Function to process an uploaded image using /api/interrogate
@@ -94,8 +96,9 @@ async function processImage({
 }
 
 // Function to process an uploaded thumbnail
-async function processUploadedThumbnail(title: string, thumbnailFile: File) {
+async function processUploadedThumbnail(title: string, thumbnailFile: File, user_id: string) {
   const clip_result = await processImage({ file: thumbnailFile });
+  const supabase = await createClient();
 
   const ollamaPrompt = `
     You are an expert YouTube thumbnail evaluator.
@@ -132,13 +135,33 @@ async function processUploadedThumbnail(title: string, thumbnailFile: File) {
     throw new Error(`Failed to generate image: ${await imageResponse.text()}`);
   }
 
-  const imageBlob = await imageResponse.blob();
-  const imageArrayBuffer = await imageBlob.arrayBuffer();
-  const imageBase64 = Buffer.from(imageArrayBuffer).toString('base64');
+  const data = await imageResponse.json();
+  const task_id = data.task_id;
 
+  const { error } = await supabase.from('thumbnail_tasks').insert([
+    {
+      task_id,
+      title,
+      prompt: imagePrompt,
+      source: 'flux',
+      user_id,
+    },
+  ]);
+
+  if (error) {
+    console.error('Error saving to Supabase:', error);
+  }
   return NextResponse.json({
-    image_base64: `data:image/png;base64,${imageBase64}`
+    taskId: task_id
   });
+
+  // const imageBlob = await imageResponse.blob();
+  // const imageArrayBuffer = await imageBlob.arrayBuffer();
+  // const imageBase64 = Buffer.from(imageArrayBuffer).toString('base64');
+
+  // return NextResponse.json({
+  //   image_base64: `data:image/png;base64,${imageBase64}`
+  // });
 }
 
 // Main POST handler
@@ -174,7 +197,7 @@ export async function POST(req: NextRequest) {
       }
 
       if (thumbnailFile) {
-        return await processUploadedThumbnail(title, thumbnailFile);
+        return await processUploadedThumbnail(title, thumbnailFile, userId);
       } else {
         return await generateImageFromTitle(title, userId);
       }
