@@ -6,6 +6,12 @@ import { Dialog } from "@headlessui/react";
 import { motion } from 'framer-motion';
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
+import {
+  FiBell,
+  FiSettings,
+  FiUser,
+
+} from "react-icons/fi";
 
 export default function TopBar() {
   const [user, setUser] = useState<User | null>(null);
@@ -19,6 +25,7 @@ export default function TopBar() {
   const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
   const [selectedChannelName, setSelectedChannelName] = useState<string | null>(null);
   const router = useRouter();
+  const [showNotifications, setShowNotifications] = useState(false);
   const [youtubeData, setYoutubeData] = useState({
     title: '',
     description: '',
@@ -186,26 +193,60 @@ export default function TopBar() {
     <div className="w-full px-6 py-4 bg-slate-800 text-gray-200 shadow-lg flex justify-between items-center">
       <img src="" alt="" className="h-8 w-auto" />
       {user ? (
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative flex items-center gap-4" ref={dropdownRef}>
+          <button
+            onClick={handleSettings}
+            className="text-gray-300 hover:text-white focus:outline-none"
+            title="Settings"
+          >
+            <FiSettings className="w-5 h-5" />
+          </button>
+          <button
+          onClick={() => setShowNotifications(true)} // implement this if needed
+          className="text-gray-300 hover:text-white focus:outline-none"
+          title="Notifications"
+        >
+          <FiBell className="w-5 h-5" />
+        </button>
           <button
             onClick={() => setDropdownOpen((prev) => !prev)}
-            className="flex items-center gap-2 text-sm text-gray-300 hover:text-white focus:outline-none"
-          >
-            <div
+            className="text-gray-300 hover:text-white focus:outline-none"
+            >
+            <FiUser className="w-5 h-5"/>
+            {/* <div
               className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold shadow-md"
               style={{
                 background: "linear-gradient(to right, #8b5cf6, #ec4899)",
               }}
             >
-              <img className="w-9 h-9 rounded-full shadow-md" src={avatarUrl}/>
-              {/* // {avatarLetter} */}
-            </div>
-            <span>{user.email}</span>
+              
+            </div> */}
           </button>
+          {showNotifications && (
+            <div className="absolute right-14 mt-[200px] w-64 bg-white rounded-md shadow-lg z-50">
+              <div className="py-2 px-4 text-sm text-gray-800">
+                <p className="font-semibold mb-2">Notifications</p>
+                {/* Sample notifications */}
+                <ul className="space-y-2">
+                  <li className="border-b pb-1 hover:bg-gray-100">🔔 New video uploaded</li>
+                  <li className="border-b pb-1 hover:bg-gray-100">📢 Platform update available</li>
+                  <li>✅ Channel linked successfully</li>
+                </ul>
+              </div>
+              <div className="text-right px-4 py-2">
+                <button
+                  onClick={() => setShowNotifications(false)}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
 
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-50">
-              <ul className="py-1 text-sm text-gray-800">
+            <div className="absolute right-5 mt-[115px] w-40 bg-white rounded-md shadow-lg z-50">
+              <ul className="py-2 text-sm text-gray-800">
                 <li>
                   <button
                     onClick={handleSettings}

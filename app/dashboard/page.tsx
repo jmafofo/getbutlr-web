@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/app/components/ui/tabs';
 import ChartCard from '@/components/ChartCard';
+import { supabase } from "@/lib/supabaseClient";
+import type { User } from "@supabase/supabase-js";
 
 type VideoData = {
   title: string;
@@ -46,13 +48,32 @@ export default function DashboardPage() {
   const [youtubeData, setYoutubeData] = useState<YoutubeData>(initialYoutubeData);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loginDays, setLoginDays] = useState<number | null>(null);
+
+
+  useEffect(() => {
+    const fetchLoginDays = async () => {
+      try {
+        const res = await fetch('/api/auth/logindays');
+        if (!res.ok) throw new Error('Failed to fetch login days');
+        const data = await res.json();
+        setLoginDays(data.loginDays);
+        // console.log('Login Days:', data.loginDays);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+  
+    fetchLoginDays();
+  }, []);
+  
 
   useEffect(() => {
     const fetchYoutubeData = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch('/api/youtube-analytics');
+        const res = await fetch('/api/youtube/analytics');
         if (!res.ok) {
           throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
         }
@@ -81,6 +102,36 @@ export default function DashboardPage() {
 
   return (
     <div className="p-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="rounded-2xl p-5 text-white bg-gradient-to-r from-pink-600 to-purple-600 shadow-md">
+        <div className="flex items-start gap-3">
+          <div className="text-yellow-300 text-2xl">💡</div>
+          <div>
+            <p className="text-lg font-semibold">Looking for content inspiration?</p>
+            <p className="text-yellow-300 font-bold">Try the Smart Idea Generator</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-2xl p-5 text-white bg-red-600 shadow-md flex items-center gap-4">
+        <div className="text-white text-3xl">👤</div>
+        <div>
+          <p className="text-md">
+            Your channel reached <strong>{Number(youtubeData.subscribers).toLocaleString()} subscribers</strong> with
+          </p>
+          <p className="text-yellow-300 font-bold">Thumbnail Coach</p>
+        </div>
+      </div>
+
+      <div className="rounded-2xl p-5 text-white bg-sky-600 shadow-md flex items-start gap-3">
+        <div className="text-yellow-300 text-2xl">🚀</div>
+        <div>
+          <p className="text-lg font-semibold">You've used GetButlr tools</p>
+          <p className="text-white">{loginDays} days in a row!</p>
+        </div>
+      </div>
+    </div>
+
       <h1 className="text-3xl font-bold mb-6">Analytics Dashboard</h1>
 
       <Tabs defaultValue="overview" className="w-full">
