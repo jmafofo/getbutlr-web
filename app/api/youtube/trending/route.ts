@@ -9,13 +9,13 @@ export async function GET(req: Request) {
   if (!query) {
     return NextResponse.json({ error: 'Missing query parameter: q' }, { status: 400 });
   }
-
+  console.log(process.env.NEXT_PUBLIC_RAPIDAPI_KEY);
   const url = `https://youtube138.p.rapidapi.com/search/?q=${encodeURIComponent(query)}&hl=en&gl=US`;
 
   const options = {
     method: 'GET',
     headers: {
-      'x-rapidapi-key': process.env.RAPIDAPI_KEY!,
+      'x-rapidapi-key': process.env.RAPIDAPI_KEY! || "77dac0e96emsh4a16f79fa5bb42ap184cd6jsn44230c17c963",
       'x-rapidapi-host': 'youtube138.p.rapidapi.com'
     }
   };

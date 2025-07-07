@@ -34,7 +34,7 @@ export default function UploadPage() {
   const [idea, setIdea] = useState('');
   const [trendingVideos, setTrendingVideos] = useState<any[]>([]);
   const [templates, setTemplates] = useState<{ title: string; description: string; tags: string }[]>([]);
-  console.log(process.env.RAPIDAPI_KEY);
+
   const fetchTrendingVideos = async () => {
         const res = await fetch(`/api/youtube/trending?q=${encodeURIComponent(idea)}`);
         const data = await res.json();
