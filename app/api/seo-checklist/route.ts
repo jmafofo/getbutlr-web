@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(req: NextRequest) {
   try {
-    const { goals, niche, frequency } = await req.json()
+    const { title, description, tags } = await req.json()
 
     const prompt = `
-I am a content creator in the "${niche}" niche. I want to grow by "${goals}" and can publish ${frequency} videos per week. Please give me a personalized weekly content plan with topics, posting schedule, and optimization tips.
-    `.trim();
-
+    Review this YouTube video metadata and provide an SEO checklist with suggestions:
+    Title: "${title}"
+    Description: "${description}"
+    Tags: ${tags.join(', ')}
+        `.trim();
+        
     const ollamaRes = await fetch(`${process.env.OLLAMA_SERVER_URL}/api/generate`, {
       method: "POST",
       headers: {

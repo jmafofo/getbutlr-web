@@ -33,7 +33,10 @@ import {
   FiTriangle,
   FiVoicemail,
   FiPlusSquare,
-  FiList
+  FiList,
+  FiUsers,
+  FiStar,
+  FiChevronsRight
 } from "react-icons/fi";
 
 export default function Sidebar() {
@@ -162,15 +165,27 @@ export default function Sidebar() {
       ]
     },
     {
-      name: "Tools",
+      name: "AI Coaching Tools",
       icon: FiTool,
       submenu: [
-        { name: "Comment Insights", path: "/tools/comment-insights", icon: FiCrosshair },
         { name: "Content Performance", path: "/tools/content-performance", icon: FiActivity },
-        { name: "Growth Planner", path: "/tools/growth-planner", icon: FiTrendingUp },
         { name: "Hook Analyzer", path: "/tools/hook-analyzer", icon: FiTriangle },
         { name: "Idea Generator", path: "/tools/idea-generator", icon: FiLayers },
         { name: "Voice to Script", path: "/tools/voice-to-script", icon: FiVoicemail }
+      ]
+    },
+    {
+      name: "Audience Insight Tools",
+      icon: FiUsers,
+      submenu: [
+        { name: "Comment Insights", path: "/tools/comment-insights", icon: FiCrosshair },
+        { name: "Weekly Growth Planner", path: "/tools/growth-planner", icon: FiTrendingUp }      ]
+    },
+    {
+      name: "Promotion Tools",
+      icon: FiStar,
+      submenu: [
+        { name: "Boost Planner", path: "/boost", icon: FiChevronsRight }
       ]
     },
     {

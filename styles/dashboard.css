@@ -1,0 +1,247 @@
+/* === Layout Grid === */
+.dashboard-container {
+    display: grid;
+    grid-template-columns: 250px 1fr 300px;
+    gap: 1rem;
+    height: 100vh;
+    padding: 1rem;
+  }
+  
+  /* === Sidebar === */
+  .sidebar {
+    background: #1E1E2A;
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  
+  /* Sidebar group title */
+  .sidebar-title {
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 0.5rem;
+    padding-left: 0.25rem;
+  }
+  
+  /* Group section container */
+  .nav-section {
+    margin-bottom: 2rem;
+  }
+  
+  /* Nav List */
+  .nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  /* Nav Link */
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    color: #cbd5e1;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+  }
+  
+  .nav-link:hover {
+    background-color: #2a2a3d;
+    color: #ffffff;
+  }
+  
+  .nav-link.active {
+    background-color: #3b82f6;
+    color: #ffffff;
+  }
+  
+  .nav-icon {
+    font-size: 1.125rem;
+  }
+  
+  /* === Main Content Area === */
+  .main {
+    display: grid;
+    grid-template-rows: 200px 1fr;
+    gap: 1rem;
+  }
+  
+  /* Card Row inside main */
+  .card-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  /* Chart Area */
+  .dashboard-chart {
+    background: #1E1E2A;
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  
+  /* General Card */
+  .card {
+    background: #1E1E2A;
+    border-radius: 8px;
+    padding: 1rem;
+    color: #E0E0E0;
+  }
+  
+  /* Chart Placeholder */
+  .chart-placeholder {
+    height: 240px;
+  }
+  
+  /* Chat Panel */
+  .chat {
+    background: #1E1E2A;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* === Footer === */
+  .footer {
+    background: #111827;
+    color: #9ca3af;
+    font-size: 0.875rem;
+    padding: 1.5rem 1rem;
+    border-top: 1px solid #374151;
+  }
+  
+  .footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .footer-link {
+    color: #9ca3af;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  
+  .footer-link:hover {
+    color: #ffffff;
+  }
+  
+  /* === Topbar === */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    margin-bottom: 1rem;
+  }
+  
+  .topbar-left h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .theme-toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+  }
+  
+  .avatar-placeholder {
+    background: #3b82f6;
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  
+  /* === Tool Cards === */
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+  
+  .tool-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: 8px;
+    background: var(--card-bg);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    text-decoration: none;
+    color: var(--text);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .tool-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  }
+  
+  .tool-icon {
+    font-size: 1.5rem;
+  }
+  
+  .tool-name {
+    font-weight: 600;
+    font-size: 1.125rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .tool-description {
+    color: #6b7280;
+    font-size: 0.875rem;
+  }
+  
+  /* === Tool Header Styles === */
+  .tool-header {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .tool-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .tool-icon {
+    font-size: 1.75rem;
+    display: inline-flex;
+  }
+  
+  .tool-description {
+    font-size: 1rem;
+    color: #9ca3af;
+    max-width: 700px;
+  }

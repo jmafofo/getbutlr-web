@@ -2,11 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(req: NextRequest) {
   try {
-    const { goals, niche, frequency } = await req.json()
+    const { commentsText } = await req.json()
 
-    const prompt = `
-I am a content creator in the "${niche}" niche. I want to grow by "${goals}" and can publish ${frequency} videos per week. Please give me a personalized weekly content plan with topics, posting schedule, and optimization tips.
-    `.trim();
+    const prompt = `Analyze these YouTube comments for sentiment, viewer intent, feedback, and content suggestions:\n\n${commentsText}`;
 
     const ollamaRes = await fetch(`${process.env.OLLAMA_SERVER_URL}/api/generate`, {
       method: "POST",
