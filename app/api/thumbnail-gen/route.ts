@@ -5,6 +5,7 @@ import { createClient } from '@/app/utils/supabase/server';
 // Function to generate an image from a title using Ollama
 async function generateImageFromTitle(title: string, user_id: string) {
   const supabase = await createClient();
+
   const ollamaPrompt = `
     YouTube title: "${title}". Create a text-to-image prompt with one key visual and a bold text banner (visibly part of the image) containing a short, catchy phrase. Output only the image full and detailed description.
     Note:
@@ -28,6 +29,7 @@ async function generateImageFromTitle(title: string, user_id: string) {
     body: JSON.stringify({
       prompt: imagePrompt,
       return_base64: false,
+      user_uuid: user_id,
       seed: Math.floor(Math.random() * 1000000)
     })
   });
@@ -123,6 +125,7 @@ async function processUploadedThumbnail(title: string, thumbnailFile: File, user
   const imFormData = new FormData();
   imFormData.append('prompt', imagePrompt);
   imFormData.append('input_image', thumbnailFile);
+  imFormData.append('user_uuid', user_id);
   imFormData.append('return_base64', 'false');
   imFormData.append('seed', Math.floor(Math.random() * 1000000).toString());
 
