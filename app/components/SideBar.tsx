@@ -55,14 +55,13 @@ export default function Sidebar() {
       high: { url: '' },
     },
   });
-  const { isTrialExpired, isSubscriber, isLoading } = useAuth();
+  const { isTrial, daysLeft, isTrialExpired, isSubscriber, isLoading } = useAuth();
 
   useEffect(() => {
     if (!isLoading && !isSubscriber && isTrialExpired) {
       router.push('/billing');
     }
-  }, [isLoading, isSubscriber, isTrialExpired, router]);
-
+  }, [isTrial, daysLeft, isLoading, isSubscriber, isTrialExpired, router]);
 
   useEffect(() => {
     const fetchYoutubeData = async () => {
@@ -238,7 +237,14 @@ export default function Sidebar() {
               <p className="font-small truncate">
                 {stripEmailDomain(user?.email)}
               </p>
-              <p className="text-l text-gray-400">Gold</p>
+              {/* <p className="text-l text-gray-400">Gold</p> */}
+              <p className="text-l text-gray-400">
+                {isTrial && !isTrialExpired && daysLeft !== null
+                  ? `Trial: ${daysLeft} day${daysLeft !== 1 ? 's' : ''} left`
+                  : isSubscriber
+                  ? 'Pro'
+                  : 'Free'}
+              </p>
             </div>
             {/* <div className="col-12-m">
               <p className="text-l text-gray-400">{youtubeData.title}</p>

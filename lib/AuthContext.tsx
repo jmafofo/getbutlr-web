@@ -18,6 +18,7 @@ type AuthContextType = {
   subscription: Subscription | null;
   isLoading: boolean;
   isTrial: boolean;
+  daysLeft: number | null;
   isSubscriber: boolean;
   isTrialExpired: boolean;
   isPaidExpired: boolean;
@@ -76,6 +77,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const isSubscriber = isValidPaidSubscription;
 
+  const [daysLeft, setDaysLeft] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (subscription?.trial_expires && isTrial && !isTrialExpired) {
+      const expiry = new Date(subscription.trial_expires);
+      const now = new Date();
+      const diff = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      setDaysLeft(diff);
+    }
+  }, [subscription, isTrial, isTrialExpired]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -85,6 +97,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         isTrial,
         isSubscriber,
         isTrialExpired,
+        daysLeft,
         isPaidExpired,
       }}
     >
