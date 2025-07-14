@@ -65,4 +65,8 @@ GetButlr is your all-in-one AI studio designed to help YouTube, TikTok, and Inst
 git clone https://github.com/jmafofo/getbutlr-web.git
 cd getbutlr-web
 npm install
+<<<<<<< HEAD
 npm run dev
+=======
+npm run dev
+>>>>>>> ddfeedfa6812964f0922f62cb1f726db5f5e76ed
