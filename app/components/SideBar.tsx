@@ -238,13 +238,20 @@ export default function Sidebar() {
                 {stripEmailDomain(user?.email)}
               </p>
               {/* <p className="text-l text-gray-400">Gold</p> */}
-              <p className="text-l text-gray-400">
-                {isTrial && !isTrialExpired && daysLeft !== null
-                  ? `Trial: ${daysLeft} day${daysLeft !== 1 ? 's' : ''} left`
-                  : isSubscriber
-                  ? 'Pro'
-                  : 'Free'}
-              </p>
+              {/* Trial Balloon */}
+              {isTrial && !isTrialExpired && daysLeft !== null ? (
+                <div className="mt-1 inline-block bg-yellow-500/10 text-yellow-300 px-3 py-1 rounded-full text-sm font-medium shadow-sm border border-yellow-500/30 animate-pulse">
+                  🎯 Trial: {daysLeft} day{daysLeft !== 1 ? 's' : ''} left
+                </div>
+              ) : isSubscriber ? (
+                <div className="mt-1 inline-block bg-green-500/10 text-green-300 px-3 py-1 rounded-full text-sm font-medium shadow-sm border border-green-500/30">
+                  🌟 Pro
+                </div>
+              ) : (
+                <div className="mt-1 inline-block bg-slate-700/40 text-gray-300 px-3 py-1 rounded-full text-sm font-medium border border-slate-500/30">
+                  Free
+                </div>
+              )}
             </div>
             {/* <div className="col-12-m">
               <p className="text-l text-gray-400">{youtubeData.title}</p>
