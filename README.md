@@ -1,58 +1,68 @@
-# GetButlr – AI-Powered Creator Growth Suite 🚀
-
-**GetButlr** is a lightweight, open-source platform that empowers YouTube creators with AI-driven tools—SEO-optimized titles, thumbnail scoring, A/B testing, trend tracking, and gamified performance advice—all bundled in an intuitive web app + browser extension.
-
----
-
-## 🌟 Key Features
-
-- **Personalized SEO Suggestions**  
-  Generates optimized video titles, descriptions, and tags using GPT-4 and YouTube trend data.
-
-- **Thumbnail Scoring**  
-  Rates visual appeal (0–100) with feedback on composition, readability, and branding.
-
-- **A/B Testing & Performance Dashboard**  
-  Enables multiple title/thumbnail tests with CTR and watch-time analysis.
-
-- **Trend Watchlist + Alerts**  
-  Tracks trending keywords and notifies creators when spikes occur.
-
-- **YouTube Studio Extension**  
-  Integrates directly into YouTube Studio with real-time suggestions and gamified effects.
-
-- **Gamified Progress Tracking**  
-  Logs performance metrics and celebrates wins with confetti and sparkly overlays.
-
-- **14‑Day Trial + Tiered Pricing**  
-  Start with a free trial, then continue with affordable Growth or Pro plans.
+# GetButlr 🎬✨
+**Built for Creators. Ready for Every Platform.**  
+GetButlr is your all-in-one AI studio designed to help YouTube, TikTok, and Instagram creators grow faster with smart optimization, coaching, and promotion tools.
 
 ---
 
-## 📋 Table of Contents
+## 🚀 Features (Current MVP)
 
-1. [Getting Started](#getting-started)  
-2. [Project Structure](#project-structure)  
-3. [Usage & Examples](#usage--examples)  
-4. [Roadmap](#roadmap)  
-5. [Contributing](#contributing)  
-6. [License](#license)  
-7. [Contact & Support](#contact--support)
+### 📊 Dashboard Studio
+- Personalized tool hub for each user
+- Free vs Pro tool access clearly indicated
+- Recent uploads shown with AI feedback per video
+
+### 🧠 AI Coaching Tools
+- **Voice to Script**: Transcribe your voice and turn it into a polished script
+- **Hook Analyzer**: Evaluate your video’s hook and get improvement suggestions
+- **Comment Insights**: Discover sentiment trends from YouTube comments
+- **Idea Generator**: AI-based content ideas from your niche
+
+### 🧭 Audience Insight Tools
+- **Content Performance Analyzer**: Assess how your content compares to others in your niche
+- **Growth Planner**: Weekly plan tailored to your goals and upload patterns
+
+### ⚙️ Optimization Tools
+- **SEO Checklist**: Get actionable tips to optimize metadata and discoverability
+- **Boost Tool** 🔒 Pro: Identify your best-fit audience and push videos for growth
+- **Thumbnail Generator** 🔒 Pro: AI-enhanced thumbnails with scoring and feedback
 
 ---
 
-## 🚀 Getting Started
+## 💼 Pricing Tiers
+| Plan        | Features |
+|-------------|----------|
+| **Free**       | Basic tools, limited AI feedback |
+| **Creator+**   | Advanced AI insights, Hook/Comment tools |
+| **Studio Pro** | Boost, Thumbnail Generator, premium features |
 
-### Prerequisites
+---
 
-- Node.js (v16+)
-- Supabase CLI (for Edge Functions)
-- Google & OpenAI API keys
-- Optional: Stripe account
+## 🔐 Tech Stack
+- **Next.js 14** with App Router
+- **Tailwind CSS + ShadCN UI**
+- **Supabase** for auth and storage
+- **OpenAI API** for all AI services
+- **Google OAuth** for login
+- **Responsive + Dark Mode** ready
+- **Future: Browser extension, global analytics, training courses**
 
-### Setup
+---
+
+## 📍 Roadmap
+- [ ] Pro-only upgrade flows (✅ done)
+- [ ] Tool summary panel (✅ done)
+- [ ] Tool index page
+- [ ] Global content metadata score
+- [ ] Creator Academy (Training modules)
+- [ ] Real-time SEO audit assistant
+- [ ] Browser extension for YouTube Studio
+
+---
+
+## 📂 Get Started Locally
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/getbutlr-web.git
+git clone https://github.com/jmafofo/getbutlr-web.git
 cd getbutlr-web
 npm install
+npm run dev
