@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/app/components/ui/tabs';
 import ChartCard from '@/components/ChartCard';
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import type { User } from "@supabase/supabase-js";
 
@@ -49,6 +50,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loginDays, setLoginDays] = useState<number | null>(null);
+  const router = useRouter();
 
 
   useEffect(() => {
@@ -108,7 +110,10 @@ export default function DashboardPage() {
           <div className="text-yellow-300 text-2xl">💡</div>
           <div>
             <p className="text-lg font-semibold">Looking for content inspiration?</p>
-            <p className="text-yellow-300 font-bold">Try the Smart Idea Generator</p>
+            <p 
+            onClick={() => router.push('/insights')}
+            className="text-yellow-300 font-bold cursor-pointer hover:underline transition"
+            >Try the Smart Idea Generator</p>
           </div>
         </div>
       </div>
@@ -119,7 +124,11 @@ export default function DashboardPage() {
           <p className="text-md">
             Your channel reached <strong>{Number(youtubeData.subscribers).toLocaleString()} subscribers</strong> with
           </p>
-          <p className="text-yellow-300 font-bold">Thumbnail Coach</p>
+          <p
+          onClick={() => router.push('/thumbnail-score')}
+          className="text-yellow-300 font-bold cursor-pointer hover:underline transition"
+          >
+            Thumbnail Coach</p>
         </div>
       </div>
 
