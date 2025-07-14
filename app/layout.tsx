@@ -5,7 +5,8 @@ import TopBarWrapper from "@/app/components/TopBarWrapper";
 import SidebarWrapper from "@/app/components/SidebarWrapper";
 import FootWrapper from "./components/FooterWrapper";
 import "./globals.css"
-import AuthProvider from '@/app/components/AuthProvider';
+import { AuthProvider } from '@/lib/AuthContext';
+// import AuthProvider from '@/app/components/AuthProvider';
 import BillingWrapper from './components/BillingWrapper';
 import { Toaster } from 'react-hot-toast';
 

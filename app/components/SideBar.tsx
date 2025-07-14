@@ -38,6 +38,7 @@ import {
   FiStar,
   FiChevronsRight
 } from "react-icons/fi";
+import { useAuth } from '@/lib/AuthContext';
 
 export default function Sidebar() {
   const [user, setUser] = useState<User | null>(null);
@@ -54,7 +55,14 @@ export default function Sidebar() {
       high: { url: '' },
     },
   });
-  
+  const { isTrialExpired, isSubscriber, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && !isSubscriber && isTrialExpired) {
+      router.push('/billing');
+    }
+  }, [isLoading, isSubscriber, isTrialExpired, router]);
+
 
   useEffect(() => {
     const fetchYoutubeData = async () => {
