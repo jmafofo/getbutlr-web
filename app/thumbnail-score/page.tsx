@@ -220,7 +220,7 @@ export default function ThumbnailScorePage() {
       setClipResult(null);
       setResult(null);
   
-      const clipRes = await submitImage({ file: file ?? undefined, url: url || undefined });
+      const clipRes = await submitImage({ file: selectedFile ?? undefined, url: url || undefined });
       setClipResult(clipRes);
   
       const scoreRes = await getThumbnailScore(clipRes, title);
@@ -242,7 +242,7 @@ export default function ThumbnailScorePage() {
     console.log('Current result state:', result);
   }, [result]);
 
-  const isSubmitDisabled = !title.trim() || (!file && !url);
+  const isSubmitDisabled = !title.trim() || (!selectedFile && !url);
 
   return (
     <div className="p-5 min-h-screen relative">
@@ -428,9 +428,9 @@ export default function ThumbnailScorePage() {
                   <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                     {/* Image Preview */}
                     <div className="flex flex-col items-center">
-                      {file ? (
+                      {selectedFile ? (
                         <img
-                          src={URL.createObjectURL(file)}
+                          src={URL.createObjectURL(selectedFile)}
                           alt="Uploaded thumbnail"
                           className="max-h-64 w-auto rounded-lg object-contain"
                         />
