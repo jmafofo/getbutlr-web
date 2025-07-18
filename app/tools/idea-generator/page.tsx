@@ -7,6 +7,8 @@ export default function ContentPerformance() {
   const [results, setResults] = useState<any>(null);
   const [error, setError] = useState('');
 
+  const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API;
+
   const handleIdeaGenerate = async () => {
     setError('');
     setResults(null);
@@ -17,7 +19,7 @@ export default function ContentPerformance() {
     }
 
     try {
-      const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics,contentDetails&id=${videoId}&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`);
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics,contentDetails&id=${videoId}&key=${API_KEY}`);
       const data = await res.json();
       if (!data.items || data.items.length === 0) {
         setError('Video not found or invalid API key');
@@ -78,7 +80,7 @@ export default function ContentPerformance() {
         <div className="space-y-6">
           <div>
             <h2 className="text-xl font-semibold">Performance Metrics</h2>
-            <ul className="list-disc pl-6 text-gray-700">
+            <ul className="list-disc pl-6 text-white-700">
               <li>View Count: {results.viewCount}</li>
               <li>Impressions: {results.impressions}</li>
               <li>CTR: {results.ctr}</li>
@@ -102,7 +104,7 @@ export default function ContentPerformance() {
 
           <div>
             <h2 className="text-xl font-semibold">Improvement Tips</h2>
-            <ul className="list-disc pl-6 text-gray-700">
+            <ul className="list-disc pl-6 text-white-700">
               {results.tips.map((tip: string, i: number) => (
                 <li key={i}>{tip}</li>
               ))}
