@@ -1,68 +1,72 @@
-# GetButlr 🎬✨
-**Built for Creators. Ready for Every Platform.**  
-GetButlr is your all-in-one AI studio designed to help YouTube, TikTok, and Instagram creators grow faster with smart optimization, coaching, and promotion tools.
+# GetButlr — AI Studio for Creators
 
----
+**GetButlr** is a powerful AI-powered platform built to empower content creators with tools that analyze, enhance, and optimize videos, metadata, growth strategies, and more. Whether you're on YouTube, Instagram, TikTok, or Facebook — GetButlr is your virtual creative strategist.
 
-## 🚀 Features (Current MVP)
+## 🚀 Features
 
-### 📊 Dashboard Studio
-- Personalized tool hub for each user
-- Free vs Pro tool access clearly indicated
-- Recent uploads shown with AI feedback per video
+- 🎯 **SEO Optimization Tools** (titles, descriptions, tags)
+- 🎞️ **Thumbnail Analyzer + Generator**
+- 📈 **Content Performance Analyzer**
+- 🔍 **Hook Analyzer**
+- 🧠 **Smart Idea Generator**
+- 🗓️ **Weekly Growth Planner**
+- 🗣️ **Voice-to-Script Transcriber**
+- 💬 **Comment Insight Tool**
+- 🧵 **AI Coaching and Feedback Summaries**
+- 📦 **Browser Extension for real-time studio feedback**
+- 🔧 **Tag Miner & Keyword Research Engine**
 
-### 🧠 AI Coaching Tools
-- **Voice to Script**: Transcribe your voice and turn it into a polished script
-- **Hook Analyzer**: Evaluate your video’s hook and get improvement suggestions
-- **Comment Insights**: Discover sentiment trends from YouTube comments
-- **Idea Generator**: AI-based content ideas from your niche
+## 📦 Project Structure
 
-### 🧭 Audience Insight Tools
-- **Content Performance Analyzer**: Assess how your content compares to others in your niche
-- **Growth Planner**: Weekly plan tailored to your goals and upload patterns
+app/
+├── api/ → API routes (e.g., comment-insights, seo-checklist)
+├── components/ → Reusable UI components (ToolHeader, ToolCard, etc.)
+├── tools/ → Tool pages (SEO Checklist, Hook Analyzer, etc.)
+├── courses/ → Creator Academy modules
+├── dashboard/ → User dashboard and subscription pages
+├── layout.tsx → App layout
+├── page.tsx → Landing page
+public/
+styles/
+utils/
 
-### ⚙️ Optimization Tools
-- **SEO Checklist**: Get actionable tips to optimize metadata and discoverability
-- **Boost Tool** 🔒 Pro: Identify your best-fit audience and push videos for growth
-- **Thumbnail Generator** 🔒 Pro: AI-enhanced thumbnails with scoring and feedback
+shell
+Copy
+Edit
 
----
+## 🧪 Development
 
-## 💼 Pricing Tiers
-| Plan        | Features |
-|-------------|----------|
-| **Free**       | Basic tools, limited AI feedback |
-| **Creator+**   | Advanced AI insights, Hook/Comment tools |
-| **Studio Pro** | Boost, Thumbnail Generator, premium features |
-
----
-
-## 🔐 Tech Stack
-- **Next.js 14** with App Router
-- **Tailwind CSS + ShadCN UI**
-- **Supabase** for auth and storage
-- **OpenAI API** for all AI services
-- **Google OAuth** for login
-- **Responsive + Dark Mode** ready
-- **Future: Browser extension, global analytics, training courses**
-
----
-
-## 📍 Roadmap
-- [ ] Pro-only upgrade flows (✅ done)
-- [ ] Tool summary panel (✅ done)
-- [ ] Tool index page
-- [ ] Global content metadata score
-- [ ] Creator Academy (Training modules)
-- [ ] Real-time SEO audit assistant
-- [ ] Browser extension for YouTube Studio
-
----
-
-## 📂 Get Started Locally
+### Install dependencies
 
 ```bash
-git clone https://github.com/jmafofo/getbutlr-web.git
-cd getbutlr-web
 npm install
+Run development server
+bash
+Copy
+Edit
 npm run dev
+Visit http://localhost:3000 to view the app.
+
+📦 Build and Deploy
+bash
+Copy
+Edit
+npm run build
+Deployment via Vercel or similar static hosting platforms is supported.
+
+🔐 Auth & API
+Supabase for authentication and data storage
+
+OpenAI for AI content generation and analysis
+
+Optional ad-gating and feature gating by subscription level
+
+🧠 Plans & Pricing
+Free Tier – Basic tools with limited usage
+
+Creator+ – Full access to most tools
+
+Studio Pro – Unlocks all tools, bulk optimization, and extension integrations
+
+📄 License
+MIT
