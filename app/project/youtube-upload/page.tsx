@@ -112,8 +112,35 @@ export default function UploadPage() {
         }
         };
 
+  const getGoogleAccessToken = async () => {
+    const res = await fetch('/api/google/refresh-token');
+    const data = await res.json();
+  
+    if (res.ok) {
+      return data.access_token;
+    } else {
+      throw new Error(data.error || 'Failed to refresh token');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate required constrained fields
+    if (!audience) {
+      toast.error('Please specify if the video is made for kids');
+      return;
+    }
+    if (!alteredContent) {
+      toast.error('Please specify if content is altered');
+      return;
+    }
+    if (!comments) {
+      toast.error('Please specify comments setting');
+      return;
+    }
+
+    const accessToken = await getGoogleAccessToken();
 
     if (!file) {
       toast.error('❌ Please select a video file');
@@ -125,13 +152,15 @@ export default function UploadPage() {
     setLoading(true);
 
     const formData = new FormData();
+    formData.append('audience', audience);           // 'yes' or 'no'
+    formData.append('alteredContent', alteredContent); // 'yes' or 'no'
+    formData.append('comments', comments);             // 'on' or 'off'
+    formData.append('visibility', visibility);         // 'private', 'public', 'unlisted'
+
     formData.append('title', title);
     formData.append('description', description);
     formData.append('file', file);
-    formData.append('visibility', visibility);
-    formData.append('audience', audience);
     formData.append('paidPromotion', String(paidPromotion));
-    formData.append('alteredContent', alteredContent);
     formData.append('tags', tags);
     formData.append('language', language);
     formData.append('captionCertification', captionCertification);
@@ -141,7 +170,6 @@ export default function UploadPage() {
     formData.append('notifySubscribers', String(notifySubscribers));
     formData.append('remixOption', remixOption);
     formData.append('category', category);
-    formData.append('comments', comments);
     formData.append('moderation', moderation);
     formData.append('sortCommentsBy', sortCommentsBy);
 
