@@ -151,8 +151,10 @@ export default function Sidebar() {
     {
       name: "Thumbnail Scoring",
       icon: FiCamera,
-      path: "/thumbnail-score",
-      submenu: []
+      submenu: [
+        { name: "Thumbnail Score", path: "/thumbnail-score", icon: FiPlusSquare },
+        { name: "Thumbnail Task List", path: "/thumbnail-list", icon: FiList }
+      ]
     },
     {
       name: "A/B Testing",

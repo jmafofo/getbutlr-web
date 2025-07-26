@@ -105,39 +105,38 @@ export default function ThumbnailScorePage() {
   //   return () => clearInterval(interval);
   // }, []);
 
-  
 
-  const handleImageGenSubmit = async () => {
-    if (!title) return;
-    setLoading(true);
+  // const handleImageGenSubmit = async () => {
+  //   if (!title) return;
+  //   setLoading(true);
   
-    try {
-      const formData = new FormData();
-      formData.append('title', title);
+  //   try {
+  //     const formData = new FormData();
+  //     formData.append('title', title);
   
-      if (selectedFile) {
-        formData.append('thumbnail', selectedFile);
-      }
+  //     if (selectedFile) {
+  //       formData.append('thumbnail', selectedFile);
+  //     }
   
-      const response = await fetch('/api/thumbnail-gen', {
-        method: 'POST',
-        body: formData,
-      });
+  //     const response = await fetch('/api/thumbnail-gen', {
+  //       method: 'POST',
+  //       body: formData,
+  //     });
   
-      if (!response.ok) {
-        throw new Error('Failed to generate thumbnail');
-      }
-      const data = await response.json();
-      toast.success(`Currenly generating your image with ID: ${data.taskId}`);
-      // setgenImage({
-      //   image: data.image_base64,
-      // });
-    } catch (error) {
-      console.error('Thumbnail generation failed:', error);
-    } finally {
-      setLoading(false);
-    }
-  };  
+  //     if (!response.ok) {
+  //       throw new Error('Failed to generate thumbnail');
+  //     }
+  //     const data = await response.json();
+  //     toast.success(`Currenly generating your image with ID: ${data.taskId}`);
+  //     // setgenImage({
+  //     //   image: data.image_base64,
+  //     // });
+  //   } catch (error) {
+  //     console.error('Thumbnail generation failed:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };  
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -204,11 +203,59 @@ export default function ThumbnailScorePage() {
     return data.result;
   }
 
-  async function getThumbnailScore(clipResult: string, title: string, userId: string) {
+  const generateImage = async (title: string, clipResult: string, taskId: string) => {
+    setLoading(true);
+  
+    try {
+      const formData = new FormData();
+
+      formData.append('title', title);
+      if (clipResult) {
+        formData.append('clip_result', clipResult);
+      }
+
+      if (taskId) {
+        formData.append('task_id', taskId);
+      }
+      // if (selectedFile) {
+      //   formData.append('thumbnail', selectedFile);
+      // }
+  
+      const response = await fetch('/api/thumbnail-gen', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to generate thumbnail');
+      }
+      const data = await response.json();
+      toast.success(`Currenly generating your image with ID: ${data.taskId}`);
+      // setgenImage({
+      //   image: data.image_base64,
+      // });
+    } catch (error) {
+      console.error('Thumbnail generation failed:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  async function getThumbnailScore(
+    clipResult: string,
+    title: string,
+    userId: string,
+    originalFile: File
+  ) {
+    const formData = new FormData();
+    formData.append('clip_result', clipResult);
+    formData.append('title', title);
+    formData.append('user_id', userId);
+    formData.append('file', originalFile);
+    
     const res = await fetch('/api/thumbnail-score', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ clip_result: clipResult, title, user_id: userId }),
+      body: formData,
     });
   
     if (!res.ok) {
@@ -220,6 +267,7 @@ export default function ThumbnailScorePage() {
     const scores = response.data;
   
     return {
+      taskId: response.task_id ?? null,
       clarity_score: scores.clarity_score ?? 0,
       clarity_feedback: scores.clarity_feedback ?? 'No feedback',
       emotional_engagement_score: scores.emotional_engagement_score ?? 0,
@@ -242,8 +290,10 @@ export default function ThumbnailScorePage() {
       const clipRes = await submitImage({ file: selectedFile ?? undefined, url: url || undefined });
       setClipResult(clipRes);
   
-      const scoreRes = await getThumbnailScore(clipRes, title, userId);
+      const scoreRes = await getThumbnailScore(clipRes, title, userId, selectedFile);
       setResult(scoreRes);
+
+      await generateImage(title, clipRes, scoreRes.taskId);
       
     } catch (err: any) {
       console.error(err);
@@ -363,7 +413,7 @@ export default function ThumbnailScorePage() {
               >
                 Evaluate Thumbnail
               </motion.button>
-              <motion.button
+              {/* <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleImageGenSubmit}
@@ -398,7 +448,7 @@ export default function ThumbnailScorePage() {
                         ) : (
                             "Generate Sample Thumbnail"
                         )}
-              </motion.button>
+              </motion.button> */}
             </motion.div>
           </div>
           <div className="bg-slate-800 rounded-2xl shadow-md p-6">

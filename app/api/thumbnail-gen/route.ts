@@ -67,46 +67,15 @@ async function generateImageFromTitle(title: string, user_id: string) {
   // });
 }
 
-// Function to process an uploaded image using /api/interrogate
-async function processImage({
-  file,
-  url,
-}: {
-  file?: File;
-  url?: string;
-}): Promise<string> {
-  const formData = new FormData();
-
-  if (file) {
-    formData.append('image_file', file);
-  }
-
-  if (url) {
-    formData.append('image_url', url);
-  }
-
-  const res = await fetch(`${process.env.BACKEND_URL}/api/v1/interrogate`, {
-    method: 'POST',
-    body: formData,
-  });
-
-  if (!res.ok) {
-    throw new Error('Failed to process image via /api/interrogate');
-  }
-
-  const data = await res.text();
-  return data;
-}
-
 // Function to process an uploaded thumbnail
-async function processUploadedThumbnail(title: string, thumbnailFile: File, user_id: string) {
-  const clip_result = await processImage({ file: thumbnailFile });
+async function processUploadedThumbnail(title: string, task_id: string, clip_result: string, user_id: string) {
+  // const clip_result = await processImage({ file: thumbnailFile });
   const supabase = await createClient();
 
   const ollamaPrompt = `
     You are an expert YouTube thumbnail evaluator.
-    Step 1 - Trim the ${clip_result} description to take only the content of the image and don't include the metadata.
-    Step 2 - Evaluate the trimmed description along with the title "${title}".
+    Step 1 - Evaluate the clip interrogator result of the image: ${clip_result}.
+    Step 2 - Evaluate the title "${title}".
     Step 3 - Create a text-to-image prompt with one key visual and a bold text banner (visibly part of the image) containing a short, catchy phrase.
     Note:
       - Output only the image full and detailed description.
@@ -125,12 +94,13 @@ async function processUploadedThumbnail(title: string, thumbnailFile: File, user
 
   const imFormData = new FormData();
   imFormData.append('prompt', imagePrompt);
-  imFormData.append('input_image', thumbnailFile);
+  imFormData.append('task_id', task_id);
+  // imFormData.append('input_image', thumbnailFile);
   imFormData.append('user_uuid', user_id);
   imFormData.append('return_base64', 'false');
   imFormData.append('seed', Math.floor(Math.random() * 1000000).toString());
 
-  const imageResponse = await fetch(`${process.env.BACKEND_URL_S2}/api/v1/generate-flux-im2im`, {
+  const imageResponse = await fetch(`${process.env.BACKEND_URL_S2}/api/v1/generate-flux`, {
     method: 'POST',
     body: imFormData,
   });
@@ -140,21 +110,20 @@ async function processUploadedThumbnail(title: string, thumbnailFile: File, user
   }
 
   const data = await imageResponse.json();
-  const task_id = data.task_id;
+  // const task_id = data.task_id;
 
-  const { error } = await supabase.from('thumbnail_tasks').insert([
-    {
-      task_id,
-      title,
-      prompt: imagePrompt,
-      source: 'flux',
-      user_id,
-    },
-  ]);
-
-  if (error) {
-    console.error('Error saving to Supabase:', error);
-  }
+  // const { error } = await supabase.from('thumbnail_tasks').insert([
+  //   {
+  //     task_id,
+  //     title,
+  //     prompt: imagePrompt,
+  //     source: 'flux',
+  //     user_id,
+  //   },
+  // ]);
+  // if (error) {
+  //   console.error('Error saving to Supabase:', error);
+  // }
   return NextResponse.json({
     taskId: task_id
   });
@@ -194,17 +163,19 @@ export async function POST(req: NextRequest) {
     if (contentType.includes('multipart/form-data')) {
       const formData = await req.formData();
       const title = (formData.get('title') as string)?.trim();
-      const thumbnailFile = formData.get('thumbnail') as File | null;
+      const clip_result = formData.get('clip_result') as string;
+      const task_id = formData.get('task_id') as string;
 
       if (!title) {
         return NextResponse.json({ error: 'Title is required' }, { status: 400 });
       }
+      return await processUploadedThumbnail(title, task_id, clip_result, userId);
 
-      if (thumbnailFile) {
-        return await processUploadedThumbnail(title, thumbnailFile, userId);
-      } else {
-        return await generateImageFromTitle(title, userId);
-      }
+      // if (thumbnailFile) {
+      //   return await processUploadedThumbnail(title, clip_result, userId);
+      // } else {
+      //   return await generateImageFromTitle(title, userId);
+      // }
     }
 
     return NextResponse.json(

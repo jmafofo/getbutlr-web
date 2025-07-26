@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { Dialog } from "@headlessui/react";
 import { motion } from 'framer-motion';
 import type { User } from "@supabase/supabase-js";
+import { supabaseClient } from '@/app/utils/supabase/client'
 import { useRouter } from "next/navigation";
 import {
   FiBell,
@@ -15,6 +16,8 @@ import {
 
 export default function TopBar() {
   const [user, setUser] = useState<User | null>(null);
+  const [tasks, setTasks] = useState([]);
+  const [loadingTasks, setLoadingTasks] = useState(false);
   const [query, setQuery] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -80,7 +83,6 @@ export default function TopBar() {
 
     setLoading(false);
   };
-  
 
   useEffect(() => {
     const fetchYoutubeData = async () => {
@@ -123,6 +125,35 @@ export default function TopBar() {
       listener.subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data } = await supabaseClient.auth.getSession();
+      setUser(data.session?.user ?? null);
+    };
+    fetchUser();
+
+    const { data: listener } = supabaseClient.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  // Fetch up to 3 latest tasks with image_url not null
+  const fetchTasks = async () => {
+    if (!user?.id) return;
+    setLoadingTasks(true);
+    const { data, error } = await supabaseClient
+      .from('thumbnail_tasks')
+      .select('task_id, created_at')
+      .eq('user_id', user.id)
+      .not('image_url', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(3);
+    if (!error) setTasks(data || []);
+    setLoadingTasks(false);
+  };
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -185,13 +216,13 @@ export default function TopBar() {
     router.push("/signin");
   };
 
-  const avatarLetter = user?.email?.charAt(0)?.toUpperCase() || "?";
-  const avatarUrl = youtubeData?.thumbnails?.default?.url || '/12225935.png';
+  // const avatarLetter = user?.email?.charAt(0)?.toUpperCase() || "?";
+  // const avatarUrl = youtubeData?.thumbnails?.default?.url || '/12225935.png';
+  const maskTaskId = (id: string) => id.slice(0, 6) + '...';
 
   return (
     <>
     <div className="w-full px-6 py-4 bg-slate-800 text-gray-200 shadow-lg flex justify-between items-center">
-      <img src="" alt="" className="h-8 w-auto" />
       {user ? (
         <div className="relative flex items-center gap-4" ref={dropdownRef}>
           <button
@@ -202,7 +233,10 @@ export default function TopBar() {
             <FiSettings className="w-5 h-5" />
           </button>
           <button
-          onClick={() => setShowNotifications(true)} // implement this if needed
+          onClick={() => {
+            if (!showNotifications) fetchTasks();
+            setShowNotifications((prev) => !prev);
+          }} // implement this if needed
           className="text-gray-300 hover:text-white focus:outline-none"
           title="Notifications"
         >
@@ -223,16 +257,29 @@ export default function TopBar() {
             </div> */}
           </button>
           {showNotifications && (
-            <div className="absolute right-14 mt-[200px] w-64 bg-white rounded-md shadow-lg z-50">
-              <div className="py-2 px-4 text-sm text-gray-800">
-                <p className="font-semibold mb-2">Notifications</p>
-                {/* Sample notifications */}
-                <ul className="space-y-2">
-                  <li className="border-b pb-1 hover:bg-gray-100">🔔 New video uploaded</li>
-                  <li className="border-b pb-1 hover:bg-gray-100">📢 Platform update available</li>
-                  <li>✅ Channel linked successfully</li>
-                </ul>
+            <div className="absolute right-14 mt-[10vw] w-64 bg-white rounded-md shadow-lg z-50 max-h-60 overflow-auto">
+              <div className="py-2 px-4 text-gray-800 border-b font-semibold">
+                Notifications
               </div>
+              <ul>
+                {tasks.length === 0 ? (
+                  <li className="px-4 py-2 text-gray-500">No notifications</li>
+                ) : (
+                  tasks.map((task) => (
+                    <li
+                      key={task.task_id}
+                      onClick={() => {
+                        router.push(`/thumbnail/${task.task_id}`);
+                        setShowNotifications(false);
+                      }}
+                      className="cursor-pointer px-4 py-2 hover:bg-gray-100 border-b text-sm text-gray-700"
+                      title={`Task ID: ${task.task_id}`}
+                    >
+                      🔔 Image generated with task id {maskTaskId(task.task_id)}
+                    </li>
+                  ))
+                )}
+              </ul>
               <div className="text-right px-4 py-2">
                 <button
                   onClick={() => setShowNotifications(false)}
@@ -243,7 +290,6 @@ export default function TopBar() {
               </div>
             </div>
           )}
-
           {dropdownOpen && (
             <div className="absolute right-5 mt-[115px] w-40 bg-white rounded-md shadow-lg z-50">
               <ul className="py-2 text-sm text-gray-800">
