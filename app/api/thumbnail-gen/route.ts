@@ -7,12 +7,13 @@ async function generateImageFromTitle(title: string, user_id: string) {
   const supabase = await createClient();
 
   const ollamaPrompt = `
-    YouTube title: "${title}". Create a text-to-image prompt with one key visual and a bold text banner (visibly part of the image) containing a short, catchy phrase. Output only the image full and detailed description.
+    YouTube title: "${title}". Create a text-to-image prompt with one key visual and a bold text banner (visibly part of the image) containing a short, catchy phrase. Output only 1 concise image full and detailed description.
     Note:
         - If the title has a given place, consider its environment and structure.
   `;
 
   const rawResult = await callOllama(ollamaPrompt);
+  console.log(rawResult);
   let parsedResult;
   try {
     const cleaned = rawResult.match(/```json([\s\S]*?)```/)?.[1]?.trim() || rawResult.trim();

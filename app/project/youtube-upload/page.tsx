@@ -29,20 +29,50 @@ export default function UploadPage() {
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
   const [applyingTrendIndex, setApplyingTrendIndex] = useState<number | null>(null);
+  const [generateTrendingData, setgenerateTrendData] = useState(false);
+  const [generateTitleData, setgenerateTitleData] = useState(false);
   const [selectedTrending, setSelectedTrending] = useState<number | null>(null);
   
   const [idea, setIdea] = useState('');
+  const [titleIdea, setTitleIdea] = useState('');
   const [trendingVideos, setTrendingVideos] = useState<any[]>([]);
+  const [generatedInfo, setGeneratedInfo] = useState<any[]>([]);
   const [templates, setTemplates] = useState<{ title: string; description: string; tags: string }[]>([]);
 
   const fetchTrendingVideos = async () => {
-        const res = await fetch(`/api/youtube/trending?q=${encodeURIComponent(idea)}`);
-        const data = await res.json();
-        setTrendingVideos(data.items);
-    };
-    useEffect(() => {
-        if (trendingVideos.length > 0) setLoading(false);
-      }, [trendingVideos]);
+    setGeneratedInfo([]);
+    setTrendingVideos([]);
+    setgenerateTrendData(true);
+      const res = await fetch(`/api/youtube/trending?q=${encodeURIComponent(idea)}`);
+      const data = await res.json();
+      setTrendingVideos(data.items);
+      setgenerateTrendData(false);
+  };
+  const generateTrendData = async (userQuery: string) => {
+    setGeneratedInfo([]);
+    setTrendingVideos([]);
+    try {
+      setgenerateTitleData(true);
+  
+      const res = await fetch(`/api/youtube/generate-data-f-title`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: userQuery }),
+      });
+  
+      const data = await res.json();
+      setGeneratedInfo(data.items);
+      console.log(data);
+    } catch (err) {
+      console.error("Failed to generate trending data:", err);
+    } finally {
+      setgenerateTitleData(false);
+    }
+  };
+  
+  useEffect(() => {
+      if (trendingVideos.length > 0) setLoading(false);
+    }, [trendingVideos]);
   const handleSelectTrending = (video: any, idx: number) => {
         setSelectedTrending(idx);
       
@@ -111,6 +141,48 @@ export default function UploadPage() {
             setApplyingTrendIndex(null);
         }
         };
+  
+    const applyTemplateTitle = async (tpl: { title: string; description: string; tags: string }, tidx: number) => {
+      setApplyingTrendIndex(tidx); 
+      const query = `Enhance this YouTube video template to make it more catchy and trending, add more description and tags, add icons. Return in JSON format:
+      {
+        "description": "...",
+        "tags": "..."
+      }
+    
+      Original:
+      Description: ${tpl.description}
+      Tags: ${tpl.tags}`;
+      
+
+      console.log(tpl.description);
+      try {
+          const res = await fetch("/api/ollama_query", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query }),
+          });
+      
+          const data = await res.json();
+      
+          // Extract the first valid JSON object using regex
+          const match = data.insight.match(/\{[\s\S]*?\}/);
+          if (!match) throw new Error("No valid JSON object found in response");
+
+          const parsed = JSON.parse(match[0]);
+
+          setTitle(tpl.title);
+          setDescription(parsed.description);
+          setTags(parsed.tags);
+      } catch (err) {
+          console.error("Template enhancement failed", err);
+          setTitle(tpl.title);
+          setDescription(tpl.description);
+          setTags(tpl.tags);
+      } finally {
+          setApplyingTrendIndex(null);
+      }
+      };
 
   const getGoogleAccessToken = async () => {
     const res = await fetch('/api/google/refresh-token');
@@ -547,101 +619,210 @@ export default function UploadPage() {
       </motion.div>
       {/* Hook Card Column */}
       <div className="col-span-2 col-start-4 flex flex-col space-y-4">
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-      <div className=" bg-slate-800 rounded-2xl shadow-md p-6 space-y-4">
-        <h2 className="text-xl font-bold text-white">Hook Trends</h2>
-        <input
-          value={idea}
-          onChange={(e) => setIdea(e.target.value)}
-          placeholder="Enter your idea..."
-          className="w-full p-2 bg-slate-700 text-white rounded"
-        />
-        <button
-          onClick={fetchTrendingVideos}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
         >
-          Search Trending
-        </button>
-        </div>
+          <div className=" bg-slate-800 rounded-2xl shadow-md p-6 space-y-4">
+            <h2 className="text-xl font-bold text-white">Hook Trends</h2>
+            <input
+              value={idea}
+              onChange={(e) => setIdea(e.target.value)}
+              placeholder="Enter your idea..."
+              className="w-full p-2 bg-slate-700 text-white rounded"
+            />
+            <button
+              onClick={fetchTrendingVideos}
+              className="bg-blue-600 text-white px-4 py-2 rounded"
+              disabled={generateTrendingData}
+              >
+              {generateTrendingData ? (
+                  <>
+                      <svg
+                          className="animate-spin h-4 w-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                      >
+                          <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          ></circle>
+                          <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                          ></path>
+                      </svg>
+                      Hooking...
+                      </>
+                  ) : (
+                      "Search Trends"
+              )}
+              </button>
+          </div>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          >
+          <div className=" bg-slate-800 rounded-2xl shadow-md p-6 space-y-4">
+            <h2 className="text-xl font-bold text-white">Generate Data</h2>
+            <textarea
+              value={titleIdea}
+              onChange={(e) => setTitleIdea(e.target.value)}
+              placeholder="Enter title"
+              className="w-full p-2 bg-slate-700 text-white rounded"
+            />
+              <button
+                onClick={() => generateTrendData(titleIdea)} 
+                className="bg-blue-600 text-white px-4 py-2 rounded"
+                disabled={generateTitleData}
+              >
+              {generateTitleData ? (
+                  <>
+                      Generating Data<svg
+                          className="animate-spin h-4 w-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                      >
+                          <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          ></circle>
+                          <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                          ></path>
+                      </svg>
+                      </>
+                  ) : (
+                      "Generate"
+              )}
+              </button>
+          </div>
         </motion.div>
         {loading ? (
-            // Skeleton loader while loading
+            // Skeleton loader
             Array.from({ length: 3 }).map((_, idx) => (
-                <div key={idx} className="bg-slate-800 p-4 rounded animate-pulse mt-2">
+              <div key={idx} className="bg-slate-800 p-4 rounded animate-pulse mt-2">
                 <div className="h-4 bg-slate-600 rounded w-3/4 mb-2"></div>
                 <div className="h-3 bg-slate-600 rounded w-1/2 mb-2"></div>
                 <div className="h-3 bg-slate-600 rounded w-full"></div>
-                </div>
+              </div>
             ))
-            ) : (
+          ) : trendingVideos.length > 0 ? (
+            // Existing trending videos rendering
             trendingVideos.map((video, idx) => (
-                <motion.div
+              <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
-                >
+              >
                 <div
-                    onClick={() => handleSelectTrending(video, idx)}
-                    className="bg-slate-700 text-white mt-2 cursor-pointer hover:bg-slate-500 p-2 rounded"
+                  onClick={() => handleSelectTrending(video, idx)}
+                  className="bg-slate-700 text-white mt-2 cursor-pointer hover:bg-slate-500 p-2 rounded"
                 >
-                    <div className="grid grid-cols-2 gap-4 p-5">
+                  <div className="grid grid-cols-2 gap-4 p-5">
                     <div className="col-span-1 col-start-1 flex flex-col space-y-4">
-                        <img src={video.snippet.thumbnail} className="w-50 rounded" />
+                      <img src={video.snippet.thumbnail} className="w-50 rounded" />
                     </div>
                     <div>{video.snippet.title}</div>
                     <div>{formatViews(video.snippet.views)} views</div>
-                    </div>
+                  </div>
                 </div>
 
                 {/* Templates shown only when this video is selected */}
                 {selectedTrending === idx && templates.map((tpl, tidx) => (
-                <div key={tidx} className="bg-slate-800 text-white p-3 rounded mt-2 ml-4">
+                  <div key={tidx} className="bg-slate-800 text-white p-3 rounded mt-2 ml-4">
                     <div className="font-bold">{tpl.title}</div>
                     <p className="text-sm">{tpl.description.slice(0, 60)}...</p>
                     <button
-                        onClick={() => applyTemplate(tpl, tidx)}
-                        className={`mt-2 bg-gradient-to-r from-sky-400 to-blue-800 text-white font-bold px-3 py-1 rounded w-80 transition-all duration-200 ease-in-out 
-                                    hover:brightness-110 hover:scale-105 hover:shadow-lg flex items-center justify-center gap-2`}
-                        disabled={applyingTrendIndex === tidx}
-                        >
-                        {applyingTrendIndex === tidx ? (
-                            <>
-                            <svg
-                                className="animate-spin h-4 w-4 text-white"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                            >
-                                <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                                ></circle>
-                                <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                                ></path>
-                            </svg>
-                            Applying Modification...
-                            </>
-                        ) : (
-                            "Modify & Use"
-                        )}
-                        </button>
-                </div>
+                      onClick={() => applyTemplate(tpl, tidx)}
+                      className={`mt-2 bg-gradient-to-r from-sky-400 to-blue-800 text-white font-bold px-3 py-1 rounded w-80 transition-all duration-200 ease-in-out 
+                                  hover:brightness-110 hover:scale-105 hover:shadow-lg flex items-center justify-center gap-2`}
+                      disabled={applyingTrendIndex === tidx}
+                    >
+                      {applyingTrendIndex === tidx ? (
+                        <>
+                          <svg
+                            className="animate-spin h-4 w-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                            ></path>
+                          </svg>
+                          Applying Modification...
+                        </>
+                      ) : (
+                        "Modify & Use"
+                      )}
+                    </button>
+                  </div>
                 ))}
-                </motion.div>
+              </motion.div>
             ))
-            )}
+          ) : generatedInfo.length > 0 ? (
+            // Fallback to generated AI titles if no trending videos
+            generatedInfo.map((item, idx) => (
+              <motion.div
+                key={`ai-${idx}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+              >
+                <div className="bg-slate-700 text-white mt-2 p-4 rounded shadow-lg">
+                  <div className="text-lg font-bold">{item.snippet.title}</div>
+                  <p className="text-sm text-slate-300 mt-1">{item.snippet.description}</p>
+                  <button
+                    onClick={() =>
+                      applyTemplateTitle(
+                        {
+                          title: item.snippet.title,
+                          description: item.snippet.description,
+                          tags: item.snippet.tags || ""
+                        },
+                        idx
+                      )
+                    }                    
+                    className={`mt-3 bg-gradient-to-r from-sky-400 to-blue-800 text-white font-bold px-3 py-1 rounded w-80 
+                                hover:brightness-110 hover:scale-105 hover:shadow-lg transition-all duration-200`}
+                    disabled={applyingTrendIndex === idx}
+                  >
+                    {applyingTrendIndex === idx ? "Applying..." : "Use This Idea"}
+                  </button>
+                </div>
+              </motion.div>
+            ))
+          ) : (
+            <div className="text-slate-400 mt-4">No trending or generated ideas available.</div>
+          )}
 
       </div>
       </div>

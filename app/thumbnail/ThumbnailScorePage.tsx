@@ -1,111 +1,53 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import toast from 'react-hot-toast';
 import { supabaseClient } from '@/app/utils/supabase/client'
 
-export default function ThumbnailScorePage() {
+interface ThumbnailScorePageProps {
+  taskId: string;
+}
+
+export default function ThumbnailScorePage({ taskId }: ThumbnailScorePageProps) {
   const [url, setUrl] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [clipResult, setClipResult] = useState<string | null>(null);
   const [title, setTitle] = useState<string>('');
-  const [taskId, setTaskId] = useState<string | null>(null);
-  const [result, setResult] = useState<{ 
-    clarity_score: number,
-    clarity_feedback: string,
-    emotional_engagement_score: number,
-    emotional_engagement_feedback: string,
-    text_readability_score: number,
-    text_readability_feedback: string,
-    brand_consistency_score: number,
-    brand_consistency_feedback: string, 
-  } | null>(null);
+  const [result, setResult] = useState<{ score: number; feedback: string } | null>(null);
   const [loader, setLoader] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [genImage, setgenImage] = useState<{
-    image: string;
-  } | null>(null);
+  const [genImage, setGenImage] = useState<{ image: string } | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchUser() {
-      const { data: { session }, error } = await supabaseClient.auth.getSession();
-      if (error) {
-        console.error('Error fetching session:', error);
-        return;
+    if (!taskId) return;
+
+    let interval: NodeJS.Timeout;
+
+    interval = setInterval(async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL_S2}/api/v1/generate-flux/status/${taskId}?return_base64=false`
+        );
+        if (res.status === 200) {
+          const json = await res.json();
+          if (json.url) {
+            setGenImage({ image: json.url });
+            setLoading(false);
+            clearInterval(interval);
+          }
+        }
+      } catch (err) {
+        console.error('Polling error:', err);
+        clearInterval(interval);
+        setLoading(false);
       }
-      if (session?.user?.id) {
-        setUserId(session.user.id);
-      }
-    }
-    fetchUser();
-  }, []);
+    }, 3000);
 
-  // useEffect(() => {
-  //   let interval: NodeJS.Timeout;
-
-  //   const fetchLatestTaskAndPoll = async () => {
-  //     // Step 1: Get Supabase session and user_id
-  //     const {
-  //       data: { session },
-  //       error: sessionError,
-  //     } = await supabaseClient.auth.getSession();
-
-  //     if (sessionError || !session?.user?.id) {
-  //       console.error("No session or user found:", sessionError);
-  //       return;
-  //     }
-
-  //     const userId = session.user.id;
-
-  //     // Step 2: Query Supabase directly to get the latest task_id for that user
-  //     const { data: tasks, error: queryError } = await supabaseClient
-  //       .from("thumbnail_tasks")
-  //       .select("task_id, status")
-  //       .eq("user_id", userId)
-  //       .order("created_at", { ascending: false })
-  //       .limit(1)
-  //       .maybeSingle();
-
-  //     if (queryError) {
-  //       console.error("Error fetching latest task:", queryError);
-  //       return;
-  //     }
-
-  //     if (!tasks || !tasks.task_id) {
-  //       console.warn("No task found for user.");
-  //       return;
-  //     }
-  //     const latestTaskId = tasks.task_id;
-  //     setTaskId(latestTaskId);
-
-  //     // Step 3: Start polling thumbnail-status endpoint
-  //     interval = setInterval(async () => {
-  //       try {
-  //         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL_S2}/api/v1/generate-flux/status/${latestTaskId}?return_base64=false`);
-  //         // console.log(res.url);
-  //         if (res.status === 200 && res.url) {
-  //           setgenImage({ image: res.url });
-  //           setLoading(false);
-  //           clearInterval(interval);
-  //         }
-  //       } catch (err) {
-  //         console.error("Polling error:", err);
-  //         clearInterval(interval);
-  //         setLoading(false);
-  //       }
-  //     }, 3000);
-  //   };
-
-  //   fetchLatestTaskAndPoll();
-
-  //   return () => clearInterval(interval);
-  // }, []);
-
-  
+    return () => clearInterval(interval);
+  }, [taskId]);
 
   const handleImageGenSubmit = async () => {
     if (!title) return;
@@ -204,11 +146,11 @@ export default function ThumbnailScorePage() {
     return data.result;
   }
 
-  async function getThumbnailScore(clipResult: string, title: string, userId: string) {
+  async function getThumbnailScore(clipResult: string, title: string) {
     const res = await fetch('/api/thumbnail-score', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ clip_result: clipResult, title, user_id: userId }),
+      body: JSON.stringify({ clip_result: clipResult, title }),
     });
   
     if (!res.ok) {
@@ -216,20 +158,22 @@ export default function ThumbnailScorePage() {
       throw new Error(error.error || 'Unknown error during thumbnail scoring.');
     }
   
-    const response = await res.json();
-    const scores = response.data;
+    const data = await res.json();
   
+    // More flexible response handling
+    if (data && (typeof data.score === 'number' || typeof data.feedback === 'string')) {
+      return {
+        score: data.score || 0,
+        feedback: data.feedback || 'No feedback provided'
+      };
+    }
+  
+    // Fallback if response format is unexpected
     return {
-      clarity_score: scores.clarity_score ?? 0,
-      clarity_feedback: scores.clarity_feedback ?? 'No feedback',
-      emotional_engagement_score: scores.emotional_engagement_score ?? 0,
-      emotional_engagement_feedback: scores.emotional_engagement_feedback ?? 'No feedback',
-      text_readability_score: scores.text_readability_score ?? 0,
-      text_readability_feedback: scores.text_readability_feedback ?? 'No feedback',
-      brand_consistency_score: scores.brand_consistency_score ?? 0,
-      brand_consistency_feedback: scores.brand_consistency_feedback ?? 'No feedback',
+      score: 0,
+      feedback: 'Could not parse evaluation results'
     };
-  }  
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -242,20 +186,14 @@ export default function ThumbnailScorePage() {
       const clipRes = await submitImage({ file: selectedFile ?? undefined, url: url || undefined });
       setClipResult(clipRes);
   
-      const scoreRes = await getThumbnailScore(clipRes, title, userId);
+      const scoreRes = await getThumbnailScore(clipRes, title);
       setResult(scoreRes);
       
     } catch (err: any) {
       console.error(err);
       setResult({
-        clarity_score: 0,
-        clarity_feedback: `Error: ${err.message || 'Failed to evaluate thumbnail'}`,
-        emotional_engagement_score: 0,
-        emotional_engagement_feedback: `Error: ${err.message || 'Failed to evaluate thumbnail'}`,
-        text_readability_score: 0,
-        text_readability_feedback: `Error: ${err.message || 'Failed to evaluate thumbnail'}`,
-        brand_consistency_score: 0,
-        brand_consistency_feedback: `Error: ${err.message || 'Failed to evaluate thumbnail'}`
+        score: 0,
+        feedback: `Error: ${err.message || 'Failed to evaluate thumbnail'}`
       });
     } finally {
       setLoader(false);
@@ -263,9 +201,9 @@ export default function ThumbnailScorePage() {
   };
 
   // Add this useEffect to debug the result state
-  // useEffect(() => {
-  //   console.log('Current result state:', result);
-  // }, [result]);
+  useEffect(() => {
+    console.log('Current result state:', result);
+  }, [result]);
 
   const isSubmitDisabled = !title.trim() || (!selectedFile && !url);
 
@@ -274,19 +212,15 @@ export default function ThumbnailScorePage() {
       {loader ? (
         <div className="flex flex-col items-center py-4 mt-5">
           <h2 className="text-xl font-bold text-purple-400 mb-4">Evaluating your thumbnail</h2>
-          <video
-            autoPlay
-            loop
-            muted
-            className="w-56 h-56 object-contain"
-            style={{ backgroundColor: 'transparent' }}
-          >
+          <video autoPlay loop muted className="w-56 h-56 object-contain" style={{ backgroundColor: 'transparent' }}>
             <source src="/loading.webm" type="video/webm" />
             Your browser does not support the video tag.
           </video>
         </div>
-      
       ) : (
+        // Your existing JSX for form, buttons, image preview, and scoring goes here unchanged
+        // Just remove the code that sets taskId internally or fetches it
+        // You can reuse your existing JSX return block here.
         <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
           {/* Left - Upload */}
           <div className="bg-slate-800 rounded-2xl shadow-md p-6">
@@ -449,77 +383,52 @@ export default function ThumbnailScorePage() {
               <h2 className="text-white font-bold text-lg">Thumbnail Scoring</h2>
 
               {result ? (
-                <div className="p-6 rounded-lg bg-white dark:bg-slate-900 shadow-md space-y-6 text-gray-900 dark:text-white">
-                  {/* Thumbnail Preview */}
-                  <div className="flex flex-col items-center">
-                    {selectedFile ? (
-                      <img
-                        src={URL.createObjectURL(selectedFile)}
-                        alt="Uploaded thumbnail"
-                        className="max-h-64 w-auto rounded-xl object-contain"
-                      />
-                    ) : url ? (
-                      <img
-                        src={url}
-                        alt="Thumbnail from URL"
-                        className="max-h-64 w-auto rounded-xl object-contain"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                        }}
-                      />
-                    ) : null}
-                    <span className="text-sm text-slate-400 mt-3">Thumbnail Preview</span>
-                  </div>
+                <div className="p-4 rounded text-white space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                    {/* Image Preview */}
+                    <div className="flex flex-col items-center">
+                      {selectedFile ? (
+                        <img
+                          src={URL.createObjectURL(selectedFile)}
+                          alt="Uploaded thumbnail"
+                          className="max-h-64 w-auto rounded-lg object-contain"
+                        />
+                      ) : url ? (
+                        <img
+                          src={url}
+                          alt="Thumbnail from URL"
+                          className="max-h-64 w-auto rounded-lg object-contain"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      ) : null}
+                      <span className="text-sm text-slate-300 mt-2">
+                        Thumbnail Preview
+                      </span>
+                    </div>
 
-                  {/* Scoring Breakdown */}
-                  <div className="space-y-6">
-                    {[
-                      {
-                        label: 'Clarity & Composition',
-                        score: result.clarity_score,
-                        feedback: result.clarity_feedback,
-                      },
-                      {
-                        label: 'Emotional Engagement',
-                        score: result.emotional_engagement_score,
-                        feedback: result.emotional_engagement_feedback,
-                      },
-                      {
-                        label: 'Text Readability',
-                        score: result.text_readability_score,
-                        feedback: result.text_readability_feedback,
-                      },
-                      {
-                        label: 'Brand Consistency',
-                        score: result.brand_consistency_score,
-                        feedback: result.brand_consistency_feedback,
-                      },
-                    ].map(({ label, score, feedback }, index) => (
-                      <div key={index} className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <h3 className="font-semibold text-base">{label}</h3>
-                          <div className="text-sm font-medium px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-full">
-                            {score}/10
-                          </div>
-                        </div>
-                        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
-                          <div
-                            className="bg-blue-500 h-2.5 rounded-full transition-all"
-                            style={{ width: `${(score / 10) * 100}%` }}
-                          ></div>
-                        </div>
-                        <div className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                          {feedback || 'No feedback provided.'}
+                    {/* Score and Feedback */}
+                    <div className="space-y-4">
+                      <div>
+                        <strong>Score:</strong> {Number.isFinite(result.score) ? result.score : 'N/A'}/100
+                      </div>
+                      <div>
+                        <strong>Feedback:</strong>
+                        <div className="prose prose-invert mt-2">
+                          <ReactMarkdown>
+                            {result.feedback || 'No feedback available'}
+                          </ReactMarkdown>
                         </div>
                       </div>
-                    ))}
+                    </div>
                   </div>
                 </div>
               ) : (
-                // fallback when result is null
-                <div className="text-sm text-slate-500 text-center py-8">Awaiting evaluation result...</div>
+                <div className="text-slate-400">
+                  No score yet. Submit an image and title to evaluate.
+                </div>
               )}
-
             </motion.div>
           </div>
         </div>
