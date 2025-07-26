@@ -92,17 +92,24 @@ async function processUploadedThumbnail(title: string, task_id: string, clip_res
 
   const imagePrompt = parsedResult.image_prompt || rawResult || title;
 
-  const imFormData = new FormData();
-  imFormData.append('prompt', imagePrompt);
-  imFormData.append('task_id', task_id);
-  // imFormData.append('input_image', thumbnailFile);
-  imFormData.append('user_uuid', user_id);
-  imFormData.append('return_base64', 'false');
-  imFormData.append('seed', Math.floor(Math.random() * 1000000).toString());
+  // const imFormData = new FormData();
+  // imFormData.append('prompt', imagePrompt);
+  // imFormData.append('task_id', task_id);
+  // // imFormData.append('input_image', thumbnailFile);
+  // imFormData.append('user_uuid', user_id);
+  // imFormData.append('return_base64', 'false');
+  // imFormData.append('seed', Math.floor(Math.random() * 1000000).toString());
 
   const imageResponse = await fetch(`${process.env.BACKEND_URL_S2}/api/v1/generate-flux`, {
     method: 'POST',
-    body: imFormData,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      prompt: imagePrompt,
+      return_base64: false,
+      task_id: task_id,
+      user_uuid: user_id,
+      seed: Math.floor(Math.random() * 1000000)
+    })
   });
 
   if (!imageResponse.ok) {

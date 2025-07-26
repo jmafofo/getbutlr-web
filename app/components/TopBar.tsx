@@ -222,7 +222,7 @@ export default function TopBar() {
 
   return (
     <>
-    <div className="w-full px-6 py-4 bg-slate-800 text-gray-200 shadow-lg flex justify-between items-center">
+    <div className="w-full px-6 py-4 bg-slate-800 text-gray-200 shadow-lg flex justify-end items-center">
       {user ? (
         <div className="relative flex items-center gap-4" ref={dropdownRef}>
           <button

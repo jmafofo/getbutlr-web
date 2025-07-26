@@ -49,7 +49,7 @@ export default function ThumbnailListPage() {
   }, []);
 
   return (
-    <div className="p-6">
+    <div className="p-5 min-h-screen relative">
       <h1 className="text-3xl font-bold mb-6 text-white">My Thumbnail Tasks</h1>
 
       {loading ? (
