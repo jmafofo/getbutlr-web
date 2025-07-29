@@ -125,6 +125,7 @@ export default function ThumbnailScorePage() {
               {result ? (
                 <div className="p-6 rounded-lg bg-white dark:bg-slate-900 shadow-md space-y-6 text-gray-900 dark:text-white">
                   {/* Thumbnail Preview */}
+                  <h3 className="text-white font-bold text-lg">{result.title}</h3>
                   <div className="flex flex-col items-center">
                     {result.original_thumbnail_url ? (
                       <img
