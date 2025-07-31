@@ -3,8 +3,8 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabaseClient } from '@/src/app/utils/supabase/client';
 import type { User } from '@supabase/supabase-js';
-import { useRouter } from 'next/navigation';
-import { Database } from '@/src/types/supabase'; // adjust based on your Supabase types
+import { usePathname, useRouter } from 'next/navigation';
+import { allowedRoutesForExpiredTrial } from './accessibleRoutes';
 
 type Subscription = {
   tier: string;
@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -62,9 +63,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     fetchUserAndSub();
   }, []);
-
+  
   const now = new Date();
-
   const isTrial = subscription?.tier === 'trial';
   const isTrialExpired =
     isTrial && subscription?.trial_expires
@@ -95,6 +95,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setDaysLeft(diff);
     }
   }, [subscription, isTrial, isTrialExpired]);
+
+  useEffect(() => {
+    if (isTrialExpired && !isValidPaidSubscription) {
+      const isAllowed = allowedRoutesForExpiredTrial.includes(pathname);
+      if (!isAllowed) {
+        router.replace('/upgrade');
+      }
+    }
+  }, [isTrialExpired, isValidPaidSubscription, pathname, router]);
 
   return (
     <AuthContext.Provider
