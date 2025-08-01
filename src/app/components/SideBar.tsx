@@ -156,55 +156,61 @@ export default function Sidebar() {
         { name: "Thumbnail Task List", path: "/thumbnail-list", icon: FiList }
       ]
     },
+    // {
+    //   name: "A/B Testing",
+    //   icon: FiDivide,
+    //   path: "/ab-testing",
+    //   submenu: []
+    // },
+    // {
+    //   name: "Courses",
+    //   icon: FiTrendingUp,
+    //   submenu: [
+    //     { name: "Editing Sound", path: "/courses/editing-sound", icon: FiMusic },
+    //     { name: "Filming Tips", path: "/courses/filming-tips", icon: FiVideo },
+    //     { name: "Script Coach", path: "/courses/script-coach", icon: FiEdit },
+    //     { name: "Niche Review", path: "/courses/niche-review", icon: FiTag },
+    //     { name: "SEO Checklist", path: "/courses/seo-checklist", icon: FiCheckCircle }
+    //   ]
+    // },
+    // {
+    //   name: "AI Coaching Tools",
+    //   icon: FiTool,
+    //   submenu: [
+    //     { name: "Content Performance", path: "/tools/content-performance", icon: FiActivity },
+    //     { name: "Hook Analyzer", path: "/tools/hook-analyzer", icon: FiTriangle },
+    //     { name: "Idea Generator", path: "/tools/idea-generator", icon: FiLayers },
+    //     { name: "Voice to Script", path: "/tools/voice-to-script", icon: FiVoicemail }
+    //   ]
+    // },
+    // {
+    //   name: "Audience Insight Tools",
+    //   icon: FiUsers,
+    //   submenu: [
+    //     { name: "Comment Insights", path: "/tools/comment-insights", icon: FiCrosshair },
+    //     { name: "Weekly Growth Planner", path: "/tools/growth-planner", icon: FiTrendingUp }      ]
+    // },
+    // {
+    //   name: "Promotion Tools",
+    //   icon: FiStar,
+    //   submenu: [
+    //     { name: "Boost Planner", path: "/boost", icon: FiChevronsRight }
+    //   ]
+    // },
     {
-      name: "A/B Testing",
-      icon: FiDivide,
-      path: "/ab-testing",
-      submenu: []
-    },
-    {
-      name: "Courses",
-      icon: FiTrendingUp,
-      submenu: [
-        { name: "Editing Sound", path: "/courses/editing-sound", icon: FiMusic },
-        { name: "Filming Tips", path: "/courses/filming-tips", icon: FiVideo },
-        { name: "Script Coach", path: "/courses/script-coach", icon: FiEdit },
-        { name: "Niche Review", path: "/courses/niche-review", icon: FiTag },
-        { name: "SEO Checklist", path: "/courses/seo-checklist", icon: FiCheckCircle }
-      ]
-    },
-    {
-      name: "AI Coaching Tools",
+      name: "Tools",
       icon: FiTool,
-      submenu: [
-        { name: "Content Performance", path: "/tools/content-performance", icon: FiActivity },
-        { name: "Hook Analyzer", path: "/tools/hook-analyzer", icon: FiTriangle },
-        { name: "Idea Generator", path: "/tools/idea-generator", icon: FiLayers },
-        { name: "Voice to Script", path: "/tools/voice-to-script", icon: FiVoicemail }
-      ]
-    },
-    {
-      name: "Audience Insight Tools",
-      icon: FiUsers,
-      submenu: [
-        { name: "Comment Insights", path: "/tools/comment-insights", icon: FiCrosshair },
-        { name: "Weekly Growth Planner", path: "/tools/growth-planner", icon: FiTrendingUp }      ]
-    },
-    {
-      name: "Promotion Tools",
-      icon: FiStar,
-      submenu: [
-        { name: "Boost Planner", path: "/boost", icon: FiChevronsRight }
-      ]
+      path: "/toolist",
+      submenu: []
     },
     {
       name: "Configuration",
       icon: FiSettings,
       submenu: [
-        { name: "Preferences", path: "/config/preferences", icon: FiSliders },
+        // { name: "Preferences", path: "/config/preferences", icon: FiSliders },
         { name: "Subscription", path: "/subscription", icon: FiCoffee },
-        { name: "Integrations", path: "/config/integrations", icon: FiLink },
-        { name: "Security", path: "/config/security", icon: FiShield }
+        // { name: "Integrations", path: "/config/integrations", icon: FiLink },
+        // { name: "Security", path: "/config/security", icon: FiShield }
       ]
     }
   ];

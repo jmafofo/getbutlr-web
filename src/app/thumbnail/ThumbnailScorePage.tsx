@@ -99,17 +99,34 @@ export default function ThumbnailScorePage() {
               className="space-y-4"
             >
               <h2 className="text-white font-bold text-lg">Generated Sample Thumbnail</h2>
-              {result?.image_url ? (
-                  <img
-                  src={result.image_url}
-                  alt="Generated Thumbnail"
-                  className="w-full rounded"
-                />
-                ) : (
-                  <div className="text-slate-400">
-                    No image yet. Image thumbnail will be generated from the title
-                  </div>
-                )}
+              <div className="p-6 rounded-lg bg-white dark:bg-slate-900 shadow-md space-y-6 text-gray-900 dark:text-white">
+                <h3 className="text-white font-bold text-lg">Sample Generated</h3>
+                {result?.image_url ? (
+                    <img
+                    src={result.image_url}
+                    alt="Generated Thumbnail"
+                    className="w-full rounded"
+                  />
+                  ) : (
+                    <div className="text-slate-400">
+                      No image yet. Image thumbnail will be generated from the title
+                    </div>
+                  )}
+                </div>
+                <div className="p-6 rounded-lg bg-white dark:bg-slate-900 shadow-md space-y-6 text-gray-900 dark:text-white">
+                <h3 className="text-white font-bold text-lg">Modified Thumbnail</h3>
+                {result?.im2im_image_url ? (
+                    <img
+                    src={result.im2im_image_url}
+                    alt="Modified Thumbnail"
+                    className="w-full rounded"
+                  />
+                  ) : (
+                    <div className="text-slate-400">
+                      No image yet. Original thumbnail will be modified from the title
+                    </div>
+                  )}
+                </div>
               </motion.div>
           </div>
           {/* Right - Thumbnail Score */}

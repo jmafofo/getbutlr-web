@@ -44,100 +44,6 @@ export default function ThumbnailScorePage() {
     fetchUser();
   }, []);
 
-  // useEffect(() => {
-  //   let interval: NodeJS.Timeout;
-
-  //   const fetchLatestTaskAndPoll = async () => {
-  //     // Step 1: Get Supabase session and user_id
-  //     const {
-  //       data: { session },
-  //       error: sessionError,
-  //     } = await supabaseClient.auth.getSession();
-
-  //     if (sessionError || !session?.user?.id) {
-  //       console.error("No session or user found:", sessionError);
-  //       return;
-  //     }
-
-  //     const userId = session.user.id;
-
-  //     // Step 2: Query Supabase directly to get the latest task_id for that user
-  //     const { data: tasks, error: queryError } = await supabaseClient
-  //       .from("thumbnail_tasks")
-  //       .select("task_id, status")
-  //       .eq("user_id", userId)
-  //       .order("created_at", { ascending: false })
-  //       .limit(1)
-  //       .maybeSingle();
-
-  //     if (queryError) {
-  //       console.error("Error fetching latest task:", queryError);
-  //       return;
-  //     }
-
-  //     if (!tasks || !tasks.task_id) {
-  //       console.warn("No task found for user.");
-  //       return;
-  //     }
-  //     const latestTaskId = tasks.task_id;
-  //     setTaskId(latestTaskId);
-
-  //     // Step 3: Start polling thumbnail-status endpoint
-  //     interval = setInterval(async () => {
-  //       try {
-  //         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL_S2}/api/v1/generate-flux/status/${latestTaskId}?return_base64=false`);
-  //         // console.log(res.url);
-  //         if (res.status === 200 && res.url) {
-  //           setgenImage({ image: res.url });
-  //           setLoading(false);
-  //           clearInterval(interval);
-  //         }
-  //       } catch (err) {
-  //         console.error("Polling error:", err);
-  //         clearInterval(interval);
-  //         setLoading(false);
-  //       }
-  //     }, 3000);
-  //   };
-
-  //   fetchLatestTaskAndPoll();
-
-  //   return () => clearInterval(interval);
-  // }, []);
-
-
-  // const handleImageGenSubmit = async () => {
-  //   if (!title) return;
-  //   setLoading(true);
-  
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append('title', title);
-  
-  //     if (selectedFile) {
-  //       formData.append('thumbnail', selectedFile);
-  //     }
-  
-  //     const response = await fetch('/api/thumbnail-gen', {
-  //       method: 'POST',
-  //       body: formData,
-  //     });
-  
-  //     if (!response.ok) {
-  //       throw new Error('Failed to generate thumbnail');
-  //     }
-  //     const data = await response.json();
-  //     toast.success(`Currenly generating your image with ID: ${data.taskId}`);
-  //     // setgenImage({
-  //     //   image: data.image_base64,
-  //     // });
-  //   } catch (error) {
-  //     console.error('Thumbnail generation failed:', error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };  
-
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const droppedFile = e.dataTransfer.files[0];
@@ -207,39 +113,51 @@ export default function ThumbnailScorePage() {
     setLoading(true);
   
     try {
-      const formData = new FormData();
-
-      formData.append('title', title);
-      if (clipResult) {
-        formData.append('clip_result', clipResult);
-      }
-
-      if (taskId) {
-        formData.append('task_id', taskId);
-      }
-      // if (selectedFile) {
-      //   formData.append('thumbnail', selectedFile);
-      // }
+      // Prepare a function to create fresh FormData
+      const createFormData = () => {
+        const formData = new FormData();
+        formData.append('title', title);
+        if (clipResult) formData.append('clip_result', clipResult);
+        if (taskId) formData.append('task_id', taskId);
+        return formData;
+      };
   
-      const response = await fetch('/api/thumbnail-gen', {
+      // First request: /api/thumbnail-gen
+      const response1 = await fetch('/api/thumbnail-gen', {
         method: 'POST',
-        body: formData,
+        body: createFormData(),
       });
   
-      if (!response.ok) {
+      if (!response1.ok) {
         throw new Error('Failed to generate thumbnail');
       }
-      const data = await response.json();
-      toast.success(`Currenly generating your image with ID: ${data.taskId}`);
-      // setgenImage({
-      //   image: data.image_base64,
-      // });
+  
+      const data1 = await response1.json();
+  
+      // Optional: show success for first call
+      toast.success(`Generating thumbnail (Task ID: ${data1.taskId})`);
+  
+      // Second request: /api/modify-thumbnail
+      const response2 = await fetch('/api/modify-thumbnail', {
+        method: 'POST',
+        body: createFormData(),
+      });
+  
+      if (!response2.ok) {
+        throw new Error('Failed to modify thumbnail');
+      }
+  
+      const data2 = await response2.json();
+  
+      toast.success(`Modifying thumbnail (Task ID: ${data2.taskId})`);
+  
     } catch (error) {
       console.error('Thumbnail generation failed:', error);
+      toast.error('Thumbnail process failed.');
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   async function getThumbnailScore(
     clipResult: string,
