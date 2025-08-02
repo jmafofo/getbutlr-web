@@ -21,25 +21,32 @@ async function modifyUploadedThumbnail(title: string, task_id: string, clip_resu
   console.log('CHECK URL ===>', imageUrl)
 
   const ollamaPrompt = `
-    You are an expert YouTube thumbnail designer.
-
-    Image Context:
-    - CLIP analysis of current image: ${clip_result}
-    - Current title: "${title}"
-
-    Task:
-    1. Based on the CLIP result and the title, analyze what visual elements of the thumbnail are weak or not aligned with the title's message.
-    2. Describe clearly what to modify in the image to better align it with the title. Focus on improving click-through potential.
-
-    Your output must be a visual description of the *desired image*, not commentary. Be specific:
-    - What elements should be added or removed?
-    - What style or lighting changes are needed?
-    - What focal point should be emphasized?
-    - What should be in the background or foreground?
-
-    Final Output:
-    A single, detailed visual description that can be used as an input prompt for an image-to-image model to modify the thumbnail.
-    `;
+  You are an expert YouTube thumbnail designer.
+  
+  Image Context:
+  - CLIP analysis of current image: ${clip_result}
+  - Current title: "${title}"
+  
+  Task:
+  1. Evaluate how well the image aligns with the title's message based on the CLIP result.
+  2. Suggest only **subtle, localized changes** that improve visual alignment and click-through appeal — do *not* redesign or alter the main layout or core subject.
+  3. Preserve the original composition, characters, background, and color scheme as much as possible.
+  
+  Instructions for Output:
+  Your response must be a detailed, visual description suitable for an image-to-image model with *minor enhancement intent*. Be highly specific, focusing on:
+  - Small adjustments to facial expression, text, contrast, or highlights.
+  - Additions like arrows, emojis, or glow effects (if helpful).
+  - Light changes to brightness, sharpness, saturation, or framing.
+  - Text or graphic overlays that support the message — without obstructing key elements.
+  
+  Do not:
+  - Replace the background.
+  - Change the style completely.
+  - Remove the main subject.
+  
+  Final Output:
+  Return one detailed prompt that describes the **subtle, non-destructive** visual improvements to the existing image, formatted for use with an image-to-image model.
+  `;  
 
   const rawResult = await callOllama(ollamaPrompt);
   
