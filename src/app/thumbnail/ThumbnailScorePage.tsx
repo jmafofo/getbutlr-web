@@ -25,6 +25,8 @@ export default function ThumbnailScorePage() {
   const [tasks, setTask] = useState<{ task_id: string; title: string }[]>([]);
   const [allTasks, setAllTasks] = useState<any[]>([]);
 
+  const [src, setSrc] = useState<string | null>(null);
+
   // Fetch specific task by taskId + all tasks list
   useEffect(() => {
     const fetchTaskData = async () => {
@@ -41,39 +43,11 @@ export default function ThumbnailScorePage() {
         setTitle(current?.title ?? '');
       }
       setResult(current);
-      console.log(current);
+      // console.log(current);
     };
 
     fetchTaskData();
-  }, [taskId]);
-
-  // Polling the backend for thumbnail status
-  // useEffect(() => {
-  //   if (!taskId) return;
-
-  //   let interval: NodeJS.Timeout;
-
-  //   interval = setInterval(async () => {
-  //     try {
-  //       const res = await fetch(
-  //         `${process.env.NEXT_PUBLIC_BACKEND_URL_S2}/api/v1/generate-flux/status/${taskId}?return_base64=false`
-  //       );
-
-  //       if (res.status === 200) {
-  //         const json = await res.json();
-  //         if (json.url) {
-  //           setGenImage({ image: json.url });
-  //           clearInterval(interval);
-  //         }
-  //       }
-  //     } catch (err) {
-  //       console.error('Polling error:', err);
-  //       clearInterval(interval);
-  //     }
-  //   }, 3000);
-
-  //   return () => clearInterval(interval);
-  // }, [taskId]);
+  }, [taskId]); 
 
   return (
     <div className="p-5 min-h-screen relative">
@@ -108,8 +82,8 @@ export default function ThumbnailScorePage() {
                     className="w-full rounded"
                   />
                   ) : (
-                    <div className="text-slate-400">
-                      No image yet. Image thumbnail will be generated from the title
+                    <div className="w-full h-[180px] bg-slate-200 rounded flex items-center justify-center text-slate-400 animate-pulse">
+                      Generating image...
                     </div>
                   )}
                 </div>
@@ -122,8 +96,8 @@ export default function ThumbnailScorePage() {
                     className="w-full rounded"
                   />
                   ) : (
-                    <div className="text-slate-400">
-                      No image yet. Original thumbnail will be modified from the title
+                    <div className="w-full h-[180px] bg-slate-200 rounded flex items-center justify-center text-slate-400 animate-pulse">
+                      Generating image...
                     </div>
                   )}
                 </div>
