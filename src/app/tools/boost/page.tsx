@@ -1,90 +1,95 @@
-// --- Enhanced Page: /tools/boost/page.tsx ---
-'use client';
+"use client";
 
-import { useState } from 'react';
-// import RequireProAccess from '@/components/RequireProAccess';
-// import { UpgradeModal } from '@/components/UpgradeModal';
-// import { Button } from '@/components/ui/button';
-// import { Input } from '@/components/ui/input';
-// import { Textarea } from '@/components/ui/textarea';
-// import { Card, CardContent } from '@/components/ui/card';
-import { VariantProps } from 'class-variance-authority';
+import { useState } from "react";
+import { motion } from "framer-motion";
 
-export default function BoostToolPage() {
-  const [title, setTitle] = useState('');
-  const [tags, setTags] = useState('');
-  const [description, setDescription] = useState('');
-  const [result, setResult] = useState('');
+export default function YouTubeOptimizerTool() {
+  const [title, setTitle] = useState("");
+  const [tags, setTags] = useState("");
+  const [description, setDescription] = useState("");
+  const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showModal, setShowModal] = useState(false);
 
-  const handleSubmit = async () => {
+  const submitOptimization = async () => {
+    if (!title || !description) {
+      alert("Please enter at least a title and description.");
+      return;
+    }
+
     setLoading(true);
-    const res = await fetch('/api/boost', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, tags, description })
-    });
-    const data = await res.json();
-    setResult(data.result);
+    setResult("");
+
+    try {
+      const res = await fetch("/api/boost", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, tags, description }),
+      });
+
+      const data = await res.json();
+      const output = data.trends?.output || JSON.stringify(data.trends, null, 2);
+      setResult(output);
+    } catch (err) {
+      console.error("Failed to optimize video:", err);
+      setResult("An error occurred while fetching optimization tips.");
+    }
+
     setLoading(false);
   };
 
-  const clearAll = () => {
-    setTitle('');
-    setTags('');
-    setDescription('');
-    setResult('');
-  };
-
   return (
-    <div className="Creator+">
-      <div className="max-w-3xl mx-auto space-y-6 p-4">
-        <h1 className="text-2xl font-bold">🚀 Boost Tool</h1>
-        <p className="text-sm text-muted-foreground">
-          Enhance your video’s visibility by optimizing titles, tags, and descriptions using AI-powered suggestions.
+    <div className="p-6 max-w-4xl mx-auto min-h-screen">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="space-y-6"
+      >
+        <h1 className="text-3xl font-bold">📹 YouTube Optimizer</h1>
+        <p className="text-gray-400 text-sm">
+          Get AI-powered suggestions to improve your YouTube video’s performance based on its metadata.
         </p>
 
-        <div>
-          <div className="space-y-4 pt-6">
-            <input
-              placeholder="Enter video title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            <input
-              placeholder="Enter tags (comma separated)"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-            />
-            <textarea
-              placeholder="Enter video description"
-              value={description}
-              rows={5}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-            <div className="flex gap-2">
-              <button onClick={handleSubmit} disabled={loading}>
-                {loading ? 'Analyzing...' : 'Boost Now'}
-              </button>
-              <button className="outline" onClick={clearAll}>Clear</button>
-            </div>
-          </div>
+        <div className="space-y-4">
+          <input
+            type="text"
+            placeholder="Video Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full border border-gray-700 p-2 rounded bg-slate-800 text-white"
+          />
+
+          <input
+            type="text"
+            placeholder="Tags (comma-separated)"
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            className="w-full border border-gray-700 p-2 rounded bg-slate-800 text-white"
+          />
+
+          <textarea
+            placeholder="Description"
+            rows={4}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full border border-gray-700 p-2 rounded bg-slate-800 text-white"
+          />
+
+          <button
+            onClick={submitOptimization}
+            disabled={loading}
+            className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+          >
+            {loading ? "Analyzing..." : "Optimize Video"}
+          </button>
         </div>
 
         {result && (
-          <div>
-            <div className="p-4">
-              <h2 className="text-lg font-semibold mb-2">💡 Boost Suggestion</h2>
-              <pre className="whitespace-pre-wrap text-sm bg-muted p-4 rounded-md border border-muted-foreground">
-                {result}
-              </pre>
-            </div>
+          <div className="bg-zinc-900 p-4 rounded mt-4 text-sm text-gray-100 whitespace-pre-wrap">
+            {result}
           </div>
         )}
-
-        {/* <div className={showModal} onOpenChange={setShowModal} /> */}
-      </div>
+      </motion.div>
     </div>
   );
 }

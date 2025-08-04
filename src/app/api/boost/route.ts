@@ -1,12 +1,17 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from 'next/server';
 import { callOllama } from '../ollama_query/route';
 
 export async function POST(req: NextRequest) {
-  const { comments } = await req.json()
+  const { title, tags, description } = await req.json();
 
-  const prompt = `Analyze these YouTube comments for sentiment, viewer intent, feedback, and content suggestions:\n\n${comments}`;
+  const prompt = `
+    Based on the following YouTube metadata, suggest ways to boost performance:
+    Title: ${title}
+    Tags: ${tags}
+    Description: ${description}
+    Provide a summary of target audience and improvements to optimize reach.
+  `;
 
-  // Query Ollama
   const rawResult = await callOllama(prompt);
 
   // Parse output

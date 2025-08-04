@@ -1,73 +1,94 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { classifyViewerEngagement, AudienceTier } from '@/src/lib/boostHelper';
 
-type ViewerData = {
-  userId: string;
-  videoId: string;
-  watchDurationRatio: number;
-};
+export default function YouTubeOptimizerTool() {
+  const [title, setTitle] = useState("");
+  const [tags, setTags] = useState("");
+  const [description, setDescription] = useState("");
+  const [result, setResult] = useState("");
+  const [loading, setLoading] = useState(false);
 
-export default function BoostDashboard() {
-  const [viewers, setViewers] = useState<ViewerData[]>([]);
-  const [tierCounts, setTierCounts] = useState<Record<AudienceTier, number>>({
-    [AudienceTier.TIER_1]: 0,
-    [AudienceTier.TIER_2]: 0,
-    [AudienceTier.TIER_3]: 0,
-  });
+  const submitOptimization = async () => {
+    if (!title || !description) {
+      alert("Please enter at least a title and description.");
+      return;
+    }
 
-  useEffect(() => {
-    const fetchViewers = async () => {
-      // Simulated mock data
-      const mock: ViewerData[] = [
-        { userId: 'a1', videoId: 'v101', watchDurationRatio: 0.61 },
-        { userId: 'b2', videoId: 'v102', watchDurationRatio: 0.45 },
-        { userId: 'c3', videoId: 'v103', watchDurationRatio: 0.25 },
-        { userId: 'd4', videoId: 'v104', watchDurationRatio: 0.72 },
-      ];
-      setViewers(mock);
+    setLoading(true);
+    setResult("");
 
-      const summary = {
-        [AudienceTier.TIER_1]: 0,
-        [AudienceTier.TIER_2]: 0,
-        [AudienceTier.TIER_3]: 0,
-      };
+    try {
+      const res = await fetch("/api/boost", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, tags, description }),
+      });
 
-      for (const v of mock) {
-        const tier = classifyViewerEngagement(v);
-        summary[tier]++;
-      }
+      const data = await res.json();
+      const output = data.trends?.output || JSON.stringify(data.trends, null, 2);
+      setResult(output);
+    } catch (err) {
+      console.error("Failed to optimize video:", err);
+      setResult("An error occurred while fetching optimization tips.");
+    }
 
-      setTierCounts(summary);
-    };
-
-    fetchViewers();
-  }, []);
+    setLoading(false);
+  };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5">
+    <div className="p-6 max-w-4xl mx-auto min-h-screen">
       <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="col-6-m space-y-4"
-        >
-        <div className="bg-slate-800 rounded-2xl shadow-md p-6">
-            <h1 className="text-3xl font-bold mb-4">📈 Butlr Boost – Targeting Dashboard</h1>
-            <p className="mb-4">Classified audience based on average watch duration from video analytics.</p>
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="space-y-6"
+      >
+        <h1 className="text-3xl font-bold">📹 YouTube Optimizer</h1>
+        <p className="text-gray-400 text-sm">
+          Get AI-powered suggestions to improve your YouTube video’s performance based on its metadata.
+        </p>
 
-            <ul className="space-y-2">
-                <li className="bg-green-100 p-4 rounded text-black">🎯 {AudienceTier.TIER_1}: {tierCounts[AudienceTier.TIER_1]} viewers</li>
-                <li className="bg-yellow-100 p-4 rounded text-black">🔥 {AudienceTier.TIER_2}: {tierCounts[AudienceTier.TIER_2]} viewers</li>
-                <li className="bg-red-100 p-4 rounded text-black">👀 {AudienceTier.TIER_3}: {tierCounts[AudienceTier.TIER_3]} viewers</li>
-            </ul>
+        <div className="space-y-4">
+          <input
+            type="text"
+            placeholder="Video Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full border border-gray-700 p-2 rounded bg-slate-800 text-white"
+          />
 
-            <div className="mt-8">
-                <p className="text-sm text-gray-500">This data is simulated. In production, this will connect to YouTube Analytics API.</p>
-            </div>
+          <input
+            type="text"
+            placeholder="Tags (comma-separated)"
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            className="w-full border border-gray-700 p-2 rounded bg-slate-800 text-white"
+          />
+
+          <textarea
+            placeholder="Description"
+            rows={4}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full border border-gray-700 p-2 rounded bg-slate-800 text-white"
+          />
+
+          <button
+            onClick={submitOptimization}
+            disabled={loading}
+            className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+          >
+            {loading ? "Analyzing..." : "Optimize Video"}
+          </button>
         </div>
+
+        {result && (
+          <div className="bg-zinc-900 p-4 rounded mt-4 text-sm text-gray-100 whitespace-pre-wrap">
+            {result}
+          </div>
+        )}
       </motion.div>
     </div>
   );
