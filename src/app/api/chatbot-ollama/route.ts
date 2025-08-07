@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { callOllama } from '../ollama_query/route'; // your existing function
+import { callOllama } from '../ollama_query/route';
 import path from 'path';
 import fs from 'fs';
 import pdf from 'pdf-parse/lib/pdf-parse'
@@ -12,8 +12,8 @@ async function extractTextFromPdf(filePath: string): Promise<string> {
 
 export async function POST(req: NextRequest) {
   const { query, history = [] } = await req.json();
-
-  const platformDetails = await extractTextFromPdf('public/platform-details.pdf');
+  const pdfURL = `https://getbutlr.ai/platform-details.pdf`;
+  const platformDetails = await extractTextFromPdf(pdfURL);
 
   const prompt = `
 You're an expert assistant for a platform called "Getbutlr", an all-in-one SEO optimizer for content creators.
