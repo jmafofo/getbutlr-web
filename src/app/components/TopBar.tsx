@@ -16,6 +16,7 @@ import {
 
 export default function TopBar() {
   const [user, setUser] = useState<User | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [tasks, setTasks] = useState([]);
   const [loadingTasks, setLoadingTasks] = useState(false);
   const [query, setQuery] = useState('');
@@ -139,6 +140,49 @@ export default function TopBar() {
 
     return () => listener.subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data } = await supabaseClient.auth.getSession();
+      const sessionUserId = data.session?.user?.id ?? null;
+      setUserId(sessionUserId);
+    };
+
+    fetchUser();
+
+    const { data: listener } = supabaseClient.auth.onAuthStateChange((_event, session) => {
+      const newUserId = session?.user?.id ?? null;
+      setUserId(newUserId);
+    });
+
+    return () => listener?.subscription?.unsubscribe();
+  }, []);
+
+  //GET NEW TOKENS
+  useEffect(() => {
+    async function refreshIfNeeded() {
+      const res = await fetch('/api/youtube/refresh-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      });
+  
+      const data = await res.json();
+  
+      if (res.ok) {
+        console.log(data.refreshed ? 'Access token refreshed' : 'Token still valid');
+      } else {
+        console.error('Failed to refresh token:', data.error);
+      }
+    }
+  
+    if (userId) {
+      refreshIfNeeded();
+    }
+  }, [userId]);
+  
 
   // Fetch up to 3 latest tasks with image_url not null
   const fetchTasks = async () => {

@@ -22,10 +22,18 @@ import {
     FiLayers,
     FiImage,
     FiEdit3,
+    FiUsers,
     FiMic,
   } from 'react-icons/fi';
   
   const appItems = [
+    {
+      name: 'Audience Insights',
+      path: '/tools/audience-insights',
+      icon: FiUsers,
+      bgColor: 'bg-gradient-to-tr from-cyan-400 to-blue-600',
+      iconColor: 'text-white',
+    },
     {
       name: 'Audio Trends',
       path: '/tools/audio-trends',

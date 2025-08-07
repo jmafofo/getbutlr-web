@@ -1,86 +1,141 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 
 export default function ChatWidget() {
   const [messages, setMessages] = useState<{ role: string; text: string }[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [isMinimized, setIsMinimized] = useState(true);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to bottom on new message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, loading]);
 
   async function send() {
-    if (!input) return;
+    if (!input.trim()) return;
+
     const userMsg = { role: 'user', text: input };
+    const history = messages.filter(m => m.role === 'user' || m.role === 'assistant');
+
     setMessages((msgs) => [...msgs, userMsg]);
     setLoading(true);
     setInput('');
 
-    const res = await fetch('/api/chatbot', {
-      method: 'POST',
-      body: JSON.stringify({ message: input }),
-      headers: { 'Content-Type': 'application/json' },
-    });
+    try {
+      const res = await fetch('/api/chatbot-ollama', {
+        method: 'POST',
+        body: JSON.stringify({ query: input, history }),
+        headers: { 'Content-Type': 'application/json' },
+      });
 
-    const { reply } = await res.json();
-    setMessages((msgs) => [...msgs, { role: 'assistant', text: reply }]);
+      const data = await res.json();
+
+      setMessages((msgs) => [...msgs, { role: 'assistant', text: data.markdown }]);
+    } catch {
+      setMessages((msgs) => [
+        ...msgs,
+        { role: 'assistant', text: '_Something went wrong. Please try again._' },
+      ]);
+    }
     setLoading(false);
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-6 right-6 z-50 font-sans">
       {isMinimized ? (
-        <div
-          className="w-10 h-10 bg-slate-600 text-white rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:scale-105 transition-transform duration-200"
+        <button
           onClick={() => setIsMinimized(false)}
           title="Chat with us!"
+          className="w-12 h-12 rounded-full overflow-hidden shadow-lg hover:scale-105 transform transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          💬
-        </div>
+          <img src="/butlr_icon.jpg" alt="Chat Icon" className="w-full h-full object-cover" />
+        </button>
       ) : (
-        <div className="w-80 bg-white shadow-xl rounded-lg border border-gray-300 flex flex-col overflow-hidden">
+        <div className="flex flex-col w-80 max-h-[500px] bg-gray-50 rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
           {/* Header */}
-          <div className="bg-slate-600 px-3 py-2 font-semibold flex justify-between items-center">
-            <span>Need Help?</span>
+          <div className="bg-white px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+            <h2 className="font-semibold text-gray-800">Need Help?</h2>
             <button
               onClick={() => setIsMinimized(true)}
-              className="text-gray-500 hover:text-black transition"
+              aria-label="Close chat"
+              className="text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
             >
-              ✕
+              ×
             </button>
           </div>
 
           {/* Messages */}
-          <div className="p-2 h-64 overflow-auto space-y-2">
-            {messages.map((m, i) => (
-              <div
-                key={i}
-                className={`text-sm p-2 rounded ${
-                  m.role === 'user' ? 'bg-blue-100 text-right' : 'bg-gray-100'
-                }`}
-              >
-                {m.text}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+            {messages.map((m, i) => {
+              const isUser = m.role === 'user';
+              return (
+                <div
+                  key={i}
+                  className={`max-w-[75%] break-words ${
+                    isUser ? 'ml-auto' : 'mr-auto'
+                  }`}
+                >
+                  <div
+                    className={`px-4 py-2 rounded-3xl text-sm whitespace-pre-wrap
+                      ${
+                        isUser
+                          ? 'bg-blue-500 text-white rounded-br-none'
+                          : 'bg-gray-200 text-gray-900 rounded-bl-none'
+                      }
+                    `}
+                  >
+                    {m.role === 'assistant' ? (
+                      <ReactMarkdown>{m.text}</ReactMarkdown>
+                    ) : (
+                      m.text
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+            {loading && (
+              <div className="text-gray-400 italic text-sm max-w-[75%] ml-auto">
+                Typing...
               </div>
-            ))}
-            {loading && <div className="text-sm italic text-gray-500">Typing...</div>}
+            )}
+            <div ref={messagesEndRef} />
           </div>
 
           {/* Input */}
-          <div className="p-2 flex border-t">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              send();
+            }}
+            className="bg-white px-3 py-3 border-t border-gray-200 flex items-center space-x-3"
+          >
             <input
-              className="w-full p-2 rounded bg-slate-600 text-white border border-slate-600"
+              type="text"
+              className="flex-grow rounded-full border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Type a message..."
               value={input}
               disabled={loading}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && send()}
-              placeholder="Type a message..."
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  send();
+                }
+              }}
+              autoFocus
+              spellCheck={false}
             />
             <button
-              className="ml-2 px-4 bg-blue-600 text-white rounded"
-              disabled={loading}
-              onClick={send}
+              type="submit"
+              disabled={loading || !input.trim()}
+              className={`bg-blue-600 text-white px-3 py-2 rounded-full font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition`}
             >
               Send
             </button>
-          </div>
+          </form>
         </div>
       )}
     </div>
