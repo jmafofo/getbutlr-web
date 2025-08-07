@@ -1,119 +1,80 @@
 'use client';
-import { useState } from 'react';
-import { motion } from "framer-motion";
 
-export default function ContentPerformance() {
-  const [url, setUrl] = useState('');
-  const [results, setResults] = useState<any>(null);
+import { useState } from 'react';
+
+export default function IdeaGeneratorPage() {
+  const [topic, setTopic] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [ideas, setIdeas] = useState<any[]>([]);
   const [error, setError] = useState('');
 
-  const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API;
-
-  const handleIdeaGenerate = async () => {
+  const generateIdeas = async () => {
+    setLoading(true);
+    setIdeas([]);
     setError('');
-    setResults(null);
-    const videoId = url.split("v=")[1]?.split("&")[0];
-    if (!videoId) {
-      setError('Invalid YouTube URL');
-      return;
-    }
 
     try {
-      const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics,contentDetails&id=${videoId}&key=${API_KEY}`);
+      const res = await fetch('/api/idea-generator', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ topic }),
+      });
+
       const data = await res.json();
-      if (!data.items || data.items.length === 0) {
-        setError('Video not found or invalid API key');
-        return;
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to generate ideas.');
       }
 
-      const stats = data.items[0].statistics;
-      setResults({
-        viewCount: stats.viewCount,
-        impressions: 'N/A (requires YouTube Analytics API)',
-        ctr: 'N/A (requires YouTube Analytics API)',
-        avgViewDuration: 'N/A (requires YouTube Analytics API)',
-        retentionData: [100, 90, 80, 60, 50, 30],
-        tips: [
-          'Use timestamps and structured segments.',
-          'Improve thumbnail and title clarity.',
-          'Hook your audience in the first 15 seconds.'
-        ]
-      });
-    } catch (err) {
-      setError('Error fetching data from YouTube API');
+      // If wrapped in { trends: { output } }, fallback
+      const results = Array.isArray(data.trends)
+        ? data.trends
+        : data.trends.output || [];
+
+      setIdeas(results);
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5">
-      <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="col-6-m space-y-4"
-        >
-      <div className="bg-slate-800 rounded-2xl shadow-md p-6">   
-      <h1 className="text-3xl font-bold mb-4">Smart Idea Generator</h1>
-      <p className="mb-4">Enter a niche or topic to generate content ideas.</p>
+    <div className="max-w-3xl mx-auto py-10 px-4">
+      <h1 className="text-3xl font-bold mb-6">🎯 Idea Generator</h1>
+      
+      <input
+        type="text"
+        value={topic}
+        onChange={(e) => setTopic(e.target.value)}
+        placeholder="Enter a niche or topic..."
+        className="w-full border px-4 py-2 mb-4 rounded shadow-sm"
+      />
 
-      <div className="flex flex-col sm:flex-row gap-2 mb-4">
-        <input
-          type="text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://www.youtube.com/watch?v=xyz123"
-          className="w-full p-3 rounded bg-slate-700 text-white border border-slate-600"
-        />
-        <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleIdeaGenerate}
-            className="w-full p-3 rounded bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold"
-          >
-            Analyze
-          </motion.button>
-      </div>
+      <button
+        onClick={generateIdeas}
+        disabled={loading || !topic.trim()}
+        className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+      >
+        {loading ? 'Generating...' : 'Generate Ideas'}
+      </button>
 
-      {error && <p className="text-red-600 mb-4">{error}</p>}
+      {error && <p className="text-red-500 mt-4">{error}</p>}
 
-      {results && (
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-xl font-semibold">Performance Metrics</h2>
-            <ul className="list-disc pl-6 text-white-700">
-              <li>View Count: {results.viewCount}</li>
-              <li>Impressions: {results.impressions}</li>
-              <li>CTR: {results.ctr}</li>
-              <li>Average View Duration: {results.avgViewDuration}</li>
-            </ul>
-          </div>
-
-          <div>
-            <h2 className="text-xl font-semibold">Retention Curve (Simulated)</h2>
-            <div className="bg-gray-200 h-32 rounded-lg flex items-end gap-1 p-1">
-              {results.retentionData.map((val: number, i: number) => (
-                <div
-                  key={i}
-                  className="bg-blue-500 rounded-sm"
-                  style={{ height: `${val}%`, width: '14%' }}
-                  title={`Minute ${i + 1}: ${val}%`}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h2 className="text-xl font-semibold">Improvement Tips</h2>
-            <ul className="list-disc pl-6 text-white-700">
-              {results.tips.map((tip: string, i: number) => (
-                <li key={i}>{tip}</li>
-              ))}
-            </ul>
+      {ideas.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-2xl font-semibold mb-4">💡 Generated Ideas</h2>
+          <div className="space-y-6">
+            {ideas.map((idea, index) => (
+              <div key={index} className="border p-4 rounded-xl shadow-sm bg-slate-800">
+                <h3 className="text-lg font-bold mb-2">{index + 1}. {idea.title}</h3>
+                <p className="text-gray-200">{idea.description}</p>
+              </div>
+            ))}
           </div>
         </div>
       )}
-        </div>
-      </motion.div>
     </div>
   );
 }
