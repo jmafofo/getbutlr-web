@@ -43,6 +43,44 @@ export default function ChatWidget() {
     setLoading(false);
   }
 
+  // Custom renderer for Markdown links -> styled buttons
+  const MarkdownComponents = {
+    a: ({ href, children }: { href?: string; children: React.ReactNode }) => (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-block bg-blue-600 text-white px-3 py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition mt-2"
+      >
+        {children}
+      </a>
+    ),
+  };
+
+  // Fix API output: turns [Label]slug into [Label](/tools/slug)
+  const fixLinks = (text: string) => {
+    return text.replace(/\[([^\]]+)\]([^\s),]+)/g, (_match, label, slug) => {
+      // Remove trailing punctuation
+      let cleanSlug = slug.replace(/[.,]+$/, '');
+  
+      // Remove surrounding parentheses if present
+      cleanSlug = cleanSlug.replace(/^\(+|\)+$/g, '');
+  
+      // If full URL or starts with "/", keep as-is
+      if (cleanSlug.startsWith('/') || cleanSlug.startsWith('http')) {
+        return `[${label}](${cleanSlug})`;
+      }
+  
+      // If starts with "tools/", ensure format is /tools/slug
+      if (cleanSlug.startsWith('tools/')) {
+        return `[${label}](/${cleanSlug})`;
+      }
+  
+      // Default: prefix /tools/
+      return `[${label}](/tools/${cleanSlug})`;
+    });
+  };  
+
   return (
     <div className="fixed bottom-6 right-6 z-50 font-sans">
       {isMinimized ? (
@@ -74,21 +112,19 @@ export default function ChatWidget() {
               return (
                 <div
                   key={i}
-                  className={`max-w-[75%] break-words ${
-                    isUser ? 'ml-auto' : 'mr-auto'
-                  }`}
+                  className={`max-w-[75%] break-words ${isUser ? 'ml-auto' : 'mr-auto'}`}
                 >
                   <div
-                    className={`px-4 py-2 rounded-3xl text-sm whitespace-pre-wrap
-                      ${
-                        isUser
-                          ? 'bg-blue-500 text-white rounded-br-none'
-                          : 'bg-gray-200 text-gray-900 rounded-bl-none'
-                      }
-                    `}
+                    className={`px-4 py-2 rounded-3xl text-sm whitespace-pre-wrap ${
+                      isUser
+                        ? 'bg-blue-500 text-white rounded-br-none'
+                        : 'bg-gray-200 text-gray-900 rounded-bl-none'
+                    }`}
                   >
                     {m.role === 'assistant' ? (
-                      <ReactMarkdown>{m.text}</ReactMarkdown>
+                      <ReactMarkdown components={MarkdownComponents}>
+                        {fixLinks(m.text)}
+                      </ReactMarkdown>
                     ) : (
                       m.text
                     )}
