@@ -12,8 +12,8 @@ async function extractTextFromPdf(filePath: string): Promise<string> {
 
 export async function POST(req: NextRequest) {
   const { query, history = [] } = await req.json();
-  const pdfURL = `https://getbutlr.ai/platform-details.pdf`;
-  const platformDetails = await extractTextFromPdf(pdfURL);
+  const pdfPath = path.resolve(process.cwd(), 'public/platform-details.pdf');
+  const platformDetails = await extractTextFromPdf(pdfPath);
 
   const prompt = `
 You're an expert assistant for a platform called "Getbutlr", an all-in-one SEO optimizer for content creators.
