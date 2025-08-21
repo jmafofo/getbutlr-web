@@ -21,31 +21,34 @@ const proTips = [
 export default function SEOChecklistPage() {
   return (
     <div className="max-w-3xl mx-auto p-4">
-      {/* <ToolHeader
-        title="SEO Checklist"
-        icon={<ShieldCheck className="w-5 h-5 text-blue-600" />}
-        subtitle="Optimize your YouTube video metadata for search visibility and ranking."
-      />
+      <h1 className="text-2xl font-bold mb-4">SEO Checklist</h1>
+      <p className="text-gray-600 mb-6">
+        Optimize your YouTube video metadata for search visibility and ranking.
+      </p>
 
-      <section className="mb-6">
+      {/* Free Tips */}
+      <section className="mb-8">
         <h2 className="text-lg font-semibold mb-2">Free Tips</h2>
-        <div className="space-y-2">
+        <ul className="list-disc list-inside space-y-1">
           {freeTips.map((tip, idx) => (
-            <TipCard key={`free-${idx}`} tip={tip} />
+            <li key={`free-${idx}`} className="text-gray-800">
+              {tip}
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
-      <RequireProAccess plan="Creator+">
-        <section className="mt-8">
-          <h2 className="text-lg font-semibold mb-2 text-purple-600">Pro Tips</h2>
-          <div className="space-y-2">
-            {proTips.map((tip, idx) => (
-              <TipCard key={`pro-${idx}`} tip={tip} isPro />
-            ))}
-          </div>
-        </section>
-      </RequireProAccess> */}
+      {/* Pro Tips */}
+      <section className="mt-8">
+        <h2 className="text-lg font-semibold mb-2 text-purple-600">Pro Tips</h2>
+        <ul className="list-disc list-inside space-y-1">
+          {proTips.map((tip, idx) => (
+            <li key={`pro-${idx}`} className="text-gray-800">
+              {tip}
+            </li>
+          ))}
+        </ul>
+      </section>
     </div>
   );
 }
